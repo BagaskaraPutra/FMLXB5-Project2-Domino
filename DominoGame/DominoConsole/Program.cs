@@ -1,4 +1,5 @@
-﻿using DominoConsole;
+﻿using System.Data.Common;
+using DominoConsole;
 
 public class Program
 {
@@ -6,9 +7,24 @@ public class Program
 	{
 		//GameStatus:NOTSTARTED
 		//Input number of players & win score
-		//Players input id & name
+		GameController gameController = new(numPlayers: 2, winScore: 100);
 		
-		//Ready? Enter any key to continue
+		//Players input id & name
+		for (int i = 0; i < gameController.NumPlayers; i++)
+		{
+			Console.Write("Player {0} please input your name: ", i+1);
+			string name = Console.ReadLine();
+			// TODO: Check for whitespace & no letters input
+			Player player = new();
+			player.SetId(i+1);
+			player.SetName(name);
+			if(gameController.AddPlayer(player))
+			{
+				Console.WriteLine("Player {0}: {1} successfully added", player.GetId(), player.GetName());
+			}
+		}
+		
+		//Ready? Enter any key to continue ...
 		
 		//GameStatus:ONGOING
 		//while(player.score < winScore):

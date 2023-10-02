@@ -13,7 +13,7 @@ public class Card
 	}
 	public bool IsDouble()
 	{
-		
+		return false;
 	}
 	public int GetId()
 	{
@@ -21,7 +21,7 @@ public class Card
 	}
 	public Node GetNode(int cardId)
 	{
-		
+		return Node.NODE1;
 	}
 }
 
