@@ -17,7 +17,7 @@ public class GameController
 	
 	public GameController(int numPlayers, int winScore)
 	{
-		
+		_gameStatus = GameStatus.NOTSTARTED;
 	}
 	public bool AddPlayer(IPlayer player)
 	{
@@ -73,5 +73,6 @@ public enum GameStatus
 {
 	NOTSTARTED,
 	ONGOING,
-	WIN
+	ROUNDWIN,
+	GAMEWIN
 }

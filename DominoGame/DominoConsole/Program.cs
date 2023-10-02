@@ -19,8 +19,9 @@ public class Program
 		//	if no matching card, draw card until one of the sides matches either sides on table
 		//	if either Player's card deck is empty ->
 		//	round winner
+		// 	GameStatus:ROUNDWIN
 		//	reset round
 		
-		//GameStatus:WIN
+		//GameStatus:GAMEWIN
 	}
 }
