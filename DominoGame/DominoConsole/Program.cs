@@ -40,6 +40,8 @@ public class Program
 			}
 			// Start round
 			// Choose first player to start
+			IPlayer firstPlayer = gameController.GetFirstPlayer();
+			
 			//	Players receive random deck of dominoes
 			foreach (IPlayer player in gameController.GetPlayers())
 			{

@@ -31,6 +31,10 @@ public class Card
 	{
 		return Node.NODE1;
 	}
+	public int GetHeadTailSum()
+	{
+		return head+tail;
+	}
 }
 
 public enum CardTitle

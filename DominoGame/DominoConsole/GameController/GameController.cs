@@ -83,6 +83,21 @@ public class GameController
 	{
 		return _playerCardDict[player].Count;
 	}
+	public IPlayer GetFirstPlayer()
+	{
+		int[] sumArray = new int[4];
+		int i = 0;
+		foreach (IPlayer player in _playersList)
+		{
+			DrawRandomCard(player);
+			int sum = _playerCardDict[player].FirstOrDefault().GetHeadTailSum();
+			sumArray[i] = sum;
+			i++;
+		}
+		int p = Array.IndexOf(sumArray, sumArray.Max());
+		// Console.WriteLine("Player {0} has largest sum of head & tail", _playersList[p].GetId());
+		return _playersList[p];
+	}
 	public bool AddPlayer(IPlayer player)
 	{
 		bool successAddToCardDict 	= _playerCardDict.TryAdd(player,new());
