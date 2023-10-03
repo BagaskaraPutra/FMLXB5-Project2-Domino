@@ -6,14 +6,22 @@ public class Card
 	private int[] _node; // array of 4 nodes
 	public readonly int head;
 	public readonly int tail;
-	public Card(int head, int tail)
+	public Card(int id, int head, int tail)
 	{
+		this._id  = id;
 		this.head = head;
 		this.tail = tail;
 	}
 	public bool IsDouble()
 	{
-		return false;
+		if(head == tail)
+		{
+			return true;
+		}
+		else
+		{
+			return false;	
+		}
 	}
 	public int GetId()
 	{

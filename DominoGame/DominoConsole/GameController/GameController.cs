@@ -8,12 +8,28 @@ public class GameController
 	public int Round;
 	//TODO: Is this the current round? 
 	// Is it a public property (with get-set methods)?
+	public readonly int MaxNumCardsPerPlayer;
 	
 	private IPlayer _currentPlayer;
+	private List<IPlayer> _playersList;
 	private Dictionary<IPlayer,List<Card>?> _playerCardDict;
 	private Dictionary<IPlayer,int> _playerScoreDict;
+	
+	private List<Card> _defaultCards;
+	// a list of default cards for template only
+	
+	private List<Card> _boneyardCards;
+	// cards on the table not yet picked by players
+	
 	private List<Card> _tableCard;
-	private Deck _deckcard;
+	// cards on the table already placed by the players
+	
+	// private Deck _deckcard;
+	// cards on each player's deck
+	// TODO: Redundant because already in _playerCardDict
+	
+	private Random _random;
+	
 	private GameStatus _gameStatus;
 	public readonly int WinScore;
 	// if one of the players reaches this score, then the game is finished
@@ -24,23 +40,69 @@ public class GameController
 		NumPlayers 	= numPlayers;
 		WinScore 	= winScore;
 		
+		if(numPlayers > 2)
+		{
+			MaxNumCardsPerPlayer = 5;
+		}
+		else
+		{
+			MaxNumCardsPerPlayer = 7;
+		}
+		
+		_playersList 	 = new();
 		_playerCardDict  = new();
 		_playerScoreDict = new();
+		
+		_tableCard = new();
+		InitializeDefaultCards();
+		_boneyardCards = new List<Card> (_defaultCards);
+		_random = new Random();
+	}
+	
+	private void InitializeDefaultCards()
+	{
+		_defaultCards = new();
+		int id = 0;
+		for (int h=0; h<7; h++)
+		{
+			for(int t=0; t<=h; t++)
+			{
+				_defaultCards.Add(new Card(id,h,t));
+				// Console.WriteLine("id: {0},\t head: {1},\t tail: {2}", id,h,t);
+				id++;
+			}
+		}
+	}
+	public void DrawRandomCard(IPlayer player)
+	{
+		int index = _random.Next(_boneyardCards.Count);
+		_playerCardDict[player].Add(_boneyardCards[index]);
+		_boneyardCards.RemoveAt(index);
+	}
+	public int GetNumberOfCards(IPlayer player)
+	{
+		return _playerCardDict[player].Count;
 	}
 	public bool AddPlayer(IPlayer player)
 	{
-		bool successAddToCardDict 	= _playerCardDict.TryAdd(player,null);
+		bool successAddToCardDict 	= _playerCardDict.TryAdd(player,new());
 		bool successAddToScore		= _playerScoreDict.TryAdd(player,0);
+		_playersList.Add(player);
 		return successAddToCardDict && successAddToScore;
 	}
-	public List<IPlayer> GetPlayer()
+	public IPlayer GetPlayer(int id)
 	{
-		//TODO: Does it return list of players or only one player?
-		return null;	
+		var filteredPlayer = _playersList.Where(n => n.GetId() == id);
+		return filteredPlayer.FirstOrDefault();	
+	}
+	public List<IPlayer> GetPlayers()
+	{
+		return _playersList;	
 	}
 	public bool GetOriention(bool IsDouble)
 	{
 		//TODO: What is IsDouble?	
+		// This checks the possible orientation of the card that is going to be placed
 		return false;
 	}
 	public GameStatus CheckGameStatus()
@@ -62,15 +124,21 @@ public class GameController
 	// public Card?[4] GetCards(int CardId)
 	// {
 	// 	//TODO: What is this? What does [4] signify?
+	//  //Answer: Card?[4] is the array of cards that are connected to the current card (which has the id: CardId)
 	// 	return null;
 	// } 
-	public void ShowCard(IPlayer player)
+	public void ShowCards(IPlayer player)
 	{
-
+		foreach (Card card in _playerCardDict[player])
+		{
+			Console.WriteLine("id: {0},\t head: {1},\t tail: {2}",card.GetId(),card.head, card.tail);	
+		}
+		// var chosenCard = _playerCardDict[player].Where(n => n.GetId() == id);
+		// Console.WriteLine("{0},{1},{2}",id,chosenCard.FirstOrDefault().head, chosenCard.FirstOrDefault().tail);	
 	}
-	public List<Card> CardOnTable() //tableCard
+	public List<Card> CardOnTable()
 	{
-		return null;
+		return _tableCard;
 	}
 	public bool ResetRound()
 	{
@@ -78,7 +146,7 @@ public class GameController
 	}
 	public int CheckScore(IPlayer player)
 	{
-		return 0;
+		return _playerScoreDict[player];
 	} 
 }
 
