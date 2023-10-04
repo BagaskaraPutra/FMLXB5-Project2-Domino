@@ -1,4 +1,5 @@
-﻿using DominoConsole;
+﻿using System.Security.Cryptography.X509Certificates;
+using DominoConsole;
 public class Program
 {
 	static void Main()
@@ -61,7 +62,22 @@ public class Program
 			cardsList = gameController.GetPlayerCards(currentPlayer);
 			DisplayLine("Here are your available cards in your deck ...");
 			DisplayDeckCards(cardsList);
-			DisplayLine($"Please enter the card id to be placed on the table ...");
+			bool status = false;
+			int cardId;
+			do
+			{
+				Display($"Please enter the card id to be placed on the table ... ");
+				status = Int32.TryParse(ReadInput(), out cardId);
+				if(!cardsList.Any(x => x.GetId()==cardId))
+				{
+					status = false;
+				}
+				if (!status)
+				{
+					DisplayLine("You did not input a valid card id!");
+				}
+			} while(!status);
+			// gameController.PutCard(currentPlayer, (Card)cardsList.Where(x => x.GetId()==cardId), null, null);
 			
 			/*
 			while(gameController.CheckGameStatus() == GameStatus.ONGOING)
@@ -133,6 +149,10 @@ public class Program
 			Display("\t");
 		}
 		Display("\n");
+	}
+	static string? ReadInput()
+	{
+		return Console.ReadLine();
 	}
 	static void Display<T>(T content)
 	{
