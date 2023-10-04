@@ -4,17 +4,17 @@ public class Card
 {
 	private int _id;
 	private int[] _node; // array of 4 nodes
-	public readonly int head;
-	public readonly int tail;
+	public readonly int Head;
+	public readonly int Tail;
 	public Card(int id, int head, int tail)
 	{
 		this._id  = id;
-		this.head = head;
-		this.tail = tail;
+		this.Head = head;
+		this.Tail = tail;
 	}
 	public bool IsDouble()
 	{
-		if(head == tail)
+		if(Head == Tail)
 		{
 			return true;
 		}
@@ -33,7 +33,7 @@ public class Card
 	}
 	public int GetHeadTailSum()
 	{
-		return head+tail;
+		return Head+Tail;
 	}
 }
 

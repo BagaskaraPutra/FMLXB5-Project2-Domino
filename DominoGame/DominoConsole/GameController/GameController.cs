@@ -21,7 +21,7 @@ public class GameController
 	private List<Card> _boneyardCards;
 	// cards on the table not yet picked by players
 	
-	private List<Card> _tableCard;
+	private List<Card> _tableCards;
 	// cards on the table already placed by the players
 	
 	// private Deck _deckcard;
@@ -53,7 +53,7 @@ public class GameController
 		_playerCardDict  = new();
 		_playerScoreDict = new();
 		
-		_tableCard = new();
+		_tableCards = new();
 		InitializeDefaultCards();
 		_boneyardCards = new List<Card> (_defaultCards);
 		_random = new Random();
@@ -85,7 +85,7 @@ public class GameController
 	}
 	public IPlayer GetFirstPlayer()
 	{
-		int[] sumArray = new int[4];
+		int[] sumArray = new int[NumPlayers];
 		int i = 0;
 		foreach (IPlayer player in _playersList)
 		{
@@ -96,6 +96,8 @@ public class GameController
 		}
 		int p = Array.IndexOf(sumArray, sumArray.Max());
 		// Console.WriteLine("Player {0} has largest sum of head & tail", _playersList[p].GetId());
+		_gameStatus = GameStatus.ONGOING;
+		_currentPlayer = _playersList[p];
 		return _playersList[p];
 	}
 	public bool AddPlayer(IPlayer player)
@@ -130,30 +132,47 @@ public class GameController
 	}
 	public bool SetNextTurn(IPlayer player, List<Card> cardHand)
 	{
+		//TODO: What does this method do? Why does it need the cardHand parameter?
+		// Answer: cardHand is redundant because it is already contained in _playerCardDict
 		return false;	
+	}
+	public IPlayer GetCurrentPlayer()
+	{
+		return _currentPlayer;	
+	}
+	public IPlayer GetNextPlayer()
+	{
+		int currentIndex = _playersList.FindIndex(a => a.Equals(_currentPlayer));
+		return _playersList[currentIndex+1];
 	}
 	public bool PutCard(IPlayer player, Card card, Card target, Node node)
 	{
 		return false;
 	}
-	// public Card?[4] GetCards(int CardId)
-	// {
-	// 	//TODO: What is this? What does [4] signify?
-	//  //Answer: Card?[4] is the array of cards that are connected to the current card (which has the id: CardId)
-	// 	return null;
-	// } 
+	public Card?[] GetAdjacentCards(int CardId)
+	{
+		//TODO: What is this? What does [4] signify?
+	 	//Answer: Card?[4] is the array of cards that are connected to the current card (which has the id: CardId)
+		return null;
+	}
 	public void ShowCards(IPlayer player)
 	{
+		// TODO: Maybe delete this function because UI is handled in Program.cs, not GameController
+		// For now, it is a helper function for debugging
 		foreach (Card card in _playerCardDict[player])
 		{
-			Console.WriteLine("id: {0},\t head: {1},\t tail: {2}",card.GetId(),card.head, card.tail);	
+			Console.WriteLine("id: {0},\t head: {1},\t tail: {2}",card.GetId(),card.Head, card.Tail);	
 		}
 		// var chosenCard = _playerCardDict[player].Where(n => n.GetId() == id);
 		// Console.WriteLine("{0},{1},{2}",id,chosenCard.FirstOrDefault().head, chosenCard.FirstOrDefault().tail);	
 	}
-	public List<Card> CardOnTable()
+	public List<Card> GetPlayerCards(IPlayer player)
 	{
-		return _tableCard;
+		return _playerCardDict[player];
+	}
+	public List<Card> GetTableCards()
+	{
+		return _tableCards;
 	}
 	public bool ResetRound()
 	{
