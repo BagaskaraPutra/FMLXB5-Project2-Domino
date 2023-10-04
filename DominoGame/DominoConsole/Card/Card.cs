@@ -48,13 +48,6 @@ public enum CardTitle
 	SIX
 }
 
-public enum CardStatus
-{
-	SETCARD,
-	TAKECARD,
-	PASS
-}
-
 public enum Node
 {
 	NODE1,

@@ -191,3 +191,10 @@ public enum GameStatus
 	ROUNDWIN,
 	GAMEWIN
 }
+
+public enum CardStatus
+{
+	SETCARD,
+	TAKECARD,
+	PASS
+}
