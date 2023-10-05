@@ -1,3 +1,4 @@
+using System.Data;
 using System.Dynamic;
 
 namespace DominoConsole;
@@ -28,6 +29,9 @@ public class GameController
 	// cards on each player's deck
 	// TODO: Redundant because already in _playerCardDict
 	
+	private Dictionary<Card,List<Node>?> _openEndsDict;
+	// dictionary of tableCards and their nodes that have open ends (can be placed with a card)
+	
 	private Random _random;
 	
 	private GameStatus _gameStatus;
@@ -52,6 +56,7 @@ public class GameController
 		_playersList 	 = new();
 		_playerCardDict  = new();
 		_playerScoreDict = new();
+		_openEndsDict 	 = new();
 		
 		_tableCards = new();
 		InitializeDefaultCards();
@@ -145,15 +150,87 @@ public class GameController
 		int currentIndex = _playersList.FindIndex(a => a.Equals(_currentPlayer));
 		return _playersList[currentIndex+1];
 	}
+	public void PutCard(IPlayer player, Card card)
+	{
+		_tableCards.Add(card);
+		_playerCardDict[player].Remove(card);
+	}
 	public bool PutCard(IPlayer player, Card card, Card target, Node node)
 	{
+		if(_tableCards == null)
+		{
+			
+		}
+		else
+		{
+			target.SetCardIdAtNode(card.GetId(), node);
+			// card.SetCardIdAtNode(target.GetId(), ) // TODO
+		}
+		_tableCards.Add(card);
+		_playerCardDict[player].Remove(card);
 		return false;
 	}
-	public Card?[] GetAdjacentCards(int CardId)
+	public Card?[] GetAdjacentCards(int cardId)
 	{
 		//TODO: What is this? What does [4] signify?
 	 	//Answer: Card?[4] is the array of cards that are connected to the current card (which has the id: CardId)
-		return null;
+		Card currentCard = _tableCards.FirstOrDefault(x => x.GetId()==cardId);
+		int[] cardIdAtNodes = currentCard.GetCardIdAtNodes();
+		Card?[] cards = new Card[cardIdAtNodes.Length];
+		for (int i=0; i<cardIdAtNodes.Length; i++)
+		{
+			cards[i] = _tableCards.FirstOrDefault(x => x.GetId()==i);
+		}
+		return cards;
+	}
+	public Dictionary<Card,List<Node>> GetNodesToPlace()
+	{
+		foreach (Card tableCard in _tableCards)
+		{
+			if(tableCard.IsDouble())
+			{
+				if(tableCard.GetCardIdAtNodes()[(int)Node.EAST]==-1)
+				{
+					if(!_openEndsDict.ContainsKey(tableCard))
+					{
+						_openEndsDict.TryAdd(tableCard, new());
+					}
+					_openEndsDict[tableCard].Add(Node.EAST);
+					Console.WriteLine($"card id: {tableCard.GetId()}, EAST");
+				}
+				if(tableCard.GetCardIdAtNodes()[(int)Node.WEST]==-1)
+				{
+					if(!_openEndsDict.ContainsKey(tableCard))
+					{
+						_openEndsDict.TryAdd(tableCard, new());
+					}
+					_openEndsDict[tableCard].Add(Node.WEST);
+					Console.WriteLine($"card id: {tableCard.GetId()}, WEST");
+				}
+			}
+			else
+			{
+				if(tableCard.GetCardIdAtNodes()[(int)Node.NORTH]==-1)
+				{
+					if(!_openEndsDict.ContainsKey(tableCard))
+					{
+						_openEndsDict.TryAdd(tableCard, new());
+					}
+					_openEndsDict[tableCard].Add(Node.NORTH);
+					Console.WriteLine($"card id: {tableCard.GetId()}, NORTH");
+				}
+				if(tableCard.GetCardIdAtNodes()[(int)Node.SOUTH]==-1)
+				{
+					if(!_openEndsDict.ContainsKey(tableCard))
+					{
+						_openEndsDict.TryAdd(tableCard, new());
+					}
+					_openEndsDict[tableCard].Add(Node.SOUTH);
+					Console.WriteLine($"card id: {tableCard.GetId()}, SOUTH");
+				}
+			}
+		}
+		return _openEndsDict;
 	}
 	public void ShowCards(IPlayer player)
 	{

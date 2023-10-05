@@ -63,12 +63,17 @@ public class Program
 			DisplayLine("Here are your available cards in your deck ...");
 			DisplayDeckCards(cardsList);
 			bool status = false;
+			Card putCard = new();
 			int cardId;
 			do
 			{
 				Display($"Please enter the card id to be placed on the table ... ");
 				status = Int32.TryParse(ReadInput(), out cardId);
-				if(!cardsList.Any(x => x.GetId()==cardId))
+				if(cardsList.Any(x => x.GetId()==cardId))
+				{
+					putCard = cardsList.FirstOrDefault(x => x.GetId()==cardId);
+				}
+				else
 				{
 					status = false;
 				}
@@ -77,6 +82,8 @@ public class Program
 					DisplayLine("You did not input a valid card id!");
 				}
 			} while(!status);
+			gameController.PutCard(currentPlayer, putCard);
+			gameController.GetNodesToPlace();
 			// gameController.PutCard(currentPlayer, (Card)cardsList.Where(x => x.GetId()==cardId), null, null);
 			
 			/*
