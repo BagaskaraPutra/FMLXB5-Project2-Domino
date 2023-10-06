@@ -185,6 +185,9 @@ public class GameController
 	}
 	public Dictionary<Card,List<Node>> GetNodesToPlace()
 	{
+		// TODO: Maybe we can use Dictionary<Card,Dictionary<Node,int>>
+		// which signifies the open-ended card, its available node, and its available head/tail number.
+		// Availalble head/tail number is to make it easier for player's card to check
 		foreach (Card tableCard in _tableCards)
 		{
 			if(tableCard.IsDouble())
@@ -258,6 +261,59 @@ public class GameController
 	public int CheckScore(IPlayer player)
 	{
 		return _playerScoreDict[player];
+	}
+	public bool IsWinGame()
+	{
+		bool winGame = false;
+		foreach (IPlayer player in _playersList)
+		{
+			bool playerWinGame = false;
+			if (CheckScore(player) >= WinScore)
+			{
+				playerWinGame = true;
+			}
+			winGame = winGame || playerWinGame;
+		}
+		return winGame;
+	}
+	public bool IsWinRound()
+	{
+		//TODO: Check for: 
+		//1. empty deck (DONE) OR
+		//2. no possible moves when boneyardCards is empty
+		bool winRound = false;
+		if (_boneyardCards.Count == 0)
+		{
+			// foreach (IPlayer player in _playerCardDict.Keys)
+			// {
+			// 	foreach (Card playerCard in _playerCardDict[player])
+			// 	{
+			// 		foreach (Card openEndCard in _openEndsDict)
+			// 		{
+			// 			if(openEndCard.Head == playerCard)
+			// 		}	
+			// 	}	
+			// }
+		}
+		else
+		{
+			foreach (IPlayer player in _playersList)
+			{
+				bool playerWinRound = false;
+				// no cards remaining in player's deck
+				if (_playerCardDict[player].Count == 0)
+				{
+					winRound = true;
+					break;
+				}
+				winRound = winRound || playerWinRound;
+			}
+		}
+		if(winRound)
+		{
+			_gameStatus = GameStatus.ROUNDWIN;
+		}
+		return winRound;
 	} 
 }
 
