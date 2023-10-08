@@ -1,9 +1,14 @@
+using System.Dynamic;
+
 namespace DominoConsole;
 
 public class Card
 {
 	private int _id;
-	private int[] _node; // array of 4 nodes
+	private int[] _nodeId; // array of 4 nodes consisting of adjacent card id
+	private Card?[] _node; // array of 4 nodes consisting of adjacent Card objects
+	private Card? _left, _right;
+	
 	public int Head {get; private set;}
 	public int Tail {get; private set;}
 	public Card()
@@ -15,11 +20,17 @@ public class Card
 		_id  = id;
 		Head = head;
 		Tail = tail;
-		_node = new int[Enum.GetValues(typeof(Node)).Length];
+		_nodeId = new int[Enum.GetValues(typeof(NodeEnum)).Length];
+		for(int i=0; i<_nodeId.Length; i++)
+		{
+			_nodeId[i] = -1;
+		}
+		_node = new Card[Enum.GetValues(typeof(NodeEnum)).Length];
 		for(int i=0; i<_node.Length; i++)
 		{
-			_node[i] = -1;
-		} 
+			_node[i] = null;
+		}
+		_left = _right = null; 
 	}
 	public bool IsDouble()
 	{
@@ -40,18 +51,57 @@ public class Card
 	// {
 	// 	return Node.NODE1;
 	// }
-	public int[] GetCardIdAtNodes()
+	public int[] GetCardIdArrayAtNodes()
 	{
-		return _node;
+		return _nodeId;
 	}
-	public void SetCardIdAtNode(int cardId, Node node)
+	public int GetCardIdAtNode(NodeEnum nodeEnum)
 	{
-		_node[(int)node] = cardId;
+		return _nodeId[(int)nodeEnum];
+	}
+	public Card GetCardAtNode(NodeEnum nodeEnum)
+	{
+		return _node[(int)nodeEnum];
+	}
+	public void SetCardIdAtNode(int cardId, NodeEnum nodeEnum)
+	{
+		_nodeId[(int)nodeEnum] = cardId;
+	}
+	public void SetCardAtNode(Card card, NodeEnum nodeEnum)
+	{
+		_node[(int)nodeEnum] = card;
+	}
+	public Card GetLeftCard()
+	{
+		return _left;
+	}
+	public void SetLeftCard(Card left)
+	{
+		_left = left;
+	}
+	public Card GetRightCard()
+	{
+		return _right;
+	}
+	public void SetRightCard(Card right)
+	{
+		_right = right;
 	}
 	public int GetHeadTailSum()
 	{
 		return Head+Tail;
 	}
+}
+public struct NodeSuitPair
+{
+	// A pair consisting of the card's node and its corresponding suit (head/tail) number
+	public NodeEnum Node {get; private set;}
+	public int Suit {get; private set;}
+	public NodeSuitPair(NodeEnum node, int suit)
+	{
+		Node = node;
+		Suit = suit;
+	}	
 }
 
 public enum CardTitle
@@ -72,11 +122,24 @@ public enum CardTitle
 // 	NODE3,
 // 	NODE4
 // }
-
-public enum Node
+public enum Orientation
 {
 	NORTH,
 	EAST,
 	SOUTH,
 	WEST
+}
+// public enum NodeEnum
+// {
+// 	FRONT,
+// 	RIGHT,
+// 	BACK,
+// 	LEFT
+// }
+public enum NodeEnum
+{
+	FRONT,
+	LEFT,
+	BACK,
+	RIGHT
 }
