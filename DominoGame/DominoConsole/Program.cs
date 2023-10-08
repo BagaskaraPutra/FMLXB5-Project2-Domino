@@ -1,4 +1,5 @@
-﻿using DominoConsole;
+﻿using System.Net;
+using DominoConsole;
 public class Program
 {
 	static void Main()
@@ -52,42 +53,27 @@ public class Program
 				cardsList = gameController.GetPlayerCards(currentPlayer);
 				DisplayLine("Here are your available cards in your deck ...");
 				DisplayDeckCards(cardsList);
-				bool status = false;
+				
 				Card putCard = new();
-				int cardId;
-				do
-				{
-					Display($"Please enter the card id to be placed on the table ... ");
-					status = Int32.TryParse(ReadInput(), out cardId);
-					if (cardsList.Any(x => x.GetId() == cardId))
-					{
-						putCard = cardsList.FirstOrDefault(x => x.GetId() == cardId);
-					}
-					else
-					{
-						status = false;
-					}
-					if (!status)
-					{
-						DisplayLine("You did not input a valid card id!");
-					}
-				} while (!status);
+				PlayerPicksCardId(currentPlayer, cardsList, ref putCard);
+
 				
 				gameController.PutCard(currentPlayer, putCard);
 				Dictionary<Card, HashSet<NodeSuitPair>> openEndsDict;
-				
+
 				while (gameController.CheckGameStatus() == GameStatus.ONGOING)
 				{
 					Display("\n");
 					DisplayLine("Table Cards:");
 					DisplayTableCards(gameController.GetTableCards());
-					
+
 					currentPlayer = gameController.GetNextPlayer();
 					cardsList = gameController.GetPlayerCards(currentPlayer);
 					Display("\n");
 					DisplayLine($"Player {currentPlayer.GetId()} {currentPlayer.GetName()}'s turn");
 					DisplayLine("Here are your available cards in your deck ...");
 					DisplayDeckCards(cardsList);
+					PlayerPicksCardId(currentPlayer, cardsList, ref putCard);
 					
 					openEndsDict = gameController.GetTargetNodes();
 					//CheckDeckTableCompatibility(cardsList, openEndsDict);
@@ -95,9 +81,9 @@ public class Program
 					// 1. the deck card id that can be placed 
 					// 2. and the table card id to be placed adjacent to OR
 					//    the position on the table (Left OR Right)
-					
+
 					// gameController.PutCard(currentPlayer, deckCardId, tableCardId)	
-					
+
 					break; // TODO: Remove this. Only to break while loop & troubleshoot  
 				}
 				break; // TODO: Remove this. Only to break while loop & troubleshoot
@@ -160,6 +146,28 @@ public class Program
 			Display("\t");
 		}
 		Display("\n");
+	}
+	static void PlayerPicksCardId(IPlayer currentPlayer, List<Card> cardsList, ref Card putCard)
+	{
+		bool status = false;
+		int cardId;
+		do
+		{
+			Display($"Player {currentPlayer.GetId()} ({currentPlayer.GetName()}), please enter the card id to be placed on the table ... ");
+			status = Int32.TryParse(ReadInput(), out cardId);
+			if (cardsList.Any(x => x.GetId() == cardId))
+			{
+				putCard = cardsList.FirstOrDefault(x => x.GetId() == cardId);
+			}
+			else
+			{
+				status = false;
+			}
+			if (!status)
+			{
+				DisplayLine("You did not input a valid card id!");
+			}
+		} while (!status);
 	}
 	static string? ReadInput()
 	{
