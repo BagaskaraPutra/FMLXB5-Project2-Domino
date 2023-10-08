@@ -25,11 +25,14 @@ public class GameController
 	private List<Card> _tableCards;
 	// cards on the table already placed by the players
 	
+	private BinaryTree<Card> _tableTree;
+	// binary tree of card on the table
+	
 	// private Deck _deckcard;
 	// cards on each player's deck
 	// TODO: Redundant because already in _playerCardDict
 	
-	private Dictionary<Card,List<Node>?> _openEndsDict;
+	private Dictionary<Card,HashSet<NodeSuitPair>?> _openEndsDict;
 	// dictionary of tableCards and their nodes that have open ends (can be placed with a card)
 	
 	private Random _random;
@@ -148,6 +151,10 @@ public class GameController
 	public IPlayer GetNextPlayer()
 	{
 		int currentIndex = _playersList.FindIndex(a => a.Equals(_currentPlayer));
+		if(currentIndex == _playersList.Count-1)
+		{
+			return _playersList[0];
+		}
 		return _playersList[currentIndex+1];
 	}
 	public void PutCard(IPlayer player, Card card)
@@ -155,18 +162,18 @@ public class GameController
 		_tableCards.Add(card);
 		_playerCardDict[player].Remove(card);
 	}
-	public bool PutCard(IPlayer player, Card card, Card target, Node node)
+	public bool PutCard(IPlayer player, Card card, Card target, NodeEnum node)
 	{
-		if(_tableCards == null)
-		{
-			
-		}
-		else
+		//TODO: In the GetTargetNodes() method, TryAdd & Add always adds new cards to the Dictionary.
+		// What happens when the open-ended node is attached with a card from the player's deck?
+		// Delete the open-ended node-suit pair when adding player's card to the tableCard.
+		if(_tableCards != null)
 		{
 			target.SetCardIdAtNode(card.GetId(), node);
 			// card.SetCardIdAtNode(target.GetId(), ) // TODO
 		}
 		_tableCards.Add(card);
+		// _openEndsDict[target].Remove(new(node,))
 		_playerCardDict[player].Remove(card);
 		return false;
 	}
@@ -175,7 +182,7 @@ public class GameController
 		//TODO: What is this? What does [4] signify?
 	 	//Answer: Card?[4] is the array of cards that are connected to the current card (which has the id: CardId)
 		Card currentCard = _tableCards.FirstOrDefault(x => x.GetId()==cardId);
-		int[] cardIdAtNodes = currentCard.GetCardIdAtNodes();
+		int[] cardIdAtNodes = currentCard.GetCardIdArrayAtNodes();
 		Card?[] cards = new Card[cardIdAtNodes.Length];
 		for (int i=0; i<cardIdAtNodes.Length; i++)
 		{
@@ -183,53 +190,54 @@ public class GameController
 		}
 		return cards;
 	}
-	public Dictionary<Card,List<Node>> GetNodesToPlace()
-	{
-		// TODO: Maybe we can use Dictionary<Card,Dictionary<Node,int>>
+	public Dictionary<Card,HashSet<NodeSuitPair>> GetTargetNodes()
+	{	
+		//TODO: Change List<NodeSuitPair> to HashSet<NodeSuitPair> because it is unique
+		// (DONE): Use Dictionary<Card,List<NodeSuitPair>>
 		// which signifies the open-ended card, its available node, and its available head/tail number.
-		// Availalble head/tail number is to make it easier for player's card to check
+		// Available head/tail number is to make it easier for player's card to check
 		foreach (Card tableCard in _tableCards)
 		{
 			if(tableCard.IsDouble())
 			{
-				if(tableCard.GetCardIdAtNodes()[(int)Node.EAST]==-1)
+				if(tableCard.GetCardIdArrayAtNodes()[(int)NodeEnum.RIGHT]==-1)
 				{
 					if(!_openEndsDict.ContainsKey(tableCard))
 					{
 						_openEndsDict.TryAdd(tableCard, new());
 					}
-					_openEndsDict[tableCard].Add(Node.EAST);
-					Console.WriteLine($"card id: {tableCard.GetId()}, EAST");
+					_openEndsDict[tableCard].Add(new NodeSuitPair(NodeEnum.RIGHT, tableCard.Head));
+					Console.WriteLine($"card id: {tableCard.GetId()}, RIGHT, suit: {tableCard.Head}");
 				}
-				if(tableCard.GetCardIdAtNodes()[(int)Node.WEST]==-1)
+				if(tableCard.GetCardIdArrayAtNodes()[(int)NodeEnum.LEFT]==-1)
 				{
 					if(!_openEndsDict.ContainsKey(tableCard))
 					{
 						_openEndsDict.TryAdd(tableCard, new());
 					}
-					_openEndsDict[tableCard].Add(Node.WEST);
-					Console.WriteLine($"card id: {tableCard.GetId()}, WEST");
+					_openEndsDict[tableCard].Add(new NodeSuitPair(NodeEnum.LEFT, tableCard.Tail));
+					Console.WriteLine($"card id: {tableCard.GetId()}, LEFT, suit: {tableCard.Tail}");
 				}
 			}
 			else
 			{
-				if(tableCard.GetCardIdAtNodes()[(int)Node.NORTH]==-1)
+				if(tableCard.GetCardIdArrayAtNodes()[(int)NodeEnum.FRONT]==-1)
 				{
 					if(!_openEndsDict.ContainsKey(tableCard))
 					{
 						_openEndsDict.TryAdd(tableCard, new());
 					}
-					_openEndsDict[tableCard].Add(Node.NORTH);
-					Console.WriteLine($"card id: {tableCard.GetId()}, NORTH");
+					_openEndsDict[tableCard].Add(new NodeSuitPair(NodeEnum.FRONT, tableCard.Head));
+					Console.WriteLine($"card id: {tableCard.GetId()}, FRONT, suit: {tableCard.Head}");
 				}
-				if(tableCard.GetCardIdAtNodes()[(int)Node.SOUTH]==-1)
+				if(tableCard.GetCardIdArrayAtNodes()[(int)NodeEnum.BACK]==-1)
 				{
 					if(!_openEndsDict.ContainsKey(tableCard))
 					{
 						_openEndsDict.TryAdd(tableCard, new());
 					}
-					_openEndsDict[tableCard].Add(Node.SOUTH);
-					Console.WriteLine($"card id: {tableCard.GetId()}, SOUTH");
+					_openEndsDict[tableCard].Add(new NodeSuitPair(NodeEnum.BACK, tableCard.Tail));
+					Console.WriteLine($"card id: {tableCard.GetId()}, BACK, suit: {tableCard.Tail}");
 				}
 			}
 		}

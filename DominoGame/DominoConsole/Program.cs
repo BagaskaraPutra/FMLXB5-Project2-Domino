@@ -6,7 +6,6 @@ public class Program
 		//GameStatus:NOTSTARTED
 		//Input number of players & win score
 		GameController gameController = new(numPlayers: 3, winScore: 100);
-
 		//Players input id & name
 		for (int i = 0; i < gameController.NumPlayers; i++)
 		{
@@ -75,7 +74,7 @@ public class Program
 				} while (!status);
 				
 				gameController.PutCard(currentPlayer, putCard);
-				Dictionary<Card, List<Node>> openEndsDict;
+				Dictionary<Card, HashSet<NodeSuitPair>> openEndsDict;
 				
 				while (gameController.CheckGameStatus() == GameStatus.ONGOING)
 				{
@@ -90,7 +89,8 @@ public class Program
 					DisplayLine("Here are your available cards in your deck ...");
 					DisplayDeckCards(cardsList);
 					
-					openEndsDict = gameController.GetNodesToPlace();
+					openEndsDict = gameController.GetTargetNodes();
+					//CheckDeckTableCompatibility(cardsList, openEndsDict);
 					// Game Controller gives suggestion to the currentPlayer: 
 					// 1. the deck card id that can be placed 
 					// 2. and the table card id to be placed adjacent to OR
@@ -178,6 +178,7 @@ public class Program
 		foreach (var card in tableCards)
 		{
 			//TODO: How to render domino cards on console terminal >:-(
+			// How to check which card is in the left side, which one is on the right side
 			Display($"[{card.Head}|{card.Tail}]");
 		}
 		Display("\n");
