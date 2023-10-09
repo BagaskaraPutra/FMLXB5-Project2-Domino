@@ -54,6 +54,7 @@ public class Program
 				DisplayDeckCards(cardsList);
 
 				Card putCard = new();
+				IdNodeSuit targetIdNodeSuit = new();
 				FirstPlayerPicksCardId(currentPlayer, cardsList, ref putCard);
 				gameController.PutCard(currentPlayer, putCard);
 
@@ -81,6 +82,7 @@ public class Program
 					}
 					else
 					{
+						List<KeyValuePair<Card, IdNodeSuit>> deckTableList = new();
 						DisplayLine("Possible moves:");
 						int i = 0;
 						foreach (var kvp in deckTableCompatible)
@@ -88,6 +90,7 @@ public class Program
 							foreach (var values in kvp.Value)
 							{
 								i++;
+								deckTableList.Add(new(kvp.Key, values));
 								// DisplayLine($"{i}. Deck card: [{kvp.Key.Head}|{kvp.Key.Tail}] put to LEFT/RIGHT");
 								DisplayLine($"{i}. Deck card: [{kvp.Key.Head}|{kvp.Key.Tail}] put next to Table card id: {values.Id}, node: {values.Node}, suit: {values.Suit}");
 							}
@@ -101,7 +104,8 @@ public class Program
 							idStatus = Int32.TryParse(ReadInput(), out moveChoice);
 							if (moveChoice > 0 && moveChoice <= i)
 							{
-								// putCard = cardsList.FirstOrDefault(x => x.GetId() == cardId);
+								putCard = cardsList.FirstOrDefault(x => x == deckTableList[moveChoice-1].Key);
+								targetIdNodeSuit  = deckTableList[moveChoice-1].Value;
 							}
 							else
 							{
@@ -121,7 +125,7 @@ public class Program
 					// 2. and the table card id to be placed adjacent to OR
 					//    the position on the table (Left OR Right)
 
-					// gameController.PutCard(currentPlayer, deckCardId, tableCardId)	
+					gameController.PutCard(currentPlayer, putCard, targetIdNodeSuit);	
 
 					break; // TODO: Remove this. Only to break while loop & troubleshoot  
 				}
