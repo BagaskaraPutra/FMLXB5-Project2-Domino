@@ -58,7 +58,7 @@ public class Program
 				FirstPlayerPicksCardId(currentPlayer, cardsList, ref putCard);
 				gameController.PutCard(currentPlayer, putCard);
 
-				Dictionary<Card, HashSet<IdNodeSuit>> deckTableCompatible;
+				List<KeyValuePair<Card, IdNodeSuit>> deckTableCompatible;
 
 				while (gameController.CheckGameStatus() == GameStatus.ONGOING)
 				{
@@ -82,30 +82,24 @@ public class Program
 					}
 					else
 					{
-						List<KeyValuePair<Card, IdNodeSuit>> deckTableList = new();
 						DisplayLine("Possible moves:");
-						int i = 0;
+						int i=0;
 						foreach (var kvp in deckTableCompatible)
 						{
-							foreach (var values in kvp.Value)
-							{
-								i++;
-								deckTableList.Add(new(kvp.Key, values));
-								// DisplayLine($"{i}. Deck card: [{kvp.Key.Head}|{kvp.Key.Tail}] put to LEFT/RIGHT");
-								DisplayLine($"{i}. Deck card: [{kvp.Key.Head}|{kvp.Key.Tail}] put next to Table card id: {values.Id}, node: {values.Node}, suit: {values.Suit}");
-							}
+							i++;
+							DisplayLine($"{i}. Deck card: [{kvp.Key.Head}|{kvp.Key.Tail}] put next to Table card id: {kvp.Value.Id}, node: {kvp.Value.Node}, suit: {kvp.Value.Suit}");
 						}
 
 						bool idStatus = false;
 						int moveChoice;
 						do
 						{
-							Display($"Put your card on the table by entering the number (1-{i}) from the above list ... ");
+							Display($"Put your card on the table by entering the number (1-{deckTableCompatible.Count}) from the above list ... ");
 							idStatus = Int32.TryParse(ReadInput(), out moveChoice);
-							if (moveChoice > 0 && moveChoice <= i)
+							if (moveChoice > 0 && moveChoice <= deckTableCompatible.Count)
 							{
-								putCard = cardsList.FirstOrDefault(x => x == deckTableList[moveChoice-1].Key);
-								targetIdNodeSuit  = deckTableList[moveChoice-1].Value;
+								putCard = deckTableCompatible[moveChoice-1].Key;
+								targetIdNodeSuit  = deckTableCompatible[moveChoice-1].Value;
 							}
 							else
 							{

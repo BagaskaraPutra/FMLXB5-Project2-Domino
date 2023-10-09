@@ -35,6 +35,9 @@ public class GameController
 	private HashSet<IdNodeSuit>? _openEndsSet;
 	// dictionary of tableCards and their nodes that have open ends (can be placed with a card)
 
+	private List<KeyValuePair<Card, IdNodeSuit>> _compatibleList;
+	
+	
 	private Random _random;
 
 	private GameStatus _gameStatus;
@@ -62,6 +65,7 @@ public class GameController
 		_openEndsSet = new();
 
 		_tableCards = new();
+		_compatibleList = new();
 		InitializeDefaultCards();
 		_boneyardCards = new List<Card>(_defaultCards);
 		_random = new Random();
@@ -226,26 +230,22 @@ public class GameController
 		}
 		return _openEndsSet;
 	}
-	public Dictionary<Card, HashSet<IdNodeSuit>> 
+	// public Dictionary<Card, HashSet<IdNodeSuit>> 
+	public List<KeyValuePair<Card, IdNodeSuit>>
 		GetDeckTableCompatibleCards(List<Card> cardsList,
 				HashSet<IdNodeSuit> openEndsSet)
 	{
-		Dictionary<Card, HashSet<IdNodeSuit>> compatibleDict = new();
 		foreach (Card card in cardsList)
 		{
-			foreach (var IdNodeSuit in openEndsSet)
+			foreach (var idNodeSuit in openEndsSet)
 			{
-				if(card.Head == IdNodeSuit.Suit || card.Tail==IdNodeSuit.Suit)
+				if(card.Head == idNodeSuit.Suit || card.Tail==idNodeSuit.Suit)
 				{
-					if (!compatibleDict.ContainsKey(card))
-					{
-						compatibleDict.TryAdd(card, new());
-					}
-					compatibleDict[card].Add(IdNodeSuit);
+					_compatibleList.Add(new (card, idNodeSuit));
 				}
 			}
 		}
-		return compatibleDict;
+		return _compatibleList;
 	}
 	public Card GetCardFromId(int id)
 	{
