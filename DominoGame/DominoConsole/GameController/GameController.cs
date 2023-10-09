@@ -5,49 +5,49 @@ namespace DominoConsole;
 
 public class GameController
 {
-	public int NumPlayers {get; private set;}
+	public int NumPlayers { get; private set; }
 	public int Round;
 	//TODO: Is this the current round? 
 	// Is it a public property (with get-set methods)?
 	public readonly int MaxNumCardsPerPlayer;
-	
+
 	private IPlayer _currentPlayer;
 	private List<IPlayer> _playersList;
-	private Dictionary<IPlayer,List<Card>?> _playerCardDict;
-	private Dictionary<IPlayer,int> _playerScoreDict;
-	
+	private Dictionary<IPlayer, List<Card>?> _playerCardDict;
+	private Dictionary<IPlayer, int> _playerScoreDict;
+
 	private List<Card> _defaultCards;
 	// a list of default cards for template only
-	
+
 	private List<Card> _boneyardCards;
 	// cards on the table not yet picked by players
-	
+
 	private List<Card> _tableCards;
 	// cards on the table already placed by the players
-	
+
 	private BinaryTree<Card> _tableTree;
 	// binary tree of card on the table
-	
+
 	// private Deck _deckcard;
 	// cards on each player's deck
 	// TODO: Redundant because already in _playerCardDict
-	
-	private Dictionary<Card,HashSet<NodeSuitPair>?> _openEndsDict;
+
+	private HashSet<IdNodeSuit>? _openEndsSet;
 	// dictionary of tableCards and their nodes that have open ends (can be placed with a card)
-	
+
 	private Random _random;
-	
+
 	private GameStatus _gameStatus;
 	public readonly int WinScore;
 	// if one of the players reaches this score, then the game is finished
-	
+
 	public GameController(int numPlayers, int winScore)
 	{
 		_gameStatus = GameStatus.NOTSTARTED;
-		NumPlayers 	= numPlayers;
-		WinScore 	= winScore;
-		
-		if(numPlayers > 2)
+		NumPlayers = numPlayers;
+		WinScore = winScore;
+
+		if (numPlayers > 2)
 		{
 			MaxNumCardsPerPlayer = 5;
 		}
@@ -55,27 +55,27 @@ public class GameController
 		{
 			MaxNumCardsPerPlayer = 7;
 		}
-		
-		_playersList 	 = new();
-		_playerCardDict  = new();
+
+		_playersList = new();
+		_playerCardDict = new();
 		_playerScoreDict = new();
-		_openEndsDict 	 = new();
-		
+		_openEndsSet = new();
+
 		_tableCards = new();
 		InitializeDefaultCards();
-		_boneyardCards = new List<Card> (_defaultCards);
+		_boneyardCards = new List<Card>(_defaultCards);
 		_random = new Random();
 	}
-	
+
 	private void InitializeDefaultCards()
 	{
 		_defaultCards = new();
 		int id = 0;
-		for (int h=0; h<7; h++)
+		for (int h = 0; h < 7; h++)
 		{
-			for(int t=0; t<=h; t++)
+			for (int t = 0; t <= h; t++)
 			{
-				_defaultCards.Add(new Card(id,h,t));
+				_defaultCards.Add(new Card(id, h, t));
 				// Console.WriteLine("id: {0},\t head: {1},\t tail: {2}", id,h,t);
 				id++;
 			}
@@ -110,19 +110,19 @@ public class GameController
 	}
 	public bool AddPlayer(IPlayer player)
 	{
-		bool successAddToCardDict 	= _playerCardDict.TryAdd(player,new());
-		bool successAddToScore		= _playerScoreDict.TryAdd(player,0);
+		bool successAddToCardDict = _playerCardDict.TryAdd(player, new());
+		bool successAddToScore = _playerScoreDict.TryAdd(player, 0);
 		_playersList.Add(player);
 		return successAddToCardDict && successAddToScore;
 	}
 	public IPlayer GetPlayer(int id)
 	{
 		var filteredPlayer = _playersList.Where(n => n.GetId() == id);
-		return filteredPlayer.FirstOrDefault();	
+		return filteredPlayer.FirstOrDefault();
 	}
 	public List<IPlayer> GetPlayers()
 	{
-		return _playersList;	
+		return _playersList;
 	}
 	public bool GetOriention(bool IsDouble)
 	{
@@ -142,34 +142,34 @@ public class GameController
 	{
 		//TODO: What does this method do? Why does it need the cardHand parameter?
 		// Answer: cardHand is redundant because it is already contained in _playerCardDict
-		return false;	
+		return false;
 	}
 	public IPlayer GetCurrentPlayer()
 	{
-		return _currentPlayer;	
+		return _currentPlayer;
 	}
 	public IPlayer GetNextPlayer()
 	{
 		int currentIndex = _playersList.FindIndex(a => a.Equals(_currentPlayer));
-		if(currentIndex == _playersList.Count-1)
+		if (currentIndex == _playersList.Count - 1)
 		{
 			return _playersList[0];
 		}
-		return _playersList[currentIndex+1];
+		return _playersList[currentIndex + 1];
 	}
 	public void PutCard(IPlayer player, Card card)
 	{
 		_tableCards.Add(card);
 		_playerCardDict[player].Remove(card);
 	}
-	public bool PutCard(IPlayer player, Card card, Card target, NodeEnum node)
+	public bool PutCard(IPlayer player, Card card, IdNodeSuit target)
 	{
 		//TODO: In the GetTargetNodes() method, TryAdd & Add always adds new cards to the Dictionary.
 		// What happens when the open-ended node is attached with a card from the player's deck?
 		// Delete the open-ended node-suit pair when adding player's card to the tableCard.
-		if(_tableCards != null)
+		if (_tableCards != null)
 		{
-			target.SetCardIdAtNode(card.GetId(), node);
+			// target.SetCardIdAtNode(card.GetId(), );
 			// card.SetCardIdAtNode(target.GetId(), ) // TODO
 		}
 		_tableCards.Add(card);
@@ -180,68 +180,76 @@ public class GameController
 	public Card?[] GetAdjacentCards(int cardId)
 	{
 		//TODO: What is this? What does [4] signify?
-	 	//Answer: Card?[4] is the array of cards that are connected to the current card (which has the id: CardId)
-		Card currentCard = _tableCards.FirstOrDefault(x => x.GetId()==cardId);
+		//Answer: Card?[4] is the array of cards that are connected to the current card (which has the id: CardId)
+		Card currentCard = _tableCards.FirstOrDefault(x => x.GetId() == cardId);
 		int[] cardIdAtNodes = currentCard.GetCardIdArrayAtNodes();
 		Card?[] cards = new Card[cardIdAtNodes.Length];
-		for (int i=0; i<cardIdAtNodes.Length; i++)
+		for (int i = 0; i < cardIdAtNodes.Length; i++)
 		{
-			cards[i] = _tableCards.FirstOrDefault(x => x.GetId()==i);
+			cards[i] = _tableCards.FirstOrDefault(x => x.GetId() == i);
 		}
 		return cards;
 	}
-	public Dictionary<Card,HashSet<NodeSuitPair>> GetTargetNodes()
-	{	
-		//TODO: Change List<NodeSuitPair> to HashSet<NodeSuitPair> because it is unique
-		// (DONE): Use Dictionary<Card,List<NodeSuitPair>>
+	public HashSet<IdNodeSuit> GetTargetNodes()
+	{
+		//(DONE): Change to HashSet<IdNodeSuit> because it is unique
 		// which signifies the open-ended card, its available node, and its available head/tail number.
 		// Available head/tail number is to make it easier for player's card to check
 		foreach (Card tableCard in _tableCards)
 		{
-			if(tableCard.IsDouble())
+			if (tableCard.IsDouble())
 			{
-				if(tableCard.GetCardIdArrayAtNodes()[(int)NodeEnum.RIGHT]==-1)
+				if (tableCard.GetCardIdArrayAtNodes()[(int)NodeEnum.RIGHT] == -1)
 				{
-					if(!_openEndsDict.ContainsKey(tableCard))
-					{
-						_openEndsDict.TryAdd(tableCard, new());
-					}
-					_openEndsDict[tableCard].Add(new NodeSuitPair(NodeEnum.RIGHT, tableCard.Head));
-					Console.WriteLine($"card id: {tableCard.GetId()}, RIGHT, suit: {tableCard.Head}");
+					_openEndsSet.Add(new IdNodeSuit(tableCard.GetId(), NodeEnum.RIGHT, tableCard.Head));
+					// Console.WriteLine($"card id: {tableCard.GetId()}, RIGHT, suit: {tableCard.Head}");
 				}
-				if(tableCard.GetCardIdArrayAtNodes()[(int)NodeEnum.LEFT]==-1)
+				if (tableCard.GetCardIdArrayAtNodes()[(int)NodeEnum.LEFT] == -1)
 				{
-					if(!_openEndsDict.ContainsKey(tableCard))
-					{
-						_openEndsDict.TryAdd(tableCard, new());
-					}
-					_openEndsDict[tableCard].Add(new NodeSuitPair(NodeEnum.LEFT, tableCard.Tail));
-					Console.WriteLine($"card id: {tableCard.GetId()}, LEFT, suit: {tableCard.Tail}");
+					_openEndsSet.Add(new IdNodeSuit(tableCard.GetId(), NodeEnum.LEFT, tableCard.Tail));
+					// Console.WriteLine($"card id: {tableCard.GetId()}, LEFT, suit: {tableCard.Tail}");
 				}
 			}
 			else
 			{
-				if(tableCard.GetCardIdArrayAtNodes()[(int)NodeEnum.FRONT]==-1)
+				if (tableCard.GetCardIdArrayAtNodes()[(int)NodeEnum.FRONT] == -1)
 				{
-					if(!_openEndsDict.ContainsKey(tableCard))
-					{
-						_openEndsDict.TryAdd(tableCard, new());
-					}
-					_openEndsDict[tableCard].Add(new NodeSuitPair(NodeEnum.FRONT, tableCard.Head));
-					Console.WriteLine($"card id: {tableCard.GetId()}, FRONT, suit: {tableCard.Head}");
+					_openEndsSet.Add(new IdNodeSuit(tableCard.GetId(), NodeEnum.FRONT, tableCard.Head));
+					// Console.WriteLine($"card id: {tableCard.GetId()}, FRONT, suit: {tableCard.Head}");
 				}
-				if(tableCard.GetCardIdArrayAtNodes()[(int)NodeEnum.BACK]==-1)
+				if (tableCard.GetCardIdArrayAtNodes()[(int)NodeEnum.BACK] == -1)
 				{
-					if(!_openEndsDict.ContainsKey(tableCard))
-					{
-						_openEndsDict.TryAdd(tableCard, new());
-					}
-					_openEndsDict[tableCard].Add(new NodeSuitPair(NodeEnum.BACK, tableCard.Tail));
-					Console.WriteLine($"card id: {tableCard.GetId()}, BACK, suit: {tableCard.Tail}");
+					_openEndsSet.Add(new IdNodeSuit(tableCard.GetId(), NodeEnum.BACK, tableCard.Tail));
+					// Console.WriteLine($"card id: {tableCard.GetId()}, BACK, suit: {tableCard.Tail}");
 				}
 			}
 		}
-		return _openEndsDict;
+		return _openEndsSet;
+	}
+	public Dictionary<Card, HashSet<IdNodeSuit>> 
+		GetDeckTableCompatibleCards(List<Card> cardsList,
+				HashSet<IdNodeSuit> openEndsSet)
+	{
+		Dictionary<Card, HashSet<IdNodeSuit>> compatibleDict = new();
+		foreach (Card card in cardsList)
+		{
+			foreach (var IdNodeSuit in openEndsSet)
+			{
+				if(card.Head == IdNodeSuit.Suit || card.Tail==IdNodeSuit.Suit)
+				{
+					if (!compatibleDict.ContainsKey(card))
+					{
+						compatibleDict.TryAdd(card, new());
+					}
+					compatibleDict[card].Add(IdNodeSuit);
+				}
+			}
+		}
+		return compatibleDict;
+	}
+	public Card GetCardFromId(int id)
+	{
+		return _defaultCards.FirstOrDefault(x => x.GetId()==id);
 	}
 	public void ShowCards(IPlayer player)
 	{
@@ -249,7 +257,7 @@ public class GameController
 		// For now, it is a helper function for debugging
 		foreach (Card card in _playerCardDict[player])
 		{
-			Console.WriteLine("id: {0},\t head: {1},\t tail: {2}",card.GetId(),card.Head, card.Tail);	
+			Console.WriteLine("id: {0},\t head: {1},\t tail: {2}", card.GetId(), card.Head, card.Tail);
 		}
 		// var chosenCard = _playerCardDict[player].Where(n => n.GetId() == id);
 		// Console.WriteLine("{0},{1},{2}",id,chosenCard.FirstOrDefault().head, chosenCard.FirstOrDefault().tail);	
@@ -317,12 +325,12 @@ public class GameController
 				winRound = winRound || playerWinRound;
 			}
 		}
-		if(winRound)
+		if (winRound)
 		{
 			_gameStatus = GameStatus.ROUNDWIN;
 		}
 		return winRound;
-	} 
+	}
 }
 
 public enum GameStatus

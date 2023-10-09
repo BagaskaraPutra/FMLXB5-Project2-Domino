@@ -1,5 +1,4 @@
-﻿using System.Net;
-using DominoConsole;
+﻿using DominoConsole;
 public class Program
 {
 	static void Main()
@@ -53,13 +52,12 @@ public class Program
 				cardsList = gameController.GetPlayerCards(currentPlayer);
 				DisplayLine("Here are your available cards in your deck ...");
 				DisplayDeckCards(cardsList);
-				
-				Card putCard = new();
-				PlayerPicksCardId(currentPlayer, cardsList, ref putCard);
 
-				
+				Card putCard = new();
+				FirstPlayerPicksCardId(currentPlayer, cardsList, ref putCard);
 				gameController.PutCard(currentPlayer, putCard);
-				Dictionary<Card, HashSet<NodeSuitPair>> openEndsDict;
+
+				Dictionary<Card, HashSet<IdNodeSuit>> deckTableCompatible;
 
 				while (gameController.CheckGameStatus() == GameStatus.ONGOING)
 				{
@@ -73,10 +71,51 @@ public class Program
 					DisplayLine($"Player {currentPlayer.GetId()} {currentPlayer.GetName()}'s turn");
 					DisplayLine("Here are your available cards in your deck ...");
 					DisplayDeckCards(cardsList);
-					PlayerPicksCardId(currentPlayer, cardsList, ref putCard);
-					
-					openEndsDict = gameController.GetTargetNodes();
-					//CheckDeckTableCompatibility(cardsList, openEndsDict);
+
+					deckTableCompatible = gameController.GetDeckTableCompatibleCards(cardsList, gameController.GetTargetNodes());
+					if (deckTableCompatible.Count == 0)
+					{
+						// gameController.DrawRandomCard(currentPlayer) until tableCard is empty
+						// if (tableCards is empty):
+						DisplayLine("No possible moves");
+					}
+					else
+					{
+						DisplayLine("Possible moves:");
+						int i = 0;
+						foreach (var kvp in deckTableCompatible)
+						{
+							foreach (var values in kvp.Value)
+							{
+								i++;
+								// DisplayLine($"{i}. Deck card: [{kvp.Key.Head}|{kvp.Key.Tail}] put to LEFT/RIGHT");
+								DisplayLine($"{i}. Deck card: [{kvp.Key.Head}|{kvp.Key.Tail}] put next to Table card id: {values.Id}, node: {values.Node}, suit: {values.Suit}");
+							}
+						}
+
+						bool idStatus = false;
+						int moveChoice;
+						do
+						{
+							Display($"Put your card on the table by entering the number (1-{i}) from the above list ... ");
+							idStatus = Int32.TryParse(ReadInput(), out moveChoice);
+							if (moveChoice > 0 && moveChoice <= i)
+							{
+								// putCard = cardsList.FirstOrDefault(x => x.GetId() == cardId);
+							}
+							else
+							{
+								idStatus = false;
+							}
+							if (!idStatus)
+							{
+								DisplayLine("You did not input a valid choice!");
+							}
+						} while (!idStatus);
+					}
+
+					// NextPlayerPicksMove(currentPlayer, cardsList, deckTableCompatible, ref putCard);
+
 					// Game Controller gives suggestion to the currentPlayer: 
 					// 1. the deck card id that can be placed 
 					// 2. and the table card id to be placed adjacent to OR
@@ -147,7 +186,7 @@ public class Program
 		}
 		Display("\n");
 	}
-	static void PlayerPicksCardId(IPlayer currentPlayer, List<Card> cardsList, ref Card putCard)
+	static void FirstPlayerPicksCardId(IPlayer currentPlayer, List<Card> cardsList, ref Card putCard)
 	{
 		bool status = false;
 		int cardId;
@@ -169,6 +208,45 @@ public class Program
 			}
 		} while (!status);
 	}
+	// static void NextPlayerPicksMove(IPlayer currentPlayer, 
+	// 								List<Card> cardsList, 
+	// 								Dictionary<Card, HashSet<IdNodeSuit>>  deckTableCompatible,
+	// 								ref Card putCard)
+	// {	
+	// 	bool status = false;
+	// 	bool idStatus = false;
+	// 	int cardId;
+	// 	do
+	// 	{
+	// 		Display($"Place your card by entering the number from the following list of options ... ");
+	// 		int i = 0;
+	// 		Card tableCard;
+	// 		foreach(var kvp in deckTableCompatible)
+	// 		{
+	// 			foreach (var values in kvp.Value)
+	// 			{
+	// 				i++;
+	// 				// DisplayLine($"Deck: id {kvp.Key.GetId()} -> Table id: {values.Id}, node: {values.Node}, suit: {values.Suit}");
+	// 				tableCard = 
+	// 				DisplayLine($"{i}. Deck card: [{kvp.Key.Head}|{kvp.Key.Tail}] put next to Table card: [] ");
+	// 			}
+	// 		}
+	// 		idStatus = Int32.TryParse(ReadInput(), out cardId);
+	// 		if (cardsList.Any(x => x.GetId() == cardId))
+	// 		{
+	// 			putCard = cardsList.FirstOrDefault(x => x.GetId() == cardId);
+	// 		}
+	// 		else
+	// 		{
+	// 			idStatus = false;
+	// 		}
+	// 		// if (openEndsDict.ContainsValue())
+	// 		if (!idStatus)
+	// 		{
+	// 			DisplayLine("You did not input a valid card id!");
+	// 		}
+	// 	} while (!idStatus);
+	// }
 	static string? ReadInput()
 	{
 		return Console.ReadLine();
