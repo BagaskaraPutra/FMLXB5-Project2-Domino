@@ -52,13 +52,15 @@ public class Program
 				cardsList = gameController.GetPlayerCards(currentPlayer);
 				DisplayLine("Here are your available cards in your deck ...");
 				DisplayDeckCards(cardsList);
-
+				
+				// Reusable local variables
 				Card putCard = new();
 				IdNodeSuit targetIdNodeSuit = new();
+				HashSet<IdNodeSuit> openEnds;
+				List<KeyValuePair<Card, IdNodeSuit>> deckTableCompatible;
+				
 				FirstPlayerPicksCardId(currentPlayer, cardsList, ref putCard);
 				gameController.PutCard(currentPlayer, putCard);
-
-				List<KeyValuePair<Card, IdNodeSuit>> deckTableCompatible;
 
 				while (gameController.CheckGameStatus() == GameStatus.ONGOING)
 				{
@@ -72,13 +74,24 @@ public class Program
 					DisplayLine($"Player {currentPlayer.GetId()} {currentPlayer.GetName()}'s turn");
 					DisplayLine("Here are your available cards in your deck ...");
 					DisplayDeckCards(cardsList);
-
-					deckTableCompatible = gameController.GetDeckTableCompatibleCards(cardsList, gameController.GetTargetNodes());
+					openEnds = gameController.GetTargetNodes();
+					deckTableCompatible = gameController.GetDeckTableCompatibleCards(cardsList, openEnds);
+					Console.WriteLine($"DeckTableCompatibleCount: {deckTableCompatible.Count}");
 					if (deckTableCompatible.Count == 0)
 					{
-						// gameController.DrawRandomCard(currentPlayer) until tableCard is empty
-						// if (tableCards is empty):
-						DisplayLine("No possible moves");
+						do
+						{
+							gameController.DrawRandomCard(currentPlayer);
+							cardsList = gameController.GetPlayerCards(currentPlayer);
+							deckTableCompatible = gameController.GetDeckTableCompatibleCards(cardsList, openEnds);
+							if(gameController.NumBoneyardCards() == 0)
+							{
+								DisplayLine("No possible moves");
+								// Set CardStatus to pass 
+								break;
+							}
+						}
+						while(deckTableCompatible.Count == 0);
 					}
 					else
 					{
@@ -121,7 +134,7 @@ public class Program
 
 					gameController.PutCard(currentPlayer, putCard, targetIdNodeSuit);	
 
-					break; // TODO: Remove this. Only to break while loop & troubleshoot  
+					// break; // TODO: Remove this. Only to break while loop & troubleshoot  
 				}
 				break; // TODO: Remove this. Only to break while loop & troubleshoot
 			}

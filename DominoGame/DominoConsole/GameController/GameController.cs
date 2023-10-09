@@ -121,14 +121,13 @@ public class GameController
 	}
 	public IPlayer GetPlayer(int id)
 	{
-		var filteredPlayer = _playersList.Where(n => n.GetId() == id);
-		return filteredPlayer.FirstOrDefault();
+		return _playersList.FirstOrDefault(n => n.GetId() == id);
 	}
 	public List<IPlayer> GetPlayers()
 	{
 		return _playersList;
 	}
-	public bool GetOriention(bool IsDouble)
+	public bool GetOrientation(bool IsDouble)
 	{
 		//TODO: What is IsDouble?	
 		// This checks the possible orientation of the card that is going to be placed
@@ -155,31 +154,58 @@ public class GameController
 	public IPlayer GetNextPlayer()
 	{
 		int currentIndex = _playersList.FindIndex(a => a.Equals(_currentPlayer));
-		if (currentIndex == _playersList.Count - 1)
+		if (currentIndex == (_playersList.Count - 1))
 		{
-			return _playersList[0];
+			_currentPlayer =  _playersList[0];
+			return _currentPlayer;
 		}
-		return _playersList[currentIndex + 1];
+		else
+		{
+			_currentPlayer = _playersList[currentIndex + 1];
+			return _currentPlayer;
+		}
 	}
 	public void PutCard(IPlayer player, Card card)
 	{
 		_tableCards.Add(card);
 		_playerCardDict[player].Remove(card);
 	}
-	public bool PutCard(IPlayer player, Card card, IdNodeSuit target)
+	public bool PutCard(IPlayer player, Card card, IdNodeSuit targetINS)
 	{
-		//TODO: In the GetTargetNodes() method, TryAdd & Add always adds new cards to the Dictionary.
+		//TODO: In the GetTargetNodes() method, TryAdd & Add always adds new cards to the HashSet.
 		// What happens when the open-ended node is attached with a card from the player's deck?
-		// Delete the open-ended node-suit pair when adding player's card to the tableCard.
-		if (_tableCards != null)
-		{
-			// target.SetCardIdAtNode(card.GetId(), );
-			// card.SetCardIdAtNode(target.GetId(), ) // TODO
-		}
+		// Delete the open-ended IdNodeSuit when adding player's card to the tableCard.
 		_tableCards.Add(card);
-		// _openEndsDict[target].Remove(new(node,))
+		Card targetCard = _tableCards.FirstOrDefault(x => x.GetId()==targetINS.Id);
+		targetCard.SetCardIdAtNode(card.GetId(), targetINS.Node);
+		NodeEnum cardNode = new();
+		if(card.IsDouble())
+		{
+			if(card.Head == targetINS.Id)
+			{
+				cardNode = NodeEnum.LEFT;
+			}
+			else if(card.Tail == targetINS.Id)
+			{
+				cardNode = NodeEnum.RIGHT;
+			}
+		}
+		else
+		{
+			if(card.Head == targetINS.Id)
+			{
+				cardNode = NodeEnum.FRONT;
+			}
+			else if(card.Tail == targetINS.Id)
+			{
+				cardNode = NodeEnum.BACK;
+			}
+		}
+		_tableCards.FirstOrDefault(x => x==card).SetCardIdAtNode(targetINS.Id, cardNode);
+		_openEndsSet.Remove(targetINS);
+		_compatibleList.Remove(new(targetCard,targetINS)); // Remove where
 		_playerCardDict[player].Remove(card);
-		return false;
+		return true;
 	}
 	public Card?[] GetAdjacentCards(int cardId)
 	{
@@ -241,7 +267,11 @@ public class GameController
 			{
 				if(card.Head == idNodeSuit.Suit || card.Tail==idNodeSuit.Suit)
 				{
-					_compatibleList.Add(new (card, idNodeSuit));
+					KeyValuePair<Card, IdNodeSuit> cardInsKvp = new(card, idNodeSuit);
+					if (!_compatibleList.Contains(cardInsKvp))
+					{
+						_compatibleList.Add(cardInsKvp);
+					}	
 				}
 			}
 		}
@@ -330,6 +360,10 @@ public class GameController
 			_gameStatus = GameStatus.ROUNDWIN;
 		}
 		return winRound;
+	}
+	public int NumBoneyardCards()
+	{
+		return _boneyardCards.Count;
 	}
 }
 
