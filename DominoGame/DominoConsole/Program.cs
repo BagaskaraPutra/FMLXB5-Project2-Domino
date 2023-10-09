@@ -52,13 +52,13 @@ public class Program
 				cardsList = gameController.GetPlayerCards(currentPlayer);
 				DisplayLine("Here are your available cards in your deck ...");
 				DisplayDeckCards(cardsList);
-				
+
 				// Reusable local variables
 				Card putCard = new();
 				IdNodeSuit targetIdNodeSuit = new();
 				HashSet<IdNodeSuit> openEnds;
 				List<KeyValuePair<Card, IdNodeSuit>> deckTableCompatible;
-				
+
 				FirstPlayerPicksCardId(currentPlayer, cardsList, ref putCard);
 				gameController.PutCard(currentPlayer, putCard);
 
@@ -76,54 +76,56 @@ public class Program
 					DisplayDeckCards(cardsList);
 					openEnds = gameController.GetTargetNodes();
 					deckTableCompatible = gameController.GetDeckTableCompatibleCards(cardsList, openEnds);
-					Console.WriteLine($"DeckTableCompatibleCount: {deckTableCompatible.Count}");
+
 					if (deckTableCompatible.Count == 0)
 					{
+						DisplayLine($"[WARNING!] Player {currentPlayer.GetId()} {currentPlayer.GetName()} doesn't have a valid move.");
+						// BUG: When enter this if, the recently placed table card duplicates itself
 						do
 						{
 							gameController.DrawRandomCard(currentPlayer);
 							cardsList = gameController.GetPlayerCards(currentPlayer);
 							deckTableCompatible = gameController.GetDeckTableCompatibleCards(cardsList, openEnds);
-							if(gameController.NumBoneyardCards() == 0)
+							DisplayLine($"Player {currentPlayer.GetId()} {currentPlayer.GetName()} is drawing card from boneyard pile to the deck ...");
+							DisplayDeckCards(cardsList);
+							if (gameController.NumBoneyardCards() == 0)
 							{
 								DisplayLine("No possible moves");
-								// Set CardStatus to pass 
+								// TODO: Set CardStatus to pass 
 								break;
 							}
 						}
-						while(deckTableCompatible.Count == 0);
+						while (deckTableCompatible.Count == 0);
 					}
-					else
+					
+					DisplayLine("Possible moves:");
+					int i = 0;
+					foreach (var kvp in deckTableCompatible)
 					{
-						DisplayLine("Possible moves:");
-						int i=0;
-						foreach (var kvp in deckTableCompatible)
-						{
-							i++;
-							DisplayLine($"{i}. Deck card: [{kvp.Key.Head}|{kvp.Key.Tail}] put next to Table card id: {kvp.Value.Id}, node: {kvp.Value.Node}, suit: {kvp.Value.Suit}");
-						}
-
-						bool idStatus = false;
-						int moveChoice;
-						do
-						{
-							Display($"Put your card on the table by entering the number (1-{deckTableCompatible.Count}) from the above list ... ");
-							idStatus = Int32.TryParse(ReadInput(), out moveChoice);
-							if (moveChoice > 0 && moveChoice <= deckTableCompatible.Count)
-							{
-								putCard = deckTableCompatible[moveChoice-1].Key;
-								targetIdNodeSuit  = deckTableCompatible[moveChoice-1].Value;
-							}
-							else
-							{
-								idStatus = false;
-							}
-							if (!idStatus)
-							{
-								DisplayLine("You did not input a valid choice!");
-							}
-						} while (!idStatus);
+						i++;
+						DisplayLine($"{i}. Deck card (id: {kvp.Key.GetId()}): [{kvp.Key.Head}|{kvp.Key.Tail}] put next to -> Table card id: {kvp.Value.Id}, node: {kvp.Value.Node}, suit: {kvp.Value.Suit}");
 					}
+
+					bool status = false;
+					int moveChoice;
+					do
+					{
+						Display($"Put your card on the table by entering the number (1-{deckTableCompatible.Count}) from the above list ... ");
+						status = Int32.TryParse(ReadInput(), out moveChoice);
+						if (moveChoice > 0 && moveChoice <= deckTableCompatible.Count)
+						{
+							putCard = deckTableCompatible[moveChoice - 1].Key;
+							targetIdNodeSuit = deckTableCompatible[moveChoice - 1].Value;
+						}
+						else
+						{
+							status = false;
+						}
+						if (!status)
+						{
+							DisplayLine("You did not input a valid choice!");
+						}
+					} while (!status);
 
 					// NextPlayerPicksMove(currentPlayer, cardsList, deckTableCompatible, ref putCard);
 
@@ -132,7 +134,7 @@ public class Program
 					// 2. and the table card id to be placed adjacent to OR
 					//    the position on the table (Left OR Right)
 
-					gameController.PutCard(currentPlayer, putCard, targetIdNodeSuit);	
+					gameController.PutCard(currentPlayer, putCard, targetIdNodeSuit);
 
 					// break; // TODO: Remove this. Only to break while loop & troubleshoot  
 				}
@@ -219,45 +221,6 @@ public class Program
 			}
 		} while (!status);
 	}
-	// static void NextPlayerPicksMove(IPlayer currentPlayer, 
-	// 								List<Card> cardsList, 
-	// 								Dictionary<Card, HashSet<IdNodeSuit>>  deckTableCompatible,
-	// 								ref Card putCard)
-	// {	
-	// 	bool status = false;
-	// 	bool idStatus = false;
-	// 	int cardId;
-	// 	do
-	// 	{
-	// 		Display($"Place your card by entering the number from the following list of options ... ");
-	// 		int i = 0;
-	// 		Card tableCard;
-	// 		foreach(var kvp in deckTableCompatible)
-	// 		{
-	// 			foreach (var values in kvp.Value)
-	// 			{
-	// 				i++;
-	// 				// DisplayLine($"Deck: id {kvp.Key.GetId()} -> Table id: {values.Id}, node: {values.Node}, suit: {values.Suit}");
-	// 				tableCard = 
-	// 				DisplayLine($"{i}. Deck card: [{kvp.Key.Head}|{kvp.Key.Tail}] put next to Table card: [] ");
-	// 			}
-	// 		}
-	// 		idStatus = Int32.TryParse(ReadInput(), out cardId);
-	// 		if (cardsList.Any(x => x.GetId() == cardId))
-	// 		{
-	// 			putCard = cardsList.FirstOrDefault(x => x.GetId() == cardId);
-	// 		}
-	// 		else
-	// 		{
-	// 			idStatus = false;
-	// 		}
-	// 		// if (openEndsDict.ContainsValue())
-	// 		if (!idStatus)
-	// 		{
-	// 			DisplayLine("You did not input a valid card id!");
-	// 		}
-	// 	} while (!idStatus);
-	// }
 	static string? ReadInput()
 	{
 		return Console.ReadLine();

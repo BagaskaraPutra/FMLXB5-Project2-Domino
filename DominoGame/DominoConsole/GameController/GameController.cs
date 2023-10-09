@@ -88,6 +88,7 @@ public class GameController
 	public void DrawRandomCard(IPlayer player)
 	{
 		int index = _random.Next(_boneyardCards.Count);
+		// TODO: Unhandled exception. System.ArgumentOutOfRangeException: Index was out of range. Must be non-negative and less than the size of the collection. (Parameter 'index')
 		_playerCardDict[player].Add(_boneyardCards[index]);
 		_boneyardCards.RemoveAt(index);
 	}
@@ -172,7 +173,7 @@ public class GameController
 	}
 	public bool PutCard(IPlayer player, Card card, IdNodeSuit targetINS)
 	{
-		//TODO: In the GetTargetNodes() method, TryAdd & Add always adds new cards to the HashSet.
+		//(DONE): In the GetTargetNodes() method, TryAdd & Add always adds new cards to the HashSet.
 		// What happens when the open-ended node is attached with a card from the player's deck?
 		// Delete the open-ended IdNodeSuit when adding player's card to the tableCard.
 		_tableCards.Add(card);
@@ -203,7 +204,11 @@ public class GameController
 		}
 		_tableCards.FirstOrDefault(x => x==card).SetCardIdAtNode(targetINS.Id, cardNode);
 		_openEndsSet.Remove(targetINS);
-		_compatibleList.Remove(new(targetCard,targetINS)); // Remove where
+		// _compatibleList.Remove(new(targetCard,targetINS));
+		_compatibleList.Clear(); 
+		// TODO: The .Clear() method temporary fixes the duplicate card bug.
+		// However, this method may increase computation because when GetDeckTableCompatibleCards() is called,
+		// it iterates from the beginning. Compared to .Remove() which only removes the recently placed card.
 		_playerCardDict[player].Remove(card);
 		return true;
 	}
@@ -224,7 +229,7 @@ public class GameController
 	{
 		//(DONE): Change to HashSet<IdNodeSuit> because it is unique
 		// which signifies the open-ended card, its available node, and its available head/tail number.
-		// Available head/tail number is to make it easier for player's card to check
+		// Available head/tail (suit) number is to make it easier for player's card to check
 		foreach (Card tableCard in _tableCards)
 		{
 			if (tableCard.IsDouble())
@@ -256,7 +261,6 @@ public class GameController
 		}
 		return _openEndsSet;
 	}
-	// public Dictionary<Card, HashSet<IdNodeSuit>> 
 	public List<KeyValuePair<Card, IdNodeSuit>>
 		GetDeckTableCompatibleCards(List<Card> cardsList,
 				HashSet<IdNodeSuit> openEndsSet)
