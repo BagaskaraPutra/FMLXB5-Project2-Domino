@@ -92,13 +92,15 @@ public class Card
 		return Head+Tail;
 	}
 }
-public struct NodeSuitPair
+public struct IdNodeSuit
 {
-	// A pair consisting of the card's node and its corresponding suit (head/tail) number
+	// A struct consisting of the card's id, node, and its corresponding suit (head/tail) number
+	public int Id {get; private set;}
 	public NodeEnum Node {get; private set;}
 	public int Suit {get; private set;}
-	public NodeSuitPair(NodeEnum node, int suit)
+	public IdNodeSuit(int id, NodeEnum node, int suit)
 	{
+		Id   = id;
 		Node = node;
 		Suit = suit;
 	}	
