@@ -173,7 +173,7 @@ public class Program
 			DisplayLine("Cumulative round players' score:");
 			foreach (IPlayer player in gameController.GetPlayers())
 			{
-				DisplayLine($"Player {player.GetId()} {player.GetName()}'s score: {gameController.GetPlayerScore(player)}");
+				DisplayLine($"Player {player.GetId()} {player.GetName()}'s score: {gameController.CheckScore(player)}");
 			}
 
 			//	Reset round	

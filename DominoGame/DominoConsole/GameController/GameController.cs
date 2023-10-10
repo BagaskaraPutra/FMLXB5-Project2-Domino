@@ -132,10 +132,6 @@ public class GameController
 	{
 		return _playersList;
 	}
-	public int GetPlayerScore(IPlayer player)
-	{
-		return _playerScoreDict[player];
-	}
 	public bool GetOrientation(bool IsDouble)
 	{
 		//TODO: What is IsDouble?	
