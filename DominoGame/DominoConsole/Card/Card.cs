@@ -7,7 +7,7 @@ public class Card
 	private int _id;
 	private int[] _nodeId; // array of 4 nodes consisting of adjacent card id
 	private Card?[] _node; // array of 4 nodes consisting of adjacent Card objects
-	private Card? _left, _right;
+	// private Card? _left, _right;
 	public OrientationEnum Orientation {get; private set;}
 	
 	public int Head {get; private set;}
@@ -32,7 +32,7 @@ public class Card
 		{
 			_node[i] = null;
 		}
-		_left = _right = null; 
+		// _left = _right = null; 
 	}
 	public bool IsDouble()
 	{
@@ -73,22 +73,27 @@ public class Card
 	{
 		_node[(int)nodeEnum] = card;
 	}
-	public Card GetLeftCard()
+	public bool SetOrientation(OrientationEnum orientation)
 	{
-		return _left;
+		Orientation = orientation;
+		return true;
 	}
-	public void SetLeftCard(Card left)
-	{
-		_left = left;
-	}
-	public Card GetRightCard()
-	{
-		return _right;
-	}
-	public void SetRightCard(Card right)
-	{
-		_right = right;
-	}
+	// public Card GetLeftCard()
+	// {
+	// 	return _left;
+	// }
+	// public void SetLeftCard(Card left)
+	// {
+	// 	_left = left;
+	// }
+	// public Card GetRightCard()
+	// {
+	// 	return _right;
+	// }
+	// public void SetRightCard(Card right)
+	// {
+	// 	_right = right;
+	// }
 	public int GetHeadTailSum()
 	{
 		return Head+Tail;

@@ -224,16 +224,12 @@ public class Program
 	{
 		Console.WriteLine(content);
 	}
-	static void DisplayCard(Card card)
+	static char[,] GetCardImage(Card card)
 	{
-		// center position (x,y)
-		// orientation
-		// length, width
-		// Check parent card orientation
-		char [,] dominoImage;
+		char [,] cardImage;
 		if(card.Orientation == OrientationEnum.NORTH || card.Orientation == OrientationEnum.SOUTH)
 		{
-			dominoImage = new char[5,5]
+			cardImage = new char[5,5]
 			{{' ', '-', '-', '-',' '}, 
 			 {'|', ' ', 'H', ' ','|'},
 			 {'|', '-', '-', '-','|'},
@@ -242,7 +238,7 @@ public class Program
 		}
 		else
 		{
-			dominoImage = new char[3,9]
+			cardImage = new char[3,9]
 			{{' ','-','-','-','-','-','-','-',' '},
 			 {'|',' ','H',' ','|',' ','T',' ','|'},
 			 {' ','-','-','-','-','-','-','-',' '}};	
@@ -251,38 +247,31 @@ public class Program
 		{
 			case OrientationEnum.NORTH:
 			{
-				dominoImage[1,2] = card.Head.ToString().ToCharArray()[0];
-				dominoImage[3,2] = card.Tail.ToString().ToCharArray()[0];
+				cardImage[1,2] = card.Head.ToString().ToCharArray()[0];
+				cardImage[3,2] = card.Tail.ToString().ToCharArray()[0];
 				break;
 			}
 			case OrientationEnum.SOUTH:
 			{
-				dominoImage[3,2] = card.Head.ToString().ToCharArray()[0];
-				dominoImage[1,2] = card.Tail.ToString().ToCharArray()[0];
+				cardImage[3,2] = card.Head.ToString().ToCharArray()[0];
+				cardImage[1,2] = card.Tail.ToString().ToCharArray()[0];
 				break;
 			}
 			case OrientationEnum.EAST:
 			{
-				dominoImage[1,6] = card.Head.ToString().ToCharArray()[0];
-				dominoImage[1,2] = card.Tail.ToString().ToCharArray()[0];
+				cardImage[1,6] = card.Head.ToString().ToCharArray()[0];
+				cardImage[1,2] = card.Tail.ToString().ToCharArray()[0];
 				break;
 			}
 			case OrientationEnum.WEST:
 			{
-				dominoImage[1,2] = card.Head.ToString().ToCharArray()[0];
-				dominoImage[1,6] = card.Tail.ToString().ToCharArray()[0];
+				cardImage[1,2] = card.Head.ToString().ToCharArray()[0];
+				cardImage[1,6] = card.Tail.ToString().ToCharArray()[0];
 				break;
 			}
 			default: break;
 		}
-		for (int i = 0; i <= dominoImage.GetUpperBound(0); i++) 
-		{
-			for (int j = 0; j <= dominoImage.GetUpperBound(1); j++) 
-			{
-				Display(dominoImage[i,j]);
-			}
-			Display("\n");
-	  	}
+		return cardImage;
 	}
 	static void DisplayDeckCards(List<Card> cardsList)
 	{
@@ -332,13 +321,62 @@ public class Program
 	}
 	static void DisplayTableCards(List<Card> tableCards)
 	{
+		// center position (x,y)
+		// orientation
+		// length, width
+		// Check parent card orientation
+		int windowRows = Console.WindowHeight;
+		int windowCols = Console.WindowWidth;
+		char[,] windowImage = new char[windowRows,windowCols];
+		for(int i=0; i<windowRows; i++)
+		{
+			for(int j=0; j<windowCols; j++)
+			{
+				windowImage[i,j] = ' ';
+			}
+		}
+		
+		int idxTableCard = 0;
 		foreach (var card in tableCards)
 		{
 			//TODO: How to render domino cards on console terminal >:-(
 			// How to check which card is in the left side, which one is on the right side
+			
 			// Display($"[{card.Head}|{card.Tail}]");
-			DisplayCard(card);
+			// the root/first card on the table
+			if(idxTableCard==0)
+			{
+				if(!card.IsDouble())
+				{
+					card.SetOrientation(OrientationEnum.WEST);
+				}	
+			}
+			char[,] cardImage = GetCardImage(card);
+			Place2DArray(in cardImage, ref windowImage, (int)windowRows/2, (int)windowCols/2);
+			idxTableCard++;
 		}
+		Display2DArray(windowImage);
 		Display("\n");
+	}
+	static void Display2DArray<T>(T[,] array)
+	{
+		for (int i = 0; i <= array.GetUpperBound(0); i++) 
+		{
+			for (int j = 0; j <= array.GetUpperBound(1); j++) 
+			{
+				Display(array[i,j]);
+			}
+			Display("\n");
+	  	}
+	}
+	static void Place2DArray<T>(in T[,] small, ref T[,] big, int centerX, int centerY)
+	{
+		for (int i=0; i<small.GetLength(0); i++)
+		{
+			for (int j=0; j<small.GetLength(1); j++)
+			{
+				big[i+centerX,j+centerY] = small[i,j];	
+			}
+		}
 	}
 }
