@@ -250,19 +250,21 @@ public class GameController
 		
 		//BUG: tableCard.GetCardIdArrayAtNodes()[(int)NodeEnum.BACK] == -1 and other nodes != -1
 		// causing to _openEndSet.Count == 0 even though there is an open-ended card
+		//(Temporary solved): In ResetRound() call InitializeDefaultCards
 		foreach (Card tableCard in _tableCards)
 		{
+			// Console.WriteLine($"[{tableCard.Head}|{tableCard.Tail}] card id: {tableCard.GetId()}");
 			if (tableCard.IsDouble())
 			{
 				if (tableCard.GetCardIdArrayAtNodes()[(int)NodeEnum.RIGHT] == -1)
 				{
 					_openEndsSet.Add(new IdNodeSuit(tableCard.GetId(), NodeEnum.RIGHT, tableCard.Head));
-					Console.WriteLine($"card id: {tableCard.GetId()}, RIGHT, suit: {tableCard.Head}");
+					// Console.WriteLine($"card id: {tableCard.GetId()}, RIGHT, suit: {tableCard.Head}");
 				}
 				if (tableCard.GetCardIdArrayAtNodes()[(int)NodeEnum.LEFT] == -1)
 				{
 					_openEndsSet.Add(new IdNodeSuit(tableCard.GetId(), NodeEnum.LEFT, tableCard.Tail));
-					Console.WriteLine($"card id: {tableCard.GetId()}, LEFT, suit: {tableCard.Tail}");
+					// Console.WriteLine($"card id: {tableCard.GetId()}, LEFT, suit: {tableCard.Tail}");
 				}
 			}
 			else
@@ -270,12 +272,12 @@ public class GameController
 				if (tableCard.GetCardIdArrayAtNodes()[(int)NodeEnum.FRONT] == -1)
 				{
 					_openEndsSet.Add(new IdNodeSuit(tableCard.GetId(), NodeEnum.FRONT, tableCard.Head));
-					Console.WriteLine($"card id: {tableCard.GetId()}, FRONT, suit: {tableCard.Head}");
+					// Console.WriteLine($"card id: {tableCard.GetId()}, FRONT, suit: {tableCard.Head}");
 				}
 				if (tableCard.GetCardIdArrayAtNodes()[(int)NodeEnum.BACK] == -1)
 				{
 					_openEndsSet.Add(new IdNodeSuit(tableCard.GetId(), NodeEnum.BACK, tableCard.Tail));
-					Console.WriteLine($"card id: {tableCard.GetId()}, BACK, suit: {tableCard.Tail}");
+					// Console.WriteLine($"card id: {tableCard.GetId()}, BACK, suit: {tableCard.Tail}");
 				}
 			}
 		}
@@ -333,9 +335,11 @@ public class GameController
 		}
 		_openEndsSet.Clear(); // = new();
 
-		_tableCards.Clear(); //= new();
+		_tableCards.Clear(); // = new();
 		_compatibleList.Clear(); //= new();
-		_boneyardCards = new List<Card>(_defaultCards);
+		InitializeDefaultCards(); // try creating new cards such that the fields (especially _nodeId[]) are reset
+		_boneyardCards = new List<Card>(_defaultCards); 
+		// TODO: Reset default cards without calling InitializeDefaultCards to save memory
 		return true;
 	}
 	public int CheckScore(IPlayer player)
@@ -419,7 +423,6 @@ public class GameController
 			}
 			i++;
 		}
-		Console.WriteLine($"i: {i}, numCards: {numCards}");
 		
 		// winner is player with the least headTailSum 
 		int roundWinnerIdx = Array.IndexOf(headTailSumArray, headTailSumArray.Min());
