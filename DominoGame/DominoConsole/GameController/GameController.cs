@@ -6,7 +6,7 @@ namespace DominoConsole;
 public class GameController
 {
 	public int NumPlayers { get; private set; }
-	public int Round;
+	public int Round {get; private set; }
 	//TODO: Is this the current round? 
 	// Is it a public property (with get-set methods)?
 	public readonly int MaxNumCardsPerPlayer;
@@ -50,6 +50,7 @@ public class GameController
 		_gameStatus = GameStatus.NOTSTARTED;
 		NumPlayers = numPlayers;
 		WinScore = winScore;
+		Round = 1;
 
 		if (numPlayers > 2)
 		{
@@ -72,7 +73,7 @@ public class GameController
 		_boneyardCards = new List<Card>(_defaultCards);
 		_random = new Random();
 	}
-
+	
 	private void InitializeDefaultCards()
 	{
 		_defaultCards = new();
@@ -89,6 +90,10 @@ public class GameController
 	}
 	public void DrawRandomCard(IPlayer player)
 	{
+		if (_boneyardCards.Count == 0)
+		{
+			return;
+		}
 		_playerStatusDict[player] = CardStatus.TAKECARD;
 		int index = _random.Next(_boneyardCards.Count);
 		// TODO: Unhandled exception. System.ArgumentOutOfRangeException: Index was out of range. Must be non-negative and less than the size of the collection. (Parameter 'index')
@@ -242,6 +247,9 @@ public class GameController
 		//(DONE): Change to HashSet<IdNodeSuit> because it is unique
 		// which signifies the open-ended card, its available node, and its available head/tail number.
 		// Available head/tail (suit) number is to make it easier for player's card to check
+		
+		//BUG: tableCard.GetCardIdArrayAtNodes()[(int)NodeEnum.BACK] == -1 and other nodes != -1
+		// causing to _openEndSet.Count == 0 even though there is an open-ended card
 		foreach (Card tableCard in _tableCards)
 		{
 			if (tableCard.IsDouble())
@@ -249,12 +257,12 @@ public class GameController
 				if (tableCard.GetCardIdArrayAtNodes()[(int)NodeEnum.RIGHT] == -1)
 				{
 					_openEndsSet.Add(new IdNodeSuit(tableCard.GetId(), NodeEnum.RIGHT, tableCard.Head));
-					// Console.WriteLine($"card id: {tableCard.GetId()}, RIGHT, suit: {tableCard.Head}");
+					Console.WriteLine($"card id: {tableCard.GetId()}, RIGHT, suit: {tableCard.Head}");
 				}
 				if (tableCard.GetCardIdArrayAtNodes()[(int)NodeEnum.LEFT] == -1)
 				{
 					_openEndsSet.Add(new IdNodeSuit(tableCard.GetId(), NodeEnum.LEFT, tableCard.Tail));
-					// Console.WriteLine($"card id: {tableCard.GetId()}, LEFT, suit: {tableCard.Tail}");
+					Console.WriteLine($"card id: {tableCard.GetId()}, LEFT, suit: {tableCard.Tail}");
 				}
 			}
 			else
@@ -262,12 +270,12 @@ public class GameController
 				if (tableCard.GetCardIdArrayAtNodes()[(int)NodeEnum.FRONT] == -1)
 				{
 					_openEndsSet.Add(new IdNodeSuit(tableCard.GetId(), NodeEnum.FRONT, tableCard.Head));
-					// Console.WriteLine($"card id: {tableCard.GetId()}, FRONT, suit: {tableCard.Head}");
+					Console.WriteLine($"card id: {tableCard.GetId()}, FRONT, suit: {tableCard.Head}");
 				}
 				if (tableCard.GetCardIdArrayAtNodes()[(int)NodeEnum.BACK] == -1)
 				{
 					_openEndsSet.Add(new IdNodeSuit(tableCard.GetId(), NodeEnum.BACK, tableCard.Tail));
-					// Console.WriteLine($"card id: {tableCard.GetId()}, BACK, suit: {tableCard.Tail}");
+					Console.WriteLine($"card id: {tableCard.GetId()}, BACK, suit: {tableCard.Tail}");
 				}
 			}
 		}
@@ -318,7 +326,17 @@ public class GameController
 	}
 	public bool ResetRound()
 	{
-		return false;
+		Round++;
+		foreach (IPlayer player in _playerCardDict.Keys)
+		{
+			_playerCardDict[player].Clear(); // = new();	
+		}
+		_openEndsSet.Clear(); // = new();
+
+		_tableCards.Clear(); //= new();
+		_compatibleList.Clear(); //= new();
+		_boneyardCards = new List<Card>(_defaultCards);
+		return true;
 	}
 	public int CheckScore(IPlayer player)
 	{
@@ -357,7 +375,7 @@ public class GameController
 				}
 				i++;
 			}
-			if (allNoValidMove.All(x => x==false))
+			if (allNoValidMove.All(x => x==true))
 			{
 				winRound = true;
 			}
@@ -390,15 +408,19 @@ public class GameController
 		int[] headTailSumArray = new int[_playersList.Count];
 		int score = 0;
 		int i = 0;
+		int numCards = 0;
 		foreach (var kvp in _playerCardDict)
 		{
 			foreach(var card in kvp.Value)
 			{
-				headTailSumArray[i] = card.GetHeadTailSum();
-				score += headTailSumArray[i];	
+				headTailSumArray[i] += card.GetHeadTailSum();
+				score += card.GetHeadTailSum();
+				numCards++;	
 			}
 			i++;
 		}
+		Console.WriteLine($"i: {i}, numCards: {numCards}");
+		
 		// winner is player with the least headTailSum 
 		int roundWinnerIdx = Array.IndexOf(headTailSumArray, headTailSumArray.Min());
 			
