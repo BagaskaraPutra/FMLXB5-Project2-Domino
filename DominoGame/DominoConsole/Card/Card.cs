@@ -8,6 +8,7 @@ public class Card
 	private int[] _nodeId; // array of 4 nodes consisting of adjacent card id
 	private Card?[] _node; // array of 4 nodes consisting of adjacent Card objects
 	private Card? _left, _right;
+	public OrientationEnum Orientation {get; private set;}
 	
 	public int Head {get; private set;}
 	public int Tail {get; private set;}
@@ -20,6 +21,7 @@ public class Card
 		_id  = id;
 		Head = head;
 		Tail = tail;
+		Orientation = OrientationEnum.NORTH;
 		_nodeId = new int[Enum.GetValues(typeof(NodeEnum)).Length];
 		for(int i=0; i<_nodeId.Length; i++)
 		{
@@ -116,32 +118,24 @@ public enum CardTitle
 	FIVE,
 	SIX
 }
-
-// public enum Node
-// {
-// 	NODE1,
-// 	NODE2,
-// 	NODE3,
-// 	NODE4
-// }
-public enum Orientation
+public enum OrientationEnum
 {
 	NORTH,
 	EAST,
 	SOUTH,
 	WEST
 }
-// public enum NodeEnum
-// {
-// 	FRONT,
-// 	RIGHT,
-// 	BACK,
-// 	LEFT
-// }
 public enum NodeEnum
 {
 	FRONT,
-	LEFT,
+	RIGHT,
 	BACK,
-	RIGHT
+	LEFT
 }
+// public enum NodeEnum
+// {
+// 	FRONT,
+// 	LEFT,
+// 	BACK,
+// 	RIGHT
+// }

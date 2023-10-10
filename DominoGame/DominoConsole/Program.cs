@@ -91,15 +91,17 @@ public class Program
 							gameController.DrawRandomCard(currentPlayer);
 							cardsList = gameController.GetPlayerCards(currentPlayer);
 							deckTableCompatible = gameController.GetDeckTableCompatibleCards(cardsList, openEnds);
-							DisplayLine($"Player {currentPlayer.GetId()} {currentPlayer.GetName()} is drawing card from boneyard pile to the deck ...");
-							DisplayDeckCards(cardsList);
 							if (gameController.NumBoneyardCards() == 0)
 							{
 								DisplayLine("[WARNING!] Boneyard card pile is empty! No possible moves");
-								// TODO: Set CardStatus to pass
+								// (DONE): Set CardStatus to pass
 								gameController.SetPlayerStatus(currentPlayer, CardStatus.PASS);
-								// if pass, then getnextplayer
 								break;
+							}
+							else
+							{
+								DisplayLine($"Player {currentPlayer.GetId()} {currentPlayer.GetName()} is drawing card from boneyard pile to the deck ...");
+								DisplayDeckCards(cardsList);
 							}
 						}
 						while (deckTableCompatible.Count == 0);
@@ -113,7 +115,8 @@ public class Program
 						foreach (var kvp in deckTableCompatible)
 						{
 							i++;
-							DisplayLine($"{i}. Deck card (id: {kvp.Key.GetId()}): [{kvp.Key.Head}|{kvp.Key.Tail}] put next to -> Table card id: {kvp.Value.Id}, node: {kvp.Value.Node}, suit: {kvp.Value.Suit}");
+							// DisplayLine($"{i}. Deck card (id: {kvp.Key.GetId()}): [{kvp.Key.Head}|{kvp.Key.Tail}] put next to -> Table card id: {kvp.Value.Id}, node: {kvp.Value.Node}, suit: {kvp.Value.Suit}");
+							DisplayLine($"{i}. Deck card [{kvp.Key.Head}|{kvp.Key.Tail}] (id: {kvp.Key.GetId()}) put next to -> Table card [{gameController.GetCardFromId(kvp.Value.Id).Head}|{gameController.GetCardFromId(kvp.Value.Id).Tail}] (id: {kvp.Value.Id}) ");
 						}
 
 						bool status = false;
@@ -185,6 +188,101 @@ public class Program
 		}
 
 		//GameStatus:GAMEWIN
+		DisplayLine("Domino Game Finished! Thank you for playing");
+	}
+	static void FirstPlayerPicksCardId(IPlayer currentPlayer, List<Card> cardsList, ref Card putCard)
+	{
+		bool status = false;
+		int cardId;
+		do
+		{
+			Display($"Player {currentPlayer.GetId()} ({currentPlayer.GetName()}), please enter the card id to be placed on the table ... ");
+			status = Int32.TryParse(ReadInput(), out cardId);
+			if (cardsList.Any(x => x.GetId() == cardId))
+			{
+				putCard = cardsList.FirstOrDefault(x => x.GetId() == cardId);
+			}
+			else
+			{
+				status = false;
+			}
+			if (!status)
+			{
+				DisplayLine("You did not input a valid card id!");
+			}
+		} while (!status);
+	}
+	static string? ReadInput()
+	{
+		return Console.ReadLine();
+	}
+	static void Display<T>(T content)
+	{
+		Console.Write(content);
+	}
+	static void DisplayLine<T>(T content)
+	{
+		Console.WriteLine(content);
+	}
+	static void DisplayCard(Card card)
+	{
+		// center position (x,y)
+		// orientation
+		// length, width
+		// Check parent card orientation
+		char [,] dominoImage;
+		if(card.Orientation == OrientationEnum.NORTH || card.Orientation == OrientationEnum.SOUTH)
+		{
+			dominoImage = new char[5,5]
+			{{' ', '-', '-', '-',' '}, 
+			 {'|', ' ', 'H', ' ','|'},
+			 {'|', '-', '-', '-','|'},
+			 {'|', ' ', 'T', ' ','|'},
+			 {' ', '-', '-', '-',' '}};
+		}
+		else
+		{
+			dominoImage = new char[3,9]
+			{{' ','-','-','-','-','-','-','-',' '},
+			 {'|',' ','H',' ','|',' ','T',' ','|'},
+			 {' ','-','-','-','-','-','-','-',' '}};	
+		}
+		switch(card.Orientation)
+		{
+			case OrientationEnum.NORTH:
+			{
+				dominoImage[1,2] = card.Head.ToString().ToCharArray()[0];
+				dominoImage[3,2] = card.Tail.ToString().ToCharArray()[0];
+				break;
+			}
+			case OrientationEnum.SOUTH:
+			{
+				dominoImage[3,2] = card.Head.ToString().ToCharArray()[0];
+				dominoImage[1,2] = card.Tail.ToString().ToCharArray()[0];
+				break;
+			}
+			case OrientationEnum.EAST:
+			{
+				dominoImage[1,6] = card.Head.ToString().ToCharArray()[0];
+				dominoImage[1,2] = card.Tail.ToString().ToCharArray()[0];
+				break;
+			}
+			case OrientationEnum.WEST:
+			{
+				dominoImage[1,2] = card.Head.ToString().ToCharArray()[0];
+				dominoImage[1,6] = card.Tail.ToString().ToCharArray()[0];
+				break;
+			}
+			default: break;
+		}
+		for (int i = 0; i <= dominoImage.GetUpperBound(0); i++) 
+		{
+			for (int j = 0; j <= dominoImage.GetUpperBound(1); j++) 
+			{
+				Display(dominoImage[i,j]);
+			}
+			Display("\n");
+	  	}
 	}
 	static void DisplayDeckCards(List<Card> cardsList)
 	{
@@ -232,47 +330,14 @@ public class Program
 		}
 		Display("\n");
 	}
-	static void FirstPlayerPicksCardId(IPlayer currentPlayer, List<Card> cardsList, ref Card putCard)
-	{
-		bool status = false;
-		int cardId;
-		do
-		{
-			Display($"Player {currentPlayer.GetId()} ({currentPlayer.GetName()}), please enter the card id to be placed on the table ... ");
-			status = Int32.TryParse(ReadInput(), out cardId);
-			if (cardsList.Any(x => x.GetId() == cardId))
-			{
-				putCard = cardsList.FirstOrDefault(x => x.GetId() == cardId);
-			}
-			else
-			{
-				status = false;
-			}
-			if (!status)
-			{
-				DisplayLine("You did not input a valid card id!");
-			}
-		} while (!status);
-	}
-	static string? ReadInput()
-	{
-		return Console.ReadLine();
-	}
-	static void Display<T>(T content)
-	{
-		Console.Write(content);
-	}
-	static void DisplayLine<T>(T content)
-	{
-		Console.WriteLine(content);
-	}
 	static void DisplayTableCards(List<Card> tableCards)
 	{
 		foreach (var card in tableCards)
 		{
 			//TODO: How to render domino cards on console terminal >:-(
 			// How to check which card is in the left side, which one is on the right side
-			Display($"[{card.Head}|{card.Tail}]");
+			// Display($"[{card.Head}|{card.Tail}]");
+			DisplayCard(card);
 		}
 		Display("\n");
 	}

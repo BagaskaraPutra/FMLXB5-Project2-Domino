@@ -7,8 +7,6 @@ public class GameController
 {
 	public int NumPlayers { get; private set; }
 	public int Round {get; private set; }
-	//TODO: Is this the current round? 
-	// Is it a public property (with get-set methods)?
 	public readonly int MaxNumCardsPerPlayer;
 
 	private IPlayer _currentPlayer;
@@ -137,12 +135,12 @@ public class GameController
 	{
 		return _playersList;
 	}
-	public bool GetOrientation(bool IsDouble)
-	{
-		//TODO: What is IsDouble?	
-		// This checks the possible orientation of the card that is going to be placed
-		return false;
-	}
+	// public bool GetOrientation(bool IsDouble)
+	// {
+	// 	//TODO: What is IsDouble?	
+	// 	// This checks the possible orientation of the card that is going to be placed
+	// 	return false;
+	// }
 	public GameStatus CheckGameStatus()
 	{
 		return _gameStatus;
