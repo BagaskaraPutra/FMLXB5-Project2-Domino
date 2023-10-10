@@ -132,6 +132,10 @@ public class GameController
 	{
 		return _playersList;
 	}
+	public int GetPlayerScore(IPlayer player)
+	{
+		return _playerScoreDict[player];
+	}
 	public bool GetOrientation(bool IsDouble)
 	{
 		//TODO: What is IsDouble?	
@@ -341,21 +345,26 @@ public class GameController
 	public bool IsWinRound()
 	{
 		//TODO: Check for: 
-		//1. empty deck (DONE) OR
-		//2. no possible moves when boneyardCards is empty
+		//1. no possible moves when boneyardCards is empty OR
+		//2. empty deck (DONE)
 		bool winRound = false;
 		if (_boneyardCards.Count == 0)
 		{
-			// foreach (IPlayer player in _playerCardDict.Keys)
-			// {
-			// 	foreach (Card playerCard in _playerCardDict[player])
-			// 	{
-			// 		foreach (Card openEndCard in _openEndsDict)
-			// 		{
-			// 			if(openEndCard.Head == playerCard)
-			// 		}	
-			// 	}	
-			// }
+			// no possible moves when boneyardCards is empty
+			bool[] allNoValidMove = new bool[_playersList.Count];
+			int i = 0;
+			foreach (IPlayer player in _playersList)
+			{
+				if (GetDeckTableCompatibleCards(_playerCardDict[player], _openEndsSet).Count == 0)
+				{
+					allNoValidMove[i] = true;
+				}
+				i++;
+			}
+			if (allNoValidMove.All(x => x==false))
+			{
+				winRound = true;
+			}
 		}
 		else
 		{
@@ -376,6 +385,30 @@ public class GameController
 			_gameStatus = GameStatus.ROUNDWIN;
 		}
 		return winRound;
+	}
+	public IPlayer CalculateRoundScore()
+	{
+		// Get players' remaining cards
+		// Calculate score by by sum of all heads & tails 
+		// minus the winner's headTailSum
+		int[] headTailSumArray = new int[_playersList.Count];
+		int score = 0;
+		int i = 0;
+		foreach (var kvp in _playerCardDict)
+		{
+			foreach(var card in kvp.Value)
+			{
+				headTailSumArray[i] = card.GetHeadTailSum();
+				score += headTailSumArray[i];	
+			}
+			i++;
+		}
+		// winner is player with the least headTailSum 
+		int roundWinnerIdx = Array.IndexOf(headTailSumArray, headTailSumArray.Min());
+			
+		// Give score to round winner player
+		_playerScoreDict[_playersList[roundWinnerIdx]] += score - headTailSumArray[roundWinnerIdx];
+		return _playersList[roundWinnerIdx];	
 	}
 	public int NumBoneyardCards()
 	{

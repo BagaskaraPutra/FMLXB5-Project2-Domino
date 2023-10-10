@@ -152,15 +152,33 @@ public class Program
 			while (!gameController.IsWinRound());
 			// TODO: We have check IsWinRound() here & the inner while loop. Is it redundant?
 			
-			Display("\n[ROUND WINNER!]: ");
-			DisplayLine($"Player {currentPlayer.GetId()} {currentPlayer.GetName()} wins round because deck is empty.");
-
-			break; // TODO: Remove this. Only to break while loop & troubleshoot    
-
-			//	if either Player's card deck is empty OR no more valid move -> Round winner
-			//  Calculate score
 			// 	GameStatus:ROUNDWIN
-			//	reset round	
+			DisplayLine("\nRound ended");
+			
+			// Display players' remaining cards
+			foreach (IPlayer player in gameController.GetPlayers())
+			{
+				DisplayLine($"Player {player.GetId()} {player.GetName()}'s remaining cards:");
+				DisplayDeckCards(gameController.GetPlayerCards(player));
+				Display("\n");
+			}
+			
+			//  Calculate score
+			IPlayer roundWinner = gameController.CalculateRoundScore();
+			
+			//	if either Player's card deck is empty OR no more valid move -> Round winner
+			Display("[ROUND WINNER!]: ");
+			DisplayLine($"Player {roundWinner.GetId()} {roundWinner.GetName()} wins round");
+			Display("\n");
+			DisplayLine("Cumulative round players' score:");
+			foreach (IPlayer player in gameController.GetPlayers())
+			{
+				DisplayLine($"Player {player.GetId()} {player.GetName()}'s score: {gameController.GetPlayerScore(player)}");
+			}
+
+			//	Reset round	
+			
+			break; // TODO: Remove this. Only to break while loop & troubleshoot    
 		}
 
 		//GameStatus:GAMEWIN
