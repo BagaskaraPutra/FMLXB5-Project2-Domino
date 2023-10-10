@@ -15,6 +15,7 @@ public class GameController
 	private List<IPlayer> _playersList;
 	private Dictionary<IPlayer, List<Card>?> _playerCardDict;
 	private Dictionary<IPlayer, int> _playerScoreDict;
+	private Dictionary<IPlayer, CardStatus> _playerStatusDict;
 
 	private List<Card> _defaultCards;
 	// a list of default cards for template only
@@ -62,6 +63,7 @@ public class GameController
 		_playersList = new();
 		_playerCardDict = new();
 		_playerScoreDict = new();
+		_playerStatusDict = new();
 		_openEndsSet = new();
 
 		_tableCards = new();
@@ -87,6 +89,7 @@ public class GameController
 	}
 	public void DrawRandomCard(IPlayer player)
 	{
+		_playerStatusDict[player] = CardStatus.TAKECARD;
 		int index = _random.Next(_boneyardCards.Count);
 		// TODO: Unhandled exception. System.ArgumentOutOfRangeException: Index was out of range. Must be non-negative and less than the size of the collection. (Parameter 'index')
 		_playerCardDict[player].Add(_boneyardCards[index]);
@@ -117,8 +120,9 @@ public class GameController
 	{
 		bool successAddToCardDict = _playerCardDict.TryAdd(player, new());
 		bool successAddToScore = _playerScoreDict.TryAdd(player, 0);
+		bool successAddToStatus = _playerStatusDict.TryAdd(player, 0);
 		_playersList.Add(player);
-		return successAddToCardDict && successAddToScore;
+		return successAddToCardDict && successAddToScore && successAddToStatus;
 	}
 	public IPlayer GetPlayer(int id)
 	{
@@ -138,16 +142,21 @@ public class GameController
 	{
 		return _gameStatus;
 	}
-	public CardStatus CheckSetCardStatus()
+	// public CardStatus CheckSetCardStatus()
+	public CardStatus CheckPlayerStatus(IPlayer player)
 	{
-		return CardStatus.SETCARD;
+		return _playerStatusDict[player];
 	}
-	public bool SetNextTurn(IPlayer player, List<Card> cardHand)
+	public void SetPlayerStatus(IPlayer player, CardStatus status)
 	{
-		//TODO: What does this method do? Why does it need the cardHand parameter?
-		// Answer: cardHand is redundant because it is already contained in _playerCardDict
-		return false;
+		_playerStatusDict[player] = status;
 	}
+	// public bool SetNextTurn(IPlayer player, List<Card> cardHand)
+	// {
+	// 	//TODO: What does this method do? Why does it need the cardHand parameter?
+	// 	// Answer: cardHand is redundant because it is already contained in _playerCardDict
+	// 	return false;
+	// }
 	public IPlayer GetCurrentPlayer()
 	{
 		return _currentPlayer;
@@ -168,6 +177,7 @@ public class GameController
 	}
 	public void PutCard(IPlayer player, Card card)
 	{
+		_playerStatusDict[player] = CardStatus.SETCARD;
 		_tableCards.Add(card);
 		_playerCardDict[player].Remove(card);
 	}
@@ -176,6 +186,8 @@ public class GameController
 		//(DONE): In the GetTargetNodes() method, TryAdd & Add always adds new cards to the HashSet.
 		// What happens when the open-ended node is attached with a card from the player's deck?
 		// Delete the open-ended IdNodeSuit when adding player's card to the tableCard.
+		
+		_playerStatusDict[player] = CardStatus.SETCARD;
 		_tableCards.Add(card);
 		Card targetCard = _tableCards.FirstOrDefault(x => x.GetId()==targetINS.Id);
 		targetCard.SetCardIdAtNode(card.GetId(), targetINS.Node);
