@@ -1,6 +1,3 @@
-using System.Data;
-using System.Dynamic;
-
 namespace DominoConsole;
 
 public class GameController
@@ -298,17 +295,6 @@ public class GameController
 	public Card GetCardFromId(int id)
 	{
 		return _defaultCards.FirstOrDefault(x => x.GetId()==id);
-	}
-	public void ShowCards(IPlayer player)
-	{
-		// TODO: Maybe delete this function because UI is handled in Program.cs, not GameController
-		// For now, it is a helper function for debugging
-		foreach (Card card in _playerCardDict[player])
-		{
-			Console.WriteLine("id: {0},\t head: {1},\t tail: {2}", card.GetId(), card.Head, card.Tail);
-		}
-		// var chosenCard = _playerCardDict[player].Where(n => n.GetId() == id);
-		// Console.WriteLine("{0},{1},{2}",id,chosenCard.FirstOrDefault().head, chosenCard.FirstOrDefault().tail);	
 	}
 	public List<Card> GetPlayerCards(IPlayer player)
 	{
