@@ -14,12 +14,16 @@ public class DominoTree
 	}
 	public void CalcForwardKinematics(int id)
 	{
-		if (id == -1)
-			return;
-			
+		// TODO: Try without recursion
 		_currentCard = _tableCards.FirstOrDefault(x => x.GetId()==id);
+		if(_currentCard == null)
+		{
+			return;
+		}
+		
 		_parentId    = _currentCard.ParentId;
 		_parentCard  = _tableCards.FirstOrDefault(x => x.GetId()==_parentId);
+			
 		if (_parentId != -1)
 		{
 			if(_parentCard.IsDouble())
@@ -30,11 +34,13 @@ public class DominoTree
 					if(_currentCard.GetNode(_parentId) == NodeEnum.FRONT)
 					{
 						// if the currentCard's front/head is attached
-						_currentCard.SetOrientation(Transform2D.RotateCW(_parentCard.Orientation));	
+						_currentCard.SetOrientation(Transform2D.RotateCW(_parentCard.Orientation));
+						Console.WriteLine("parent Double LEFT current Single FRONT Rotate CW");	
 					}
 					else if(_currentCard.GetNode(_parentId) == NodeEnum.BACK)
 					{
-						_currentCard.SetOrientation(Transform2D.RotateCCW(_parentCard.Orientation));	
+						_currentCard.SetOrientation(Transform2D.RotateCCW(_parentCard.Orientation));
+						Console.WriteLine("parent Double LEFT current Single BACK Rotate CCW");		
 					}
 				}
 				else if(_parentCard.GetNode(_currentCard.GetId()) == NodeEnum.RIGHT)
@@ -43,11 +49,13 @@ public class DominoTree
 					if(_currentCard.GetNode(_parentId) == NodeEnum.FRONT)
 					{
 						// if the currentCard's front/head is attached
-						_currentCard.SetOrientation(Transform2D.RotateCCW(_parentCard.Orientation));	
+						_currentCard.SetOrientation(Transform2D.RotateCCW(_parentCard.Orientation));
+						Console.WriteLine("parent Double RIGHT current Single FRONT Rotate CCW");		
 					}
 					else if(_currentCard.GetNode(_parentId) == NodeEnum.BACK)
 					{
-						_currentCard.SetOrientation(Transform2D.RotateCW(_parentCard.Orientation));	
+						_currentCard.SetOrientation(Transform2D.RotateCW(_parentCard.Orientation));
+						Console.WriteLine("parent Double RIGHT current Single BACK Rotate CW");		
 					}
 				}
 			}
@@ -62,10 +70,12 @@ public class DominoTree
 						if(_currentCard.GetNode(_parentId) == NodeEnum.RIGHT)
 						{
 							_currentCard.SetOrientation(Transform2D.RotateCW(_parentCard.Orientation));
+							Console.WriteLine("parent Single FRONT current Double RIGHT Rotate CW");
 						}
 						else if(_currentCard.GetNode(_parentId) == NodeEnum.LEFT)
 						{
 							_currentCard.SetOrientation(Transform2D.RotateCCW(_parentCard.Orientation));
+							Console.WriteLine("parent Single FRONT current Double LEFT Rotate CCW");
 						}
 					}
 					else if(_parentCard.GetNode(_currentCard.GetId()) == NodeEnum.BACK)
@@ -73,10 +83,12 @@ public class DominoTree
 						if(_currentCard.GetNode(_parentId) == NodeEnum.RIGHT)
 						{
 							_currentCard.SetOrientation(Transform2D.RotateCW(_parentCard.Orientation));
+							Console.WriteLine("parent Single BACK current Double RIGHT Rotate CW");
 						}
 						else if(_currentCard.GetNode(_parentId) == NodeEnum.LEFT)
 						{
 							_currentCard.SetOrientation(Transform2D.RotateCCW(_parentCard.Orientation));
+							Console.WriteLine("parent Single BACK current Double LEFT Rotate CCW");
 						}
 					}
 				}
@@ -90,10 +102,12 @@ public class DominoTree
 						{
 							// if the currentCard's front/head is attached
 							_currentCard.SetOrientation(Transform2D.Rotate180(_parentCard.Orientation));
+							Console.WriteLine("parent Single FRONT current Single FRONT Rotate 180");
 						}
 						else if(_currentCard.GetNode(_parentId) == NodeEnum.BACK)
 						{
-							_currentCard.SetOrientation(_parentCard.Orientation);	
+							_currentCard.SetOrientation(_parentCard.Orientation);
+							Console.WriteLine("parent Single FRONT current Single BACK");	
 						}
 					}
 					else if(_parentCard.GetNode(_currentCard.GetId()) == NodeEnum.BACK)
@@ -102,67 +116,42 @@ public class DominoTree
 						{
 							// if the currentCard's front/head is attached
 							_currentCard.SetOrientation(_parentCard.Orientation);
+							Console.WriteLine("parent Single BACK current Single FRONT");	
 						}
 						else if(_currentCard.GetNode(_parentId) == NodeEnum.BACK)
 						{
-							_currentCard.SetOrientation(Transform2D.Rotate180(_parentCard.Orientation));	
+							_currentCard.SetOrientation(Transform2D.Rotate180(_parentCard.Orientation));
+							Console.WriteLine("parent Single BACK current Single BACK Rotate 180");		
 						}
 					}
 				}
 			}
 		}
 		
+		int openEndCount = 0;
 		foreach (NodeEnum node in Enum.GetValues(typeof(NodeEnum)))
 		{
-			CalcForwardKinematics(_currentCard.GetCardIdAtNode(node));
+			if(_currentCard.GetCardIdAtNode(node) == -1)
+			{
+				openEndCount++;
+			}
 		}
-	}
-	/*
-	public void PrintInOrder(Card card)
-	{
-		if (card == null)
+		if(openEndCount >= 3)
 		{
+			// Console.WriteLine("Open ended");
 			return;
 		}
-		else
-		{
-			previousCardId = card.GetId();
-		}
-		// else
-		// {
-		// 	previousCardId = card.GetId();
-		// 	numCards++;
-		// 	// Console.WriteLine($"previousCardId: {previousCardId}");
-		// }
-		// int total = Enum.GetValues(typeof(NodeEnum)).Length;
 		
-		NodeEnum[] NodeEnumArray = new NodeEnum[Enum.GetValues(typeof(NodeEnum)).Length];
-		int i = 0;
 		foreach (NodeEnum node in Enum.GetValues(typeof(NodeEnum)))
 		{
-			if (card.GetCardIdAtNode(node) != previousCardId)
+			if(_currentCard == null)
 			{
-				NodeEnumArray[i] = node;
+				return;
 			}
-			i++;
+			if (_currentCard.GetCardIdAtNode(node) != -1)
+			{
+				CalcForwardKinematics(_currentCard.GetCardIdAtNode(node));	
+			}
 		}
-		
-		// All the children except the last 
-		// NodeEnumArray = (NodeEnum[])Enum.GetValues(typeof(NodeEnum));
-		foreach (NodeEnum node in NodeEnumArray)
-		{
-			if(node == NodeEnumArray.Last())
-			{
-				break;
-			}
-			PrintInOrder(card.GetCardAtNode(node));
-		} 
-
-		// Print the current node's data 
-		Console.Write($"[{card.Head}|{card.Tail}] ");
-
-		// Last child 
-		PrintInOrder(card.GetCardAtNode(NodeEnumArray.Last()));
 	}
-	*/
 }

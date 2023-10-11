@@ -24,20 +24,16 @@ public class GameController
 	private List<Card> _tableCards;
 	// cards on the table already placed by the players
 
-	private BinaryTree<Card> _tableTree;
-	// binary tree of card on the table
-
-	// private Deck _deckcard;
-	// cards on each player's deck
-	// TODO: Redundant because already in _playerCardDict
-
 	private HashSet<IdNodeSuit>? _openEndsSet;
 	// dictionary of tableCards and their nodes that have open ends (can be placed with a card)
+	// TODO: Make Hashset<Card>
 
 	private List<KeyValuePair<Card, IdNodeSuit>> _compatibleList;
 	
 	
 	private Random _random;
+	// May be not random if not new()
+	// RandomNumberGenerator
 
 	private GameStatus _gameStatus;
 	public readonly int WinScore;
@@ -121,6 +117,7 @@ public class GameController
 	}
 	public bool AddPlayer(IPlayer player)
 	{
+		// TODO: If containsKey player, 
 		bool successAddToCardDict = _playerCardDict.TryAdd(player, new());
 		bool successAddToScore = _playerScoreDict.TryAdd(player, 0);
 		bool successAddToStatus = _playerStatusDict.TryAdd(player, 0);
@@ -135,12 +132,6 @@ public class GameController
 	{
 		return _playersList;
 	}
-	// public bool GetOrientation(bool IsDouble)
-	// {
-	// 	//TODO: What is IsDouble?	
-	// 	// This checks the possible orientation of the card that is going to be placed
-	// 	return false;
-	// }
 	public GameStatus CheckGameStatus()
 	{
 		return _gameStatus;

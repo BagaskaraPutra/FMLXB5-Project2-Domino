@@ -70,6 +70,7 @@ public class Card
 	public void SetParentId(int id)
 	{
 		ParentId = id;
+		// Console.WriteLine($"Set card {_id} parent's id to: {id}");
 	}
 	public bool SetOrientation(OrientationEnum orientation)
 	{
@@ -98,17 +99,6 @@ public struct IdNodeSuit
 		Node = node;
 		Suit = suit;
 	}	
-}
-
-public enum CardTitle
-{
-	ZERO,
-	ONE,
-	TWO,
-	THREE,
-	FOUR,
-	FIVE,
-	SIX
 }
 public enum NodeEnum
 {

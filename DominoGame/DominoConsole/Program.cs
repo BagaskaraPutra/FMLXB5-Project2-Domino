@@ -70,6 +70,8 @@ public class Program
 				while (!gameController.IsWinRound())
 				{
 					dominoTree = new(gameController.GetTableCards());
+					// TODO: List of cells
+					// cell: value, position, 
 					Display("\n");
 					DisplayLine("Table Cards:");
 					DisplayTableCards(gameController.GetTableCards(), dominoTree);
@@ -327,7 +329,7 @@ public class Program
 		// orientation
 		// length, width
 		// Check parent card orientation
-		int windowRows = (int)Console.WindowHeight/2;
+		int windowRows = (int)Console.WindowHeight;
 		int windowCols = Console.WindowWidth-2;
 		char[,] windowImage = new char[windowRows,windowCols];
 		for(int i=0; i<windowRows; i++)
@@ -339,7 +341,7 @@ public class Program
 		}
 		
 		int idxTableCard = 0;
-		int offsetX = 0, offsetY = 0;
+		int centerX = 0, centerY = 0;
 		foreach (var card in tableCards)
 		{
 			//TODO: How to render domino cards on console terminal >:-(
@@ -354,12 +356,12 @@ public class Program
 				{
 					card.SetOrientation(OrientationEnum.WEST);
 				}
-				offsetX = (int)windowRows/2;
-				offsetY = (int)windowCols/2;
-				card.Position.SetX(offsetX);
-				card.Position.SetY(offsetY);
+				centerX = (int)windowRows/2;
+				centerY = (int)windowCols/2;
+				card.Position.SetX(centerX);
+				card.Position.SetY(centerY);
 			}
-			// dominoTree.CalcForwardKinematics(tableCards[0].GetId());
+			dominoTree.CalcForwardKinematics(tableCards[0].GetId());
 			char[,] cardImage = GetCardImage(card);
 			Place2DArray(in cardImage, ref windowImage, card.Position.X, card.Position.Y);
 			idxTableCard++;
