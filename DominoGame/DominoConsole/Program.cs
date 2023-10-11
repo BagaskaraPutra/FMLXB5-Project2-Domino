@@ -60,6 +60,7 @@ public class Program
 				IdNodeSuit targetIdNodeSuit = new();
 				HashSet<IdNodeSuit> openEnds;
 				List<KeyValuePair<Card, IdNodeSuit>> deckTableCompatible;
+				DominoTree dominoTree;
 
 				FirstPlayerPicksCardId(currentPlayer, cardsList, ref putCard);
 				gameController.PutCard(currentPlayer, putCard);
@@ -68,13 +69,14 @@ public class Program
 				// while (gameController.CheckGameStatus() == GameStatus.ONGOING)
 				while (!gameController.IsWinRound())
 				{
+					dominoTree = new(gameController.GetTableCards());
 					Display("\n");
 					DisplayLine("Table Cards:");
-					DisplayTableCards(gameController.GetTableCards());
+					DisplayTableCards(gameController.GetTableCards(), dominoTree);
 
 					currentPlayer = gameController.GetNextPlayer();
 					cardsList = gameController.GetPlayerCards(currentPlayer);
-					Display("\n");
+					// Display("\n");
 					DisplayLine($"Player {currentPlayer.GetId()} {currentPlayer.GetName()}'s turn");
 					DisplayLine("Here are your available cards in your deck ...");
 					DisplayDeckCards(cardsList);
@@ -319,14 +321,14 @@ public class Program
 		}
 		Display("\n");
 	}
-	static void DisplayTableCards(List<Card> tableCards)
+	static void DisplayTableCards(List<Card> tableCards, DominoTree dominoTree)
 	{
 		// center position (x,y)
 		// orientation
 		// length, width
 		// Check parent card orientation
-		int windowRows = Console.WindowHeight;
-		int windowCols = Console.WindowWidth;
+		int windowRows = (int)Console.WindowHeight/2;
+		int windowCols = Console.WindowWidth-2;
 		char[,] windowImage = new char[windowRows,windowCols];
 		for(int i=0; i<windowRows; i++)
 		{
@@ -337,22 +339,29 @@ public class Program
 		}
 		
 		int idxTableCard = 0;
+		int offsetX = 0, offsetY = 0;
 		foreach (var card in tableCards)
 		{
 			//TODO: How to render domino cards on console terminal >:-(
 			// How to check which card is in the left side, which one is on the right side
 			
 			// Display($"[{card.Head}|{card.Tail}]");
+			
 			// the root/first card on the table
 			if(idxTableCard==0)
 			{
 				if(!card.IsDouble())
 				{
 					card.SetOrientation(OrientationEnum.WEST);
-				}	
+				}
+				offsetX = (int)windowRows/2;
+				offsetY = (int)windowCols/2;
+				card.Position.SetX(offsetX);
+				card.Position.SetY(offsetY);
 			}
+			// dominoTree.CalcForwardKinematics(tableCards[0].GetId());
 			char[,] cardImage = GetCardImage(card);
-			Place2DArray(in cardImage, ref windowImage, (int)windowRows/2, (int)windowCols/2);
+			Place2DArray(in cardImage, ref windowImage, card.Position.X, card.Position.Y);
 			idxTableCard++;
 		}
 		Display2DArray(windowImage);
@@ -369,13 +378,13 @@ public class Program
 			Display("\n");
 	  	}
 	}
-	static void Place2DArray<T>(in T[,] small, ref T[,] big, int centerX, int centerY)
+	static void Place2DArray<T>(in T[,] small, ref T[,] big, int offsetX, int offsetY)
 	{
 		for (int i=0; i<small.GetLength(0); i++)
 		{
 			for (int j=0; j<small.GetLength(1); j++)
 			{
-				big[i+centerX,j+centerY] = small[i,j];	
+				big[i+offsetX,j+offsetY] = small[i,j];	
 			}
 		}
 	}

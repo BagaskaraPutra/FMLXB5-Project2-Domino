@@ -192,8 +192,10 @@ public class GameController
 		
 		_playerStatusDict[player] = CardStatus.SETCARD;
 		_tableCards.Add(card);
+		
 		Card targetCard = _tableCards.FirstOrDefault(x => x.GetId()==targetINS.Id);
 		targetCard.SetCardIdAtNode(card.GetId(), targetINS.Node);
+		
 		NodeEnum cardNode = new();
 		if(card.IsDouble())
 		{
@@ -218,6 +220,7 @@ public class GameController
 			}
 		}
 		_tableCards.FirstOrDefault(x => x==card).SetCardIdAtNode(targetINS.Id, cardNode);
+		_tableCards.FirstOrDefault(x => x==card).SetParentId(targetINS.Id);
 		_openEndsSet.Remove(targetINS);
 		// _compatibleList.Remove(new(targetCard,targetINS));
 		_compatibleList.Clear(); 

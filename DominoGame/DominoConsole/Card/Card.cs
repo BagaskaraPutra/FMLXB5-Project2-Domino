@@ -1,24 +1,25 @@
-using System.Dynamic;
-
 namespace DominoConsole;
 
 public class Card
 {
 	private int _id;
 	private int[] _nodeId; // array of 4 nodes consisting of adjacent card id
-	private Card?[] _node; // array of 4 nodes consisting of adjacent Card objects
-	// private Card? _left, _right;
+	public int ParentId {get; private set;}
+	
 	public OrientationEnum Orientation {get; private set;}
+	public PositionStruct Position; //{get; private set;}
 	
 	public int Head {get; private set;}
 	public int Tail {get; private set;}
 	public Card()
 	{
 		_id = -1;
+		ParentId = -1;
 	}
 	public Card(int id, int head, int tail)
 	{
 		_id  = id;
+		ParentId = -1;
 		Head = head;
 		Tail = tail;
 		Orientation = OrientationEnum.NORTH;
@@ -27,12 +28,6 @@ public class Card
 		{
 			_nodeId[i] = -1;
 		}
-		_node = new Card[Enum.GetValues(typeof(NodeEnum)).Length];
-		for(int i=0; i<_node.Length; i++)
-		{
-			_node[i] = null;
-		}
-		// _left = _right = null; 
 	}
 	public bool IsDouble()
 	{
@@ -49,10 +44,17 @@ public class Card
 	{
 		return _id;
 	}
-	// public Node GetNode(int cardId)
-	// {
-	// 	return Node.NODE1;
-	// }
+	public NodeEnum GetNode(int cardId)
+	{
+		foreach (NodeEnum node in Enum.GetValues(typeof(NodeEnum)))
+		{
+			if(_nodeId[(int)node] == cardId)
+			{
+				return node;
+			}
+		}
+		return NodeEnum.FRONT;
+	}
 	public int[] GetCardIdArrayAtNodes()
 	{
 		return _nodeId;
@@ -61,39 +63,24 @@ public class Card
 	{
 		return _nodeId[(int)nodeEnum];
 	}
-	public Card GetCardAtNode(NodeEnum nodeEnum)
-	{
-		return _node[(int)nodeEnum];
-	}
 	public void SetCardIdAtNode(int cardId, NodeEnum nodeEnum)
 	{
 		_nodeId[(int)nodeEnum] = cardId;
 	}
-	public void SetCardAtNode(Card card, NodeEnum nodeEnum)
+	public void SetParentId(int id)
 	{
-		_node[(int)nodeEnum] = card;
+		ParentId = id;
 	}
 	public bool SetOrientation(OrientationEnum orientation)
 	{
 		Orientation = orientation;
 		return true;
 	}
-	// public Card GetLeftCard()
-	// {
-	// 	return _left;
-	// }
-	// public void SetLeftCard(Card left)
-	// {
-	// 	_left = left;
-	// }
-	// public Card GetRightCard()
-	// {
-	// 	return _right;
-	// }
-	// public void SetRightCard(Card right)
-	// {
-	// 	_right = right;
-	// }
+	public bool SetPosition(PositionStruct position)
+	{
+		Position = position;
+		return true;
+	}
 	public int GetHeadTailSum()
 	{
 		return Head+Tail;
@@ -123,13 +110,6 @@ public enum CardTitle
 	FIVE,
 	SIX
 }
-public enum OrientationEnum
-{
-	NORTH,
-	EAST,
-	SOUTH,
-	WEST
-}
 public enum NodeEnum
 {
 	FRONT,
@@ -137,10 +117,3 @@ public enum NodeEnum
 	BACK,
 	LEFT
 }
-// public enum NodeEnum
-// {
-// 	FRONT,
-// 	LEFT,
-// 	BACK,
-// 	RIGHT
-// }
