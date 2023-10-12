@@ -15,49 +15,55 @@ public partial class Program
 	{
 		Console.WriteLine(content);
 	}
-	static char[,] GetCardImage(Card card)
+	static List<List<char>> verticalCardImage = new()
 	{
-		char[,] cardImage;
+		new() {' ', '-', '-', '-',' '},
+		new() {'|', ' ', 'H', ' ','|'},
+		new() {'|', '-', '-', '-','|'},
+		new() {'|', ' ', 'T', ' ','|'},
+		new() {' ', '-', '-', '-',' '}
+	};
+	static List<List<char>> horizontalCardImage = new()
+	{
+		new(){' ','-','-','-','-','-','-','-',' '},
+		new(){'|',' ','H',' ','|',' ','T',' ','|'},
+		new(){' ','-','-','-','-','-','-','-',' '}
+	};
+	static List<List<char>> cardImage = new();
+	static List<List<char>> GetCardImage(Card card)
+	{
 		if (card.Orientation == OrientationEnum.NORTH || card.Orientation == OrientationEnum.SOUTH)
 		{
-			cardImage = new char[5, 5]
-			{{' ', '-', '-', '-',' '},
-			 {'|', ' ', 'H', ' ','|'},
-			 {'|', '-', '-', '-','|'},
-			 {'|', ' ', 'T', ' ','|'},
-			 {' ', '-', '-', '-',' '}};
+			cardImage = verticalCardImage;
 		}
 		else
 		{
-			cardImage = new char[3, 9]
-			{{' ','-','-','-','-','-','-','-',' '},
-			 {'|',' ','H',' ','|',' ','T',' ','|'},
-			 {' ','-','-','-','-','-','-','-',' '}};
+			cardImage = horizontalCardImage;
 		}
 		switch (card.Orientation)
 		{
 			case OrientationEnum.NORTH:
 				{
-					cardImage[1, 2] = card.Head.ToString().ToCharArray()[0];
-					cardImage[3, 2] = card.Tail.ToString().ToCharArray()[0];
+					cardImage[1][2] = card.Head.ToString().ToCharArray()[0];
+					cardImage[3][2] = card.Tail.ToString().ToCharArray()[0];
 					break;
 				}
 			case OrientationEnum.SOUTH:
 				{
-					cardImage[3, 2] = card.Head.ToString().ToCharArray()[0];
-					cardImage[1, 2] = card.Tail.ToString().ToCharArray()[0];
+					cardImage[3][2] = card.Head.ToString().ToCharArray()[0];
+					cardImage[1][2] = card.Tail.ToString().ToCharArray()[0];
 					break;
 				}
 			case OrientationEnum.EAST:
 				{
-					cardImage[1, 6] = card.Head.ToString().ToCharArray()[0];
-					cardImage[1, 2] = card.Tail.ToString().ToCharArray()[0];
+					cardImage[1][6] = card.Head.ToString().ToCharArray()[0];
+					cardImage[1][2] = card.Tail.ToString().ToCharArray()[0];
 					break;
 				}
 			case OrientationEnum.WEST:
 				{
-					cardImage[1, 2] = card.Head.ToString().ToCharArray()[0];
-					cardImage[1, 6] = card.Tail.ToString().ToCharArray()[0];
+					cardImage[1][2] = card.Head.ToString().ToCharArray()[0];
+					cardImage[1][6] = card.Tail.ToString().ToCharArray()[0];
 					break;
 				}
 			default: break;
@@ -110,23 +116,61 @@ public partial class Program
 		}
 		Display("\n");
 	}
-	static void DisplayTableCards(List<Card> tableCards, DominoTree dominoTree)
+	static readonly int _defaultWindowRows = 8; //(int)Console.WindowHeight;
+	static readonly int _defaultWindowCols = Console.WindowWidth - 2;
+	static List<List<char>> windowImage = new(_defaultWindowRows);
+	static void InitializeWindowDisplay()
 	{
-		int windowRows = (int)Console.WindowHeight;
-		int windowCols = Console.WindowWidth - 2;
-		char[,] windowImage = new char[windowRows, windowCols];
-		for (int i = 0; i < windowRows; i++)
+		for (int i = 0; i < 12; i++)
 		{
-			for (int j = 0; j < windowCols; j++)
+			windowImage.Add(new List<char>(Console.WindowWidth - 2));
+
+			for (int j = 0; j < _defaultWindowCols; j++)
 			{
-				windowImage[i, j] = ' ';
+				windowImage[i].Add(' ');
 			}
 		}
-
-		int centerX = 0, centerY = 0;
-		centerX = (int)windowRows / 2;
-		centerY = (int)windowCols / 2;
+	}
+	static void ResizeWindowToFitTerminal()
+	{
+		int windowCols = windowImage[0].Count;
+		int consoleWidth = Console.WindowWidth;
+		int differenceCols = Math.Abs(windowCols - consoleWidth);
+		// Console.WriteLine($"windowCols: {windowCols}, consoleWidth: {consoleWidth}");
+		if(windowCols >= consoleWidth)
+		{
+			foreach (var windowRowList in windowImage)
+			{
+				windowRowList.RemoveRange(consoleWidth-1, differenceCols);
+			}
+		}
+		else
+		{
+			Console.WriteLine("windowImage columns < consoleWidth");
+			foreach (var windowRowList in windowImage)
+			{
+				for(int i=0; i<differenceCols-1; i++)
+				{
+					windowRowList.Add(' ');
+				}
+			}
+		}
+	}
+	static void DisplayTableCards(List<Card> tableCards, DominoTree dominoTree)
+	{
+		// char[,] windowImage = new char[windowRows, windowCols];
+		ResizeWindowToFitTerminal();
+		for (int i = 0; i < windowImage.Count; i++)
+		{
+			for (int j = 0; j < windowImage[i].Count; j++)
+			{
+				windowImage[i][j] = ' ';
+			}
+		}
 		
+		int centerX = 0, centerY = 0;
+		centerX = (int)windowImage.Count / 2;
+		centerY = (int)windowImage[0].Count / 2;
 		if (!tableCards[0].IsDouble())
 		{
 			tableCards[0].SetOrientation(OrientationEnum.WEST);
@@ -138,20 +182,32 @@ public partial class Program
 			tableCards[0].Position.SetX(centerX - 1);
 			tableCards[0].Position.SetY(centerY - 4);
 		}
-		
+
 		foreach (var card in tableCards)
 		{
 			//TODO: How to render domino cards on console terminal >:-(
-			
+
 			// Display($"[{card.Head}|{card.Tail}]");
 			dominoTree.CalcForwardKinematics(card.GetId());
-			char[,] cardImage = GetCardImage(card);
-			Place2DArray(in cardImage, ref windowImage, card.Position.X, card.Position.Y);
+			// char[,] cardImage = GetCardImage(card);
+			cardImage = GetCardImage(card);
+			Place2D(in cardImage, ref windowImage, card.Position.X, card.Position.Y);
 		}
-		Display2DArray(windowImage);
+		Display2D(windowImage);
 		Display("\n");
 	}
-	static void Display2DArray<T>(T[,] array)
+	static void Display2D<T>(List<List<T>> listlist)
+	{
+		for (int i = 0; i < listlist.Count; i++)
+		{
+			for (int j = 0; j < listlist[i].Count; j++)
+			{
+				Display(listlist[i][j]);
+			}
+			Display("\n");
+		}
+	}
+	static void Display2D<T>(T[,] array)
 	{
 		for (int i = 0; i <= array.GetUpperBound(0); i++)
 		{
@@ -162,7 +218,39 @@ public partial class Program
 			Display("\n");
 		}
 	}
-	static void Place2DArray<T>(in T[,] small, ref T[,] big, int offsetX, int offsetY)
+	static void Place2D(in List<List<char>> small, ref List<List<char>> big, int offsetX, int offsetY)
+	{
+		int smallRows = small.Count;
+		int smallCols = small[0].Count;
+		int bigRows = big.Count;
+		int bigCols = big[0].Count;
+		if(bigRows < smallRows)
+		{
+			do
+			{
+				big.Add(new());
+			}while(big.Count < smallRows);
+		}
+		if(bigCols < smallCols)
+		{
+			foreach(var bigRow in big)
+			{
+				do
+				{
+					bigRow.Add(' ');
+				}while(bigRow.Count < smallCols);
+			}
+		}
+		for (int i = 0; i < smallRows; i++)
+		{
+			for (int j = 0; j < smallCols; j++)
+			{
+				big[i + offsetX][j + offsetY] = small[i][j];
+			}
+		}
+
+	}
+	static void Place2D<T>(in T[,] small, ref T[,] big, int offsetX, int offsetY)
 	{
 		for (int i = 0; i < small.GetLength(0); i++)
 		{

@@ -15,17 +15,15 @@ public partial class Program
 		using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
 		{
 			csv.Context.RegisterClassMap<CardKinematicsMap>();
-			var cardKinematics = csv.GetRecords<CardKinematics>();
-			cardKinematicsLUT = cardKinematics.ToList();
+			cardKinematicsLUT = csv.GetRecords<CardKinematics>().ToList();
 		}
-		// foreach (var ck in cardKinematicsLUT)
-		// {
-		// 	Console.WriteLine($"parent IsDouble: {ck.ParentIsDouble}, {ck.CurrentOrientation}");
-		// }
 		
 		//GameStatus:NOTSTARTED
 		//Input number of players & win score
 		GameController gameController = new(numPlayers: 3, winScore: 100);
+		
+		InitializeWindowDisplay();
+		
 		//Players input id & name
 		for (int i = 0; i < gameController.NumPlayers; i++)
 		{
