@@ -1,10 +1,28 @@
-﻿using DominoConsole;
+﻿using CsvHelper;
+using System.Globalization;
+using DominoConsole;
+
 namespace Program;
 
 public partial class Program
 {
 	static void Main()
 	{
+		//Load config
+		List<CardKinematics> cardKinematicsLUT;
+
+		using (var reader = new StreamReader("config/DominoCardKinematicsLookupTable.csv"))
+		using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
+		{
+			csv.Context.RegisterClassMap<CardKinematicsMap>();
+			var cardKinematics = csv.GetRecords<CardKinematics>();
+			cardKinematicsLUT = cardKinematics.ToList();
+		}
+		// foreach (var ck in cardKinematicsLUT)
+		// {
+		// 	Console.WriteLine($"parent IsDouble: {ck.ParentIsDouble}, {ck.CurrentOrientation}");
+		// }
+		
 		//GameStatus:NOTSTARTED
 		//Input number of players & win score
 		GameController gameController = new(numPlayers: 3, winScore: 100);
@@ -71,7 +89,7 @@ public partial class Program
 				// while (gameController.CheckGameStatus() == GameStatus.ONGOING)
 				while (!gameController.IsWinRound())
 				{
-					dominoTree = new(gameController.GetTableCards());
+					dominoTree = new(gameController.GetTableCards(), cardKinematicsLUT);
 					// TODO: List of cells
 					// cell: value, position, 
 					Display("\n");

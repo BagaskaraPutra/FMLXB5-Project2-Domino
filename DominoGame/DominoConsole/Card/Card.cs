@@ -15,6 +15,11 @@ public class Card
 	{
 		_id = -1;
 		ParentId = -1;
+		_nodeId = new int[Enum.GetValues(typeof(NodeEnum)).Length];
+		for(int i=0; i<_nodeId.Length; i++)
+		{
+			_nodeId[i] = -1;
+		}
 	}
 	public Card(int id, int head, int tail)
 	{
