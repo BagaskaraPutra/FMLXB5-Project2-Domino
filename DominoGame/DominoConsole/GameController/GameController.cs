@@ -187,22 +187,22 @@ public class GameController
 		NodeEnum cardNode = new();
 		if(card.IsDouble())
 		{
-			if(card.Head == targetINS.Id)
+			if(card.Head == targetINS.Suit)
 			{
 				cardNode = NodeEnum.LEFT;
 			}
-			else if(card.Tail == targetINS.Id)
+			else if(card.Tail == targetINS.Suit)
 			{
 				cardNode = NodeEnum.RIGHT;
 			}
 		}
 		else
 		{
-			if(card.Head == targetINS.Id)
+			if(card.Head == targetINS.Suit)
 			{
 				cardNode = NodeEnum.FRONT;
 			}
-			else if(card.Tail == targetINS.Id)
+			else if(card.Tail == targetINS.Suit)
 			{
 				cardNode = NodeEnum.BACK;
 			}

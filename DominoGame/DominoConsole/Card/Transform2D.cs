@@ -4,7 +4,7 @@ public static class Transform2D
 {
 	public static OrientationEnum RotateCW(OrientationEnum orientation)
 	{
-		// Console.WriteLine("Rotate CW");
+		Console.WriteLine("Rotate CW");
 		return orientation.Next();
 	}
 	public static OrientationEnum RotateCCW(OrientationEnum orientation)

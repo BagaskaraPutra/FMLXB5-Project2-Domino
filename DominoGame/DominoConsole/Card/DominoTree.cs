@@ -42,39 +42,14 @@ public class DominoTree
 				Console.WriteLine("Not yet implemented in lookup table");
 				return;
 			}
+			// Console.WriteLine($"desired orientation: {_desiredCardKinematics.CurrentOrientation}");
 			_currentCard.SetOrientation(_desiredCardKinematics.CurrentOrientation);
 			_currentCard.Position.SetX(_parentCard.Position.X + _desiredCardKinematics.CurrentOffsetX);
 			_currentCard.Position.SetY(_parentCard.Position.Y + _desiredCardKinematics.CurrentOffsetY);
 			Console.WriteLine($"parent card [{_parentCard.Head}|{_parentCard.Tail}] IsDouble: {_parentCard.IsDouble()}, \t node: {_parentCard.GetNode(_currentCard.GetId())}, \t orientation: {_parentCard.Orientation} \t x: {_parentCard.Position.X} \t y: {_parentCard.Position.Y}");
-			Console.WriteLine($"current card [{_currentCard.Head}|{_currentCard.Tail}] IsDouble: {_currentCard.IsDouble()}, \t node: {_currentCard.GetNode(_currentCard.GetId())}, \t orientation: {_currentCard.Orientation} \t x: {_currentCard.Position.X} \t y: {_currentCard.Position.Y}");
+			Console.WriteLine($"current card [{_currentCard.Head}|{_currentCard.Tail}] IsDouble: {_currentCard.IsDouble()}, \t node: {_currentCard.GetNode(_parentCard.GetId())}, \t orientation: {_currentCard.Orientation} \t x: {_currentCard.Position.X} \t y: {_currentCard.Position.Y}");
 			// Console.WriteLine($"parent  card [{_parentCard.Head}|{_parentCard.Tail}] position x: {_parentCard.Position.X} \t y: {_parentCard.Position.Y}");
 			// Console.WriteLine($"current card [{_currentCard.Head}|{_currentCard.Tail}] position x: {_currentCard.Position.X} \t y: {_currentCard.Position.Y}");
 		}
-
-		// int openEndCount = 0;
-		// foreach (NodeEnum node in Enum.GetValues(typeof(NodeEnum)))
-		// {
-		// 	if(_currentCard.GetCardIdAtNode(node) == -1)
-		// 	{
-		// 		openEndCount++;
-		// 	}
-		// }
-		// if(openEndCount >= 3)
-		// {
-		// 	// Console.WriteLine("Open ended");
-		// 	return;
-		// }
-
-		// foreach (NodeEnum node in Enum.GetValues(typeof(NodeEnum)))
-		// {
-		// 	if(_currentCard == null)
-		// 	{
-		// 		return;
-		// 	}
-		// 	if (_currentCard.GetCardIdAtNode(node) != -1)
-		// 	{
-		// 		CalcForwardKinematics(_currentCard.GetCardIdAtNode(node));	
-		// 	}
-		// }
 	}
 }

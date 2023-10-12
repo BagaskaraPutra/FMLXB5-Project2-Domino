@@ -51,14 +51,16 @@ public class Card
 	}
 	public NodeEnum GetNode(int cardId)
 	{
+		NodeEnum matchedNode = NodeEnum.FRONT;
 		foreach (NodeEnum node in Enum.GetValues(typeof(NodeEnum)))
 		{
 			if(_nodeId[(int)node] == cardId)
 			{
-				return node;
+				matchedNode = node;
 			}
 		}
-		return NodeEnum.FRONT;
+		// Console.WriteLine($"Current card [{Head}|{Tail}] matchedNode: {matchedNode} to cardId {cardId}");
+		return matchedNode;
 	}
 	public int[] GetCardIdArrayAtNodes()
 	{

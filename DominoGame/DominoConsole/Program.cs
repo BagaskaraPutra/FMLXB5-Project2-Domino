@@ -17,6 +17,12 @@ public partial class Program
 			csv.Context.RegisterClassMap<CardKinematicsMap>();
 			cardKinematicsLUT = csv.GetRecords<CardKinematics>().ToList();
 		}
+		int idxLUT = 0;
+		foreach (var ck in cardKinematicsLUT)
+		{
+			idxLUT++;
+			Console.WriteLine($"{idxLUT}. P_IsDouble: {ck.ParentIsDouble}, C_IsDouble: {ck.CurrentIsDouble}, P_Node {ck.ParentNode}, C_Node: {ck.CurrentNode}, P_Ori: {ck.ParentOrientation}, C_Ori: {ck.CurrentOrientation}");
+		}
 		
 		//GameStatus:NOTSTARTED
 		//Input number of players & win score
