@@ -17,17 +17,17 @@ public partial class Program
 	}
 	static List<List<char>> verticalCardImage = new()
 	{
-		new() {' ', '-', '-', '-',' '},
-		new() {'|', ' ', 'H', ' ','|'},
-		new() {'|', '-', '-', '-','|'},
-		new() {'|', ' ', 'T', ' ','|'},
-		new() {' ', '-', '-', '-',' '}
+		new() {'┌','─','─','─','┐'},
+		new() {'│',' ','H',' ','│'},
+		new() {'│','─','─','─','│'},
+		new() {'│',' ','T',' ','│'},
+		new() {'└','─','─','─','┘'}
 	};
 	static List<List<char>> horizontalCardImage = new()
 	{
-		new(){' ','-','-','-','-','-','-','-',' '},
-		new(){'|',' ','H',' ','|',' ','T',' ','|'},
-		new(){' ','-','-','-','-','-','-','-',' '}
+		new(){'┌','─','─','─','─','─','─','─','┐'},
+		new(){'│',' ','H',' ','│',' ','T',' ','│'},
+		new(){'└','─','─','─','─','─','─','─','┘'}
 	};
 	static List<List<char>> cardImage = new();
 	static List<List<char>> GetCardImage(Card card)
@@ -76,35 +76,35 @@ public partial class Program
 		Display("        ");
 		for (i = 0; i < cardsList.Count; i++)
 		{
-			Display(" --- \t");
+			Display("┌───┐\t");
 		}
 		Display("\n");
 		Display("        ");
 		foreach (Card card in cardsList)
 		{
-			Display("| ");
+			Display("│ ");
 			Display(card.Head);
-			Display(" |\t");
+			Display(" │\t");
 		}
 		Display("\n");
 		Display("        ");
 		for (i = 0; i < cardsList.Count; i++)
 		{
-			Display("|---|\t");
+			Display("│───│\t");
 		}
 		Display("\n");
 		Display("        ");
 		foreach (Card card in cardsList)
 		{
-			Display("| ");
+			Display("│ ");
 			Display(card.Tail);
-			Display(" |\t");
+			Display(" │\t");
 		}
 		Display("\n");
 		Display("        ");
 		for (i = 0; i < cardsList.Count; i++)
 		{
-			Display(" --- \t");
+			Display("└───┘\t");
 		}
 		Display("\n");
 		Display("card id:");
@@ -191,6 +191,7 @@ public partial class Program
 			dominoTree.CalcForwardKinematics(card.GetId());
 			// char[,] cardImage = GetCardImage(card);
 			cardImage = GetCardImage(card);
+			IsExceedBorder(card);
 			Place2D(in cardImage, ref windowImage, card.Position.X, card.Position.Y);
 		}
 		Display2D(windowImage);
@@ -258,6 +259,40 @@ public partial class Program
 			{
 				big[i + offsetX, j + offsetY] = small[i, j];
 			}
+		}
+	}
+	static bool IsExceedBorder(Card card)
+	{
+		int positionX = card.Position.X;
+		int positionY = card.Position.Y;
+		OrientationEnum orientation = card.Orientation;
+		if(card.Position.Y < 0)
+		{		
+			card.SetOrientation(Transform2D.RotateCW(orientation));
+			if(card.IsDouble())
+			{
+				card.Position.SetX(positionX - 3);	
+			}
+			else
+			{
+				card.Position.SetX(positionX - 3);
+				card.Position.SetY(positionY + 3);	
+			}
+			return true;
+		}
+		else if(card.IsDouble() && card.Position.Y + 10 > Console.WindowWidth)
+		{
+			card.SetOrientation(Transform2D.RotateCW(card.Orientation));
+			return true;
+		}
+		else if(!card.IsDouble() && card.Position.Y + 6 > Console.WindowWidth)
+		{
+			card.SetOrientation(Transform2D.RotateCW(card.Orientation));
+			return true;
+		}
+		else
+		{
+			return false;
 		}
 	}
 }
