@@ -2,7 +2,15 @@ namespace DominoConsole;
 
 public class CardGUI : Card
 {
-	private List<List<char>>? _cardImage;
+	public int CenterPosX {get; private set;} 
+	public int CenterPosY {get; private set;} 
+	public int HeadPosX {get; private set;} 
+	public int HeadPosY {get; private set;} 
+	public int TailPosX {get; private set;}  
+	public int TailPosY {get; private set;} 
+	public int LengthX {get; private set;}
+	public int LengthY {get; private set;}
+	private List<List<char>>? _image;
 	public OrientationEnum Orientation {get; private set;}
 	public PositionStruct Position;
 	
@@ -15,8 +23,15 @@ public class CardGUI : Card
 		Tail = card.Tail;
 		_nodeId = new int[Enum.GetValues(typeof(NodeEnum)).Length];
 		_nodeId = card.GetCardIdArrayAtNodes();
-		Orientation = OrientationEnum.NORTH;
-		_cardImage = new();
+		if(card.IsDouble())
+		{
+			Orientation = OrientationEnum.NORTH;
+		}
+		else
+		{
+			Orientation = OrientationEnum.WEST;
+		}
+		_image = new();
 	}
 	public List<List<char>>? VerticalCardImage {get; set; }
 	public List<List<char>>? HorizontalCardImage {get; set; }
@@ -37,44 +52,48 @@ public class CardGUI : Card
 		Position = position;
 		return true;
 	}
-	public List<List<char>> GetCardImage()
+	public List<List<char>> GetImage()
 	{
 		if (Orientation == OrientationEnum.NORTH || Orientation == OrientationEnum.SOUTH)
 		{
-			_cardImage = StaticVerticalCardImage;
+			_image = StaticVerticalCardImage;
 		}
 		else
 		{
-			_cardImage = StaticHorizontalCardImage;
+			_image = StaticHorizontalCardImage;
 		}
+		LengthX = _image.Count;
+		LengthY = _image[0].Count;
+		CenterPosX = (int)LengthX/2;
+		CenterPosY = (int)LengthY/2;
 		switch (Orientation)
 		{
 			case OrientationEnum.NORTH:
-				{
-					_cardImage[1][2] = Head.ToString().ToCharArray()[0];
-					_cardImage[3][2] = Tail.ToString().ToCharArray()[0];
-					break;
-				}
+			{
+				_image[1][2] = Head.ToString().ToCharArray()[0];
+				_image[3][2] = Tail.ToString().ToCharArray()[0];
+				break;
+			}
 			case OrientationEnum.SOUTH:
-				{
-					_cardImage[3][2] = Head.ToString().ToCharArray()[0];
-					_cardImage[1][2] = Tail.ToString().ToCharArray()[0];
-					break;
-				}
+			{
+				_image[3][2] = Head.ToString().ToCharArray()[0];
+				_image[1][2] = Tail.ToString().ToCharArray()[0];
+				break;
+			}
 			case OrientationEnum.EAST:
-				{
-					_cardImage[1][6] = Head.ToString().ToCharArray()[0];
-					_cardImage[1][2] = Tail.ToString().ToCharArray()[0];
-					break;
-				}
+			{
+				_image[1][6] = Head.ToString().ToCharArray()[0];
+				_image[1][2] = Tail.ToString().ToCharArray()[0];
+				break;
+			}
 			case OrientationEnum.WEST:
-				{
-					_cardImage[1][2] = Head.ToString().ToCharArray()[0];
-					_cardImage[1][6] = Tail.ToString().ToCharArray()[0];
-					break;
-				}
+			{
+				_image[1][2] = Head.ToString().ToCharArray()[0];
+				_image[1][6] = Tail.ToString().ToCharArray()[0];
+				break;
+			}
 			default: break;
 		}
-		return _cardImage;
+		return _image;
 	}
 }

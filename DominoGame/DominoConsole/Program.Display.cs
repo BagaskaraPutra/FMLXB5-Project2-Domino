@@ -15,21 +15,6 @@ public partial class Program
 	{
 		Console.WriteLine(content);
 	}
-	// static List<List<char>> verticalCardImage = new()
-	// {
-	// 	new() {'┌','─','─','─','┐'},
-	// 	new() {'│',' ','H',' ','│'},
-	// 	new() {'│','─','─','─','│'},
-	// 	new() {'│',' ','T',' ','│'},
-	// 	new() {'└','─','─','─','┘'}
-	// };
-	// static List<List<char>> horizontalCardImage = new()
-	// {
-	// 	new(){'┌','─','─','─','─','─','─','─','┐'},
-	// 	new(){'│',' ','H',' ','│',' ','T',' ','│'},
-	// 	new(){'└','─','─','─','─','─','─','─','┘'}
-	// };
-	// static List<List<char>> cardImage = new();
 	static void DisplayDeckCards(List<Card> cardsList)
 	{
 		int i;
@@ -76,70 +61,20 @@ public partial class Program
 		}
 		Display("\n");
 	}
-	static readonly int _defaultWindowRows = 8; //(int)Console.WindowHeight;
-	static readonly int _defaultWindowCols = Console.WindowWidth - 2;
-	static List<List<char>> windowImage = new(_defaultWindowRows);
-	static void InitializeWindowDisplay()
-	{
-		for (int i = 0; i < 12; i++)
-		{
-			windowImage.Add(new List<char>(Console.WindowWidth - 2));
-
-			for (int j = 0; j < _defaultWindowCols; j++)
-			{
-				windowImage[i].Add(' ');
-			}
-		}
-	}
-	static void ResizeWindowToFitTerminal()
-	{
-		int windowCols = windowImage[0].Count;
-		int consoleWidth = Console.WindowWidth;
-		int differenceCols = Math.Abs(windowCols - consoleWidth);
-		// Console.WriteLine($"windowCols: {windowCols}, consoleWidth: {consoleWidth}");
-		if(windowCols >= consoleWidth)
-		{
-			foreach (var windowRowList in windowImage)
-			{
-				windowRowList.RemoveRange(consoleWidth-1, differenceCols);
-			}
-		}
-		else
-		{
-			Console.WriteLine("windowImage columns < consoleWidth");
-			foreach (var windowRowList in windowImage)
-			{
-				for(int i=0; i<differenceCols-1; i++)
-				{
-					windowRowList.Add(' ');
-				}
-			}
-		}
-	}
 	static void DisplayTableCards(DominoTree dominoTree)
 	{
-		// char[,] windowImage = new char[windowRows, windowCols];
-		ResizeWindowToFitTerminal();
-		for (int i = 0; i < windowImage.Count; i++)
-		{
-			for (int j = 0; j < windowImage[i].Count; j++)
-			{
-				windowImage[i][j] = ' ';
-			}
-		}
-		int centerX = 0, centerY = 0;
-		centerX = (int)windowImage.Count / 2;
-		centerY = (int)windowImage[0].Count / 2;
+		windowGUI.ResizeToFitTerminal();
+		// windowGUI.Clear();
 		if (!dominoTree.GetTableCardsGUI()[0].IsDouble())
 		{
-			dominoTree.GetTableCardsGUI()[0].SetOrientation(OrientationEnum.WEST);
-			dominoTree.GetTableCardsGUI()[0].Position.SetX(centerX - 2);
-			dominoTree.GetTableCardsGUI()[0].Position.SetY(centerY - 2);
+			// dominoTree.GetTableCardsGUI()[0].SetOrientation(OrientationEnum.WEST);
+			dominoTree.GetTableCardsGUI()[0].Position.SetX(windowGUI.CenterX - 2);
+			dominoTree.GetTableCardsGUI()[0].Position.SetY(windowGUI.CenterY - 2);
 		}
 		else
 		{
-			dominoTree.GetTableCardsGUI()[0].Position.SetX(centerX - 1);
-			dominoTree.GetTableCardsGUI()[0].Position.SetY(centerY - 4);
+			dominoTree.GetTableCardsGUI()[0].Position.SetX(windowGUI.CenterX - 1);
+			dominoTree.GetTableCardsGUI()[0].Position.SetY(windowGUI.CenterY - 4);
 		}
 
 		foreach (var cardGUI in dominoTree.GetTableCardsGUI())
@@ -148,11 +83,11 @@ public partial class Program
 
 			// Display($"[{card.Head}|{card.Tail}]");
 			dominoTree.CalcForwardKinematics(cardGUI.GetId());
-			// char[,] cardImage = GetCardImage(card);
-			IsExceedBorder(cardGUI);
-			Place2D(cardGUI.GetCardImage(), ref windowImage, cardGUI.Position.X, cardGUI.Position.Y);
+			IsExceedsBorder(cardGUI);
+			// PlaceSmallIntoBig2D(cardGUI.GetImage(), ref windowImage, cardGUI.Position.X, cardGUI.Position.Y);
+			PlaceCardCenterIntoWindow(cardGUI, ref windowGUI, cardGUI.Position.X, cardGUI.Position.Y);
 		}
-		Display2D(windowImage);
+		Display2D(windowGUI.Image);
 		Display("\n");
 	}
 	static void Display2D<T>(List<List<T>> listlist)
@@ -177,40 +112,67 @@ public partial class Program
 			Display("\n");
 		}
 	}
-	static void Place2D(List<List<char>> small, ref List<List<char>> big, int offsetX, int offsetY)
+	static void PlaceCardCenterIntoWindow(CardGUI cardGUI, ref WindowGUI windowGUI, int smallCenterX, int smallCenterY)
 	{
 		// TODO: For a more consistent kinematics, define the card center's relative position
 		// if vertical -> [2][2]
 		// else horizontal -> [1][4]
-		int smallRows = small.Count;
-		int smallCols = small[0].Count;
-		int bigRows = big.Count;
-		int bigCols = big[0].Count;
-		if(bigRows <= smallRows)
+		List<List<char>> cardImage = cardGUI.GetImage();
+		if(windowGUI.LengthX <= windowGUI.LengthY)
+		{
+			do
+			{
+				windowGUI.Image.Add(new());
+			}while(windowGUI.LengthX <= cardGUI.LengthX);
+		}
+		if(windowGUI.LengthY <= cardGUI.LengthY)
+		{
+			foreach(var imageRows in windowGUI.Image)
+			{
+				do
+				{
+					imageRows.Add(' ');
+				}while(windowGUI.LengthY <= cardGUI.LengthY);
+			}
+		}
+		for (int i = 0; i < cardGUI.LengthX; i++)
+		{
+			for (int j = 0; j < cardGUI.LengthY; j++)
+			{
+				windowGUI.Image[i + smallCenterX][j + smallCenterY] = cardImage[i][j];
+			}
+		}
+	}
+	static void PlaceSmallIntoBig2D(List<List<char>> small, ref List<List<char>> big, int offsetX, int offsetY)
+	{
+		int smallRowSize = small.Count;
+		int smallColSize = small[0].Count;
+		int bigRowSize = big.Count;
+		int bigColSize = big[0].Count;
+		if(bigRowSize <= smallRowSize)
 		{
 			do
 			{
 				big.Add(new());
-			}while(big.Count <= smallRows);
+			}while(big.Count <= smallRowSize);
 		}
-		if(bigCols <= smallCols)
+		if(bigColSize <= smallColSize)
 		{
-			foreach(var bigRow in big)
+			foreach(var bigRows in big)
 			{
 				do
 				{
-					bigRow.Add(' ');
-				}while(bigRow.Count <= smallCols);
+					bigRows.Add(' ');
+				}while(bigRows.Count <= smallColSize);
 			}
 		}
-		for (int i = 0; i < smallRows; i++)
+		for (int i = 0; i < smallRowSize; i++)
 		{
-			for (int j = 0; j < smallCols; j++)
+			for (int j = 0; j < smallColSize; j++)
 			{
 				big[i + offsetX][j + offsetY] = small[i][j];
 			}
 		}
-
 	}
 	static void Place2D<T>(in T[,] small, ref T[,] big, int offsetX, int offsetY)
 	{
@@ -222,8 +184,9 @@ public partial class Program
 			}
 		}
 	}
-	static bool IsExceedBorder(CardGUI cardGUI)
+	static bool IsExceedsBorder(CardGUI cardGUI)
 	{
+		// TODO: Still fails when exceeds border
 		int positionX = cardGUI.Position.X;
 		int positionY = cardGUI.Position.Y;
 		OrientationEnum orientation = cardGUI.Orientation;

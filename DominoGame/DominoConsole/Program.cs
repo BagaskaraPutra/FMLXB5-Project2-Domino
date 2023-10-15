@@ -14,6 +14,7 @@ public partial class Program
 	static List<KeyValuePair<Card, IdNodeSuit>>? deckTableCompatible;
 	static DominoTree? dominoTree;
 	static CardGUI? cardGUI;
+	static WindowGUI windowGUI = new();
 	static void Main()
 	{
 		//Load config
@@ -42,8 +43,6 @@ public partial class Program
 		//GameStatus:NOTSTARTED
 		//Input number of players & win score
 		GameController gameController = new(numPlayers: 3, winScore: 100);
-		
-		InitializeWindowDisplay();
 		
 		//Players input id & name
 		for (int i = 0; i < gameController.NumPlayers; i++)
