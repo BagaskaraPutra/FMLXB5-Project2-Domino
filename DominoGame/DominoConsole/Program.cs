@@ -1,4 +1,5 @@
-﻿using CsvHelper;
+﻿using System.Text.Json;
+using CsvHelper;
 using System.Globalization;
 using DominoConsole;
 
@@ -6,6 +7,13 @@ namespace Program;
 
 public partial class Program
 {
+	static IPlayer? currentPlayer;
+	static List<Card>? cardsList;
+	static List<CardGUI>? tableCardsGUI;
+	static HashSet<IdNodeSuit>? openEnds;
+	static List<KeyValuePair<Card, IdNodeSuit>>? deckTableCompatible;
+	static DominoTree? dominoTree;
+	static CardGUI? cardGUI;
 	static void Main()
 	{
 		//Load config
@@ -17,12 +25,19 @@ public partial class Program
 			csv.Context.RegisterClassMap<CardKinematicsMap>();
 			cardKinematicsLUT = csv.GetRecords<CardKinematics>().ToList();
 		}
-		int idxLUT = 0;
-		foreach (var ck in cardKinematicsLUT)
+		// int idxLUT = 0;
+		// foreach (var ck in cardKinematicsLUT)
+		// {
+		// 	idxLUT++;
+		// 	Console.WriteLine($"{idxLUT}. P_IsDouble: {ck.ParentIsDouble}, C_IsDouble: {ck.CurrentIsDouble}, P_Node {ck.ParentNode}, C_Node: {ck.CurrentNode}, P_Ori: {ck.ParentOrientation}, C_Ori: {ck.CurrentOrientation}");
+		// }
+		
+		using (StreamReader fs = new StreamReader(@"config/cardGUI.json"))
 		{
-			idxLUT++;
-			Console.WriteLine($"{idxLUT}. P_IsDouble: {ck.ParentIsDouble}, C_IsDouble: {ck.CurrentIsDouble}, P_Node {ck.ParentNode}, C_Node: {ck.CurrentNode}, P_Ori: {ck.ParentOrientation}, C_Ori: {ck.CurrentOrientation}");
+			string cardGUIJson = fs.ReadToEnd();
+			cardGUI = JsonSerializer.Deserialize<CardGUI>(cardGUIJson);
 		}
+		cardGUI.UpdateConfig();
 		
 		//GameStatus:NOTSTARTED
 		//Input number of players & win score
@@ -48,8 +63,6 @@ public partial class Program
 		//Ready? Enter any key to continue ...
 
 		//GameStatus:ONGOING
-		IPlayer currentPlayer;
-		List<Card> cardsList;
 		while (!gameController.IsWinGame())
 		{
 			// Start round
@@ -79,12 +92,10 @@ public partial class Program
 				DisplayLine("Here are your available cards in your deck ...");
 				DisplayDeckCards(cardsList);
 
-				// Reusable local variables
+				// Reusable local variables, renewed at each round
 				Card putCard = new();
 				IdNodeSuit targetIdNodeSuit = new();
-				HashSet<IdNodeSuit> openEnds;
-				List<KeyValuePair<Card, IdNodeSuit>> deckTableCompatible;
-				DominoTree dominoTree;
+				dominoTree = new(cardKinematicsLUT);
 
 				FirstPlayerPicksCardId(currentPlayer, cardsList, ref putCard);
 				gameController.PutCard(currentPlayer, putCard);
@@ -93,12 +104,12 @@ public partial class Program
 				// while (gameController.CheckGameStatus() == GameStatus.ONGOING)
 				while (!gameController.IsWinRound())
 				{
-					dominoTree = new(gameController.GetTableCards(), cardKinematicsLUT);
+					dominoTree.UpdateTree(gameController.GetTableCards());
 					// TODO: List of cells
 					// cell: value, position, 
 					Display("\n");
 					DisplayLine("Table Cards:");
-					DisplayTableCards(gameController.GetTableCards(), dominoTree);
+					DisplayTableCards(dominoTree);
 
 					currentPlayer = gameController.GetNextPlayer();
 					cardsList = gameController.GetPlayerCards(currentPlayer);

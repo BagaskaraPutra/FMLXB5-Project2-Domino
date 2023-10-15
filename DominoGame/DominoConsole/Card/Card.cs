@@ -2,15 +2,12 @@ namespace DominoConsole;
 
 public class Card
 {
-	private int _id;
-	private int[] _nodeId; // array of 4 nodes consisting of adjacent card id
-	public int ParentId {get; private set;}
+	protected int _id;
+	protected int[] _nodeId; // array of 4 nodes consisting of adjacent card id
+	public int ParentId {get; protected set;}
 	
-	public OrientationEnum Orientation {get; private set;}
-	public PositionStruct Position; //{get; private set;}
-	
-	public int Head {get; private set;}
-	public int Tail {get; private set;}
+	public int Head {get; protected set;}
+	public int Tail {get; protected set;}
 	public Card()
 	{
 		_id = -1;
@@ -27,7 +24,6 @@ public class Card
 		ParentId = -1;
 		Head = head;
 		Tail = tail;
-		Orientation = OrientationEnum.NORTH;
 		_nodeId = new int[Enum.GetValues(typeof(NodeEnum)).Length];
 		for(int i=0; i<_nodeId.Length; i++)
 		{
@@ -78,16 +74,6 @@ public class Card
 	{
 		ParentId = id;
 		// Console.WriteLine($"Set card {_id} parent's id to: {id}");
-	}
-	public bool SetOrientation(OrientationEnum orientation)
-	{
-		Orientation = orientation;
-		return true;
-	}
-	public bool SetPosition(PositionStruct position)
-	{
-		Position = position;
-		return true;
 	}
 	public int GetHeadTailSum()
 	{

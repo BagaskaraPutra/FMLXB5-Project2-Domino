@@ -15,61 +15,21 @@ public partial class Program
 	{
 		Console.WriteLine(content);
 	}
-	static List<List<char>> verticalCardImage = new()
-	{
-		new() {'┌','─','─','─','┐'},
-		new() {'│',' ','H',' ','│'},
-		new() {'│','─','─','─','│'},
-		new() {'│',' ','T',' ','│'},
-		new() {'└','─','─','─','┘'}
-	};
-	static List<List<char>> horizontalCardImage = new()
-	{
-		new(){'┌','─','─','─','─','─','─','─','┐'},
-		new(){'│',' ','H',' ','│',' ','T',' ','│'},
-		new(){'└','─','─','─','─','─','─','─','┘'}
-	};
-	static List<List<char>> cardImage = new();
-	static List<List<char>> GetCardImage(Card card)
-	{
-		if (card.Orientation == OrientationEnum.NORTH || card.Orientation == OrientationEnum.SOUTH)
-		{
-			cardImage = verticalCardImage;
-		}
-		else
-		{
-			cardImage = horizontalCardImage;
-		}
-		switch (card.Orientation)
-		{
-			case OrientationEnum.NORTH:
-				{
-					cardImage[1][2] = card.Head.ToString().ToCharArray()[0];
-					cardImage[3][2] = card.Tail.ToString().ToCharArray()[0];
-					break;
-				}
-			case OrientationEnum.SOUTH:
-				{
-					cardImage[3][2] = card.Head.ToString().ToCharArray()[0];
-					cardImage[1][2] = card.Tail.ToString().ToCharArray()[0];
-					break;
-				}
-			case OrientationEnum.EAST:
-				{
-					cardImage[1][6] = card.Head.ToString().ToCharArray()[0];
-					cardImage[1][2] = card.Tail.ToString().ToCharArray()[0];
-					break;
-				}
-			case OrientationEnum.WEST:
-				{
-					cardImage[1][2] = card.Head.ToString().ToCharArray()[0];
-					cardImage[1][6] = card.Tail.ToString().ToCharArray()[0];
-					break;
-				}
-			default: break;
-		}
-		return cardImage;
-	}
+	// static List<List<char>> verticalCardImage = new()
+	// {
+	// 	new() {'┌','─','─','─','┐'},
+	// 	new() {'│',' ','H',' ','│'},
+	// 	new() {'│','─','─','─','│'},
+	// 	new() {'│',' ','T',' ','│'},
+	// 	new() {'└','─','─','─','┘'}
+	// };
+	// static List<List<char>> horizontalCardImage = new()
+	// {
+	// 	new(){'┌','─','─','─','─','─','─','─','┐'},
+	// 	new(){'│',' ','H',' ','│',' ','T',' ','│'},
+	// 	new(){'└','─','─','─','─','─','─','─','┘'}
+	// };
+	// static List<List<char>> cardImage = new();
 	static void DisplayDeckCards(List<Card> cardsList)
 	{
 		int i;
@@ -156,7 +116,7 @@ public partial class Program
 			}
 		}
 	}
-	static void DisplayTableCards(List<Card> tableCards, DominoTree dominoTree)
+	static void DisplayTableCards(DominoTree dominoTree)
 	{
 		// char[,] windowImage = new char[windowRows, windowCols];
 		ResizeWindowToFitTerminal();
@@ -167,32 +127,30 @@ public partial class Program
 				windowImage[i][j] = ' ';
 			}
 		}
-		
 		int centerX = 0, centerY = 0;
 		centerX = (int)windowImage.Count / 2;
 		centerY = (int)windowImage[0].Count / 2;
-		if (!tableCards[0].IsDouble())
+		if (!dominoTree.GetTableCardsGUI()[0].IsDouble())
 		{
-			tableCards[0].SetOrientation(OrientationEnum.WEST);
-			tableCards[0].Position.SetX(centerX - 2);
-			tableCards[0].Position.SetY(centerY - 2);
+			dominoTree.GetTableCardsGUI()[0].SetOrientation(OrientationEnum.WEST);
+			dominoTree.GetTableCardsGUI()[0].Position.SetX(centerX - 2);
+			dominoTree.GetTableCardsGUI()[0].Position.SetY(centerY - 2);
 		}
 		else
 		{
-			tableCards[0].Position.SetX(centerX - 1);
-			tableCards[0].Position.SetY(centerY - 4);
+			dominoTree.GetTableCardsGUI()[0].Position.SetX(centerX - 1);
+			dominoTree.GetTableCardsGUI()[0].Position.SetY(centerY - 4);
 		}
 
-		foreach (var card in tableCards)
+		foreach (var cardGUI in dominoTree.GetTableCardsGUI())
 		{
 			//TODO: How to render domino cards on console terminal >:-(
 
 			// Display($"[{card.Head}|{card.Tail}]");
-			dominoTree.CalcForwardKinematics(card.GetId());
+			dominoTree.CalcForwardKinematics(cardGUI.GetId());
 			// char[,] cardImage = GetCardImage(card);
-			cardImage = GetCardImage(card);
-			IsExceedBorder(card);
-			Place2D(in cardImage, ref windowImage, card.Position.X, card.Position.Y);
+			IsExceedBorder(cardGUI);
+			Place2D(cardGUI.GetCardImage(), ref windowImage, cardGUI.Position.X, cardGUI.Position.Y);
 		}
 		Display2D(windowImage);
 		Display("\n");
@@ -219,27 +177,30 @@ public partial class Program
 			Display("\n");
 		}
 	}
-	static void Place2D(in List<List<char>> small, ref List<List<char>> big, int offsetX, int offsetY)
+	static void Place2D(List<List<char>> small, ref List<List<char>> big, int offsetX, int offsetY)
 	{
+		// TODO: For a more consistent kinematics, define the card center's relative position
+		// if vertical -> [2][2]
+		// else horizontal -> [1][4]
 		int smallRows = small.Count;
 		int smallCols = small[0].Count;
 		int bigRows = big.Count;
 		int bigCols = big[0].Count;
-		if(bigRows < smallRows)
+		if(bigRows <= smallRows)
 		{
 			do
 			{
 				big.Add(new());
-			}while(big.Count < smallRows);
+			}while(big.Count <= smallRows);
 		}
-		if(bigCols < smallCols)
+		if(bigCols <= smallCols)
 		{
 			foreach(var bigRow in big)
 			{
 				do
 				{
 					bigRow.Add(' ');
-				}while(bigRow.Count < smallCols);
+				}while(bigRow.Count <= smallCols);
 			}
 		}
 		for (int i = 0; i < smallRows; i++)
@@ -261,33 +222,40 @@ public partial class Program
 			}
 		}
 	}
-	static bool IsExceedBorder(Card card)
+	static bool IsExceedBorder(CardGUI cardGUI)
 	{
-		int positionX = card.Position.X;
-		int positionY = card.Position.Y;
-		OrientationEnum orientation = card.Orientation;
-		if(card.Position.Y < 0)
+		int positionX = cardGUI.Position.X;
+		int positionY = cardGUI.Position.Y;
+		OrientationEnum orientation = cardGUI.Orientation;
+		if(cardGUI.Position.Y < 0)
 		{		
-			card.SetOrientation(Transform2D.RotateCW(orientation));
-			if(card.IsDouble())
+			cardGUI.SetOrientation(Transform2D.RotateCW(orientation));
+			if(cardGUI.IsDouble())
 			{
-				card.Position.SetX(positionX - 3);	
+				cardGUI.Position.SetX(positionX - 3);	
 			}
 			else
 			{
-				card.Position.SetX(positionX - 3);
-				card.Position.SetY(positionY + 3);	
+				cardGUI.Position.SetX(positionX - 3);
+				cardGUI.Position.SetY(positionY + 3);	
 			}
+			Console.WriteLine("Is exceeds border LEFT");
 			return true;
 		}
-		else if(card.IsDouble() && card.Position.Y + 10 > Console.WindowWidth)
+		else if(cardGUI.IsDouble() && cardGUI.Position.Y + 20 > Console.WindowWidth)
 		{
-			card.SetOrientation(Transform2D.RotateCW(card.Orientation));
+			cardGUI.SetOrientation(Transform2D.RotateCW(cardGUI.Orientation));
+			cardGUI.Position.SetX(positionX + 5);
+			cardGUI.Position.SetY(positionY - 20);
+			Console.WriteLine("Is exceeds border RIGHT Double");
 			return true;
 		}
-		else if(!card.IsDouble() && card.Position.Y + 6 > Console.WindowWidth)
+		else if(!cardGUI.IsDouble() && cardGUI.Position.Y + 6 > Console.WindowWidth)
 		{
-			card.SetOrientation(Transform2D.RotateCW(card.Orientation));
+			cardGUI.SetOrientation(Transform2D.RotateCW(cardGUI.Orientation));
+			cardGUI.Position.SetX(positionX + 5);
+			cardGUI.Position.SetY(positionY - 6);
+			Console.WriteLine("Is exceeds border RIGHT");
 			return true;
 		}
 		else

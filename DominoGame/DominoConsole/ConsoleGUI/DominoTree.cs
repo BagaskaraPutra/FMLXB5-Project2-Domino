@@ -3,31 +3,46 @@ namespace DominoConsole;
 public class DominoTree
 {
 	private int _parentId;
-	private List<Card> _tableCards;
-	private Card _currentCard;
-	private Card _parentCard;
+	private List<CardGUI> _tableCardsGUI;
+	private CardGUI _currentCard;
+	private CardGUI _parentCard;
 	private readonly List<CardKinematics> _cardKinematicsLUT;
 	private CardKinematics _desiredCardKinematics;
-	public DominoTree(List<Card> cards, List<CardKinematics> lookupTable)
+	public DominoTree(List<CardKinematics> lookupTable)
 	{
-		_tableCards = cards;
+		_tableCardsGUI = new();
 		_currentCard = new();
 		_parentCard = new();
 		_cardKinematicsLUT = lookupTable;
 		_desiredCardKinematics = new();
 	}
+	public void UpdateTree(List<Card> tableCards)
+	{
+		// Console.WriteLine("Update tree!");
+		foreach (var card in tableCards)
+		{
+			if (!_tableCardsGUI.Any(x => x.GetId() == card.GetId()))
+			{
+				_tableCardsGUI.Add(new CardGUI(card));
+				// Console.WriteLine($"Added new card: [{card.Head}|{card.Tail}]");	
+			}
+		}
+	}
+	public List<CardGUI> GetTableCardsGUI()
+	{
+		return _tableCardsGUI;
+	}
 	public void CalcForwardKinematics(int id)
 	{
-		// TODO: Try without recursion
-		_currentCard = _tableCards.FirstOrDefault(x => x.GetId() == id);
+		_currentCard = _tableCardsGUI.FirstOrDefault(x => x.GetId() == id);
 		if (_currentCard == null)
 		{
 			return;
 		}
 
 		_parentId = _currentCard.ParentId;
-		_parentCard = _tableCards.FirstOrDefault(x => x.GetId() == _parentId);
-
+		_parentCard = _tableCardsGUI.FirstOrDefault(x => x.GetId() == _parentId);
+		Console.WriteLine(_parentId);
 		if (_parentId != -1)
 		{
 			_desiredCardKinematics = _cardKinematicsLUT.FirstOrDefault(x =>
