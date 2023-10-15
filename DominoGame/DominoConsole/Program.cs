@@ -9,7 +9,6 @@ public partial class Program
 {
 	static IPlayer? currentPlayer;
 	static List<Card>? cardsList;
-	static List<CardGUI>? tableCardsGUI;
 	static HashSet<IdNodeSuit>? openEnds;
 	static List<KeyValuePair<Card, IdNodeSuit>>? deckTableCompatible;
 	static DominoTree? dominoTree;
@@ -30,7 +29,7 @@ public partial class Program
 		// foreach (var ck in cardKinematicsLUT)
 		// {
 		// 	idxLUT++;
-		// 	Console.WriteLine($"{idxLUT}. P_IsDouble: {ck.ParentIsDouble}, C_IsDouble: {ck.CurrentIsDouble}, P_Node {ck.ParentNode}, C_Node: {ck.CurrentNode}, P_Ori: {ck.ParentOrientation}, C_Ori: {ck.CurrentOrientation}");
+		// 	Console.WriteLine($"{idxLUT}. P_IsDouble: {ck.ParentIsDouble}, C_IsDouble: {ck.CurrentIsDouble}, P_Node {ck.ParentNode}, C_Node: {ck.CurrentNode}, P_Ori: {ck.ParentOrientation}, C_Ori: {ck.CurrentOrientation}, C_Move: {ck.MoveUntilEdge}");
 		// }
 		
 		using (StreamReader fs = new StreamReader(@"config/cardGUI.json"))
@@ -104,8 +103,7 @@ public partial class Program
 				while (!gameController.IsWinRound())
 				{
 					dominoTree.UpdateTree(gameController.GetTableCards());
-					// TODO: List of cells
-					// cell: value, position, 
+					
 					Display("\n");
 					DisplayLine("Table Cards:");
 					DisplayTableCards(dominoTree);

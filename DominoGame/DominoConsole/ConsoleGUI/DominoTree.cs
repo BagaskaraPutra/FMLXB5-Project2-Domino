@@ -39,6 +39,7 @@ public class DominoTree
 		{
 			return;
 		}
+		_currentCard.InitImage();
 
 		_parentId = _currentCard.ParentId;
 		_parentCard = _tableCardsGUI.FirstOrDefault(x => x.GetId() == _parentId);
@@ -58,9 +59,9 @@ public class DominoTree
 			}
 			// Console.WriteLine($"desired orientation: {_desiredCardKinematics.CurrentOrientation}");
 			_currentCard.SetOrientation(_desiredCardKinematics.CurrentOrientation);
-			// TODO: Set based on center position
-			_currentCard.Position.SetX(_parentCard.Position.X + _desiredCardKinematics.CurrentOffsetX);
-			_currentCard.Position.SetY(_parentCard.Position.Y + _desiredCardKinematics.CurrentOffsetY);
+			Transform2D.MoveUntilEdge(_currentCard, _parentCard, _desiredCardKinematics.MoveDirection);
+			// _currentCard.Position.SetX(_parentCard.Position.X + _desiredCardKinematics.CurrentOffsetX);
+			// _currentCard.Position.SetY(_parentCard.Position.Y + _desiredCardKinematics.CurrentOffsetY);
 			Console.WriteLine($"parent card [{_parentCard.Head}|{_parentCard.Tail}] IsDouble: {_parentCard.IsDouble()}, \t node: {_parentCard.GetNode(_currentCard.GetId())}, \t orientation: {_parentCard.Orientation} \t x: {_parentCard.Position.X} \t y: {_parentCard.Position.Y}");
 			Console.WriteLine($"current card [{_currentCard.Head}|{_currentCard.Tail}] IsDouble: {_currentCard.IsDouble()}, \t node: {_currentCard.GetNode(_parentCard.GetId())}, \t orientation: {_currentCard.Orientation} \t x: {_currentCard.Position.X} \t y: {_currentCard.Position.Y}");
 			// Console.WriteLine($"parent  card [{_parentCard.Head}|{_parentCard.Tail}] position x: {_parentCard.Position.X} \t y: {_parentCard.Position.Y}");

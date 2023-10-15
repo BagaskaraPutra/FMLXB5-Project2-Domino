@@ -52,7 +52,7 @@ public class CardGUI : Card
 		Position = position;
 		return true;
 	}
-	public List<List<char>> GetImage()
+	public void InitImage()
 	{
 		if (Orientation == OrientationEnum.NORTH || Orientation == OrientationEnum.SOUTH)
 		{
@@ -94,6 +94,9 @@ public class CardGUI : Card
 			}
 			default: break;
 		}
+	}
+	public List<List<char>> GetImage()
+	{
 		return _image;
 	}
 }

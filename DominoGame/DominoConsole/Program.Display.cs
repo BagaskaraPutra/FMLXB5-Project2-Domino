@@ -68,13 +68,13 @@ public partial class Program
 		if (!dominoTree.GetTableCardsGUI()[0].IsDouble())
 		{
 			// dominoTree.GetTableCardsGUI()[0].SetOrientation(OrientationEnum.WEST);
-			dominoTree.GetTableCardsGUI()[0].Position.SetX(tableGUI.CenterX - 2);
-			dominoTree.GetTableCardsGUI()[0].Position.SetY(tableGUI.CenterY - 2);
+			dominoTree.GetTableCardsGUI()[0].Position.SetX(tableGUI.CenterX); // - 2);
+			dominoTree.GetTableCardsGUI()[0].Position.SetY(tableGUI.CenterY); // - 2);
 		}
 		else
 		{
-			dominoTree.GetTableCardsGUI()[0].Position.SetX(tableGUI.CenterX - 1);
-			dominoTree.GetTableCardsGUI()[0].Position.SetY(tableGUI.CenterY - 4);
+			dominoTree.GetTableCardsGUI()[0].Position.SetX(tableGUI.CenterX); // - 1);
+			dominoTree.GetTableCardsGUI()[0].Position.SetY(tableGUI.CenterY); // - 4);
 		}
 
 		foreach (var cardGUI in dominoTree.GetTableCardsGUI())
@@ -85,7 +85,7 @@ public partial class Program
 			dominoTree.CalcForwardKinematics(cardGUI.GetId());
 			IsExceedsBorder(cardGUI);
 			// PlaceSmallIntoBig2D(cardGUI.GetImage(), ref windowImage, cardGUI.Position.X, cardGUI.Position.Y);
-			PlaceCardCenterIntoWindow(cardGUI, ref tableGUI, cardGUI.Position.X, cardGUI.Position.Y);
+			PlaceCardCenterIntoWindow(cardGUI, ref tableGUI);
 		}
 		Display2D(tableGUI.Image);
 		Display("\n");
@@ -112,34 +112,37 @@ public partial class Program
 			Display("\n");
 		}
 	}
-	static void PlaceCardCenterIntoWindow(CardGUI cardGUI, ref TableGUI tableGUI, int smallCenterX, int smallCenterY)
+	static void PlaceCardCenterIntoWindow(CardGUI cardGUI, ref TableGUI tableGUI)
 	{
 		// TODO: For a more consistent kinematics, define the card center's relative position
 		// if vertical -> [2][2]
 		// else horizontal -> [1][4]
 		List<List<char>> cardImage = cardGUI.GetImage();
-		if(tableGUI.LengthX <= tableGUI.LengthY)
+		if(tableGUI.LengthX < tableGUI.LengthX)
 		{
 			do
 			{
 				tableGUI.Image.Add(new());
-			}while(tableGUI.LengthX <= cardGUI.LengthX);
+			}while(tableGUI.LengthX < cardGUI.LengthX);
 		}
-		if(tableGUI.LengthY <= cardGUI.LengthY)
+		if(tableGUI.LengthY < cardGUI.LengthY)
 		{
 			foreach(var imageRows in tableGUI.Image)
 			{
 				do
 				{
 					imageRows.Add(' ');
-				}while(tableGUI.LengthY <= cardGUI.LengthY);
+				}while(tableGUI.LengthY < cardGUI.LengthY);
 			}
 		}
 		for (int i = 0; i < cardGUI.LengthX; i++)
 		{
 			for (int j = 0; j < cardGUI.LengthY; j++)
 			{
-				tableGUI.Image[i + smallCenterX][j + smallCenterY] = cardImage[i][j];
+				tableGUI.Image
+				[i + cardGUI.Position.X - cardGUI.CenterPosX]
+				[j + cardGUI.Position.Y - cardGUI.CenterPosY] 
+				= cardImage[i][j];
 			}
 		}
 	}

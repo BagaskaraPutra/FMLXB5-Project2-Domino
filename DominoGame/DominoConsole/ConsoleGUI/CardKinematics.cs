@@ -8,6 +8,7 @@ public class CardKinematics
 	public NodeEnum CurrentNode {get; set; }
 	public OrientationEnum ParentOrientation {get; set; }
 	public OrientationEnum CurrentOrientation {get; set; }
+	public OrientationEnum MoveDirection {get; set; }
 	public int CurrentOffsetX {get; set; }
 	public int CurrentOffsetY {get; set; }
 }

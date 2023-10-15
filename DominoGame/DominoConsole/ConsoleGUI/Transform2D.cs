@@ -1,7 +1,42 @@
 namespace DominoConsole;
 
-public static class Transform2D
+public class Transform2D
 {
+	public static void MoveUntilEdge(CardGUI currentCard, CardGUI parentCard, OrientationEnum moveUntilEdge)
+	{
+		switch (moveUntilEdge)
+		{
+			case OrientationEnum.NORTH:
+			{
+				currentCard.Position.SetX(parentCard.Position.X - parentCard.CenterPosX - currentCard.CenterPosX - 1);
+				currentCard.Position.SetY(parentCard.Position.Y);
+				Console.WriteLine("Move NORTH");
+				break;
+			}
+			case OrientationEnum.EAST:
+			{
+				currentCard.Position.SetX(parentCard.Position.X);
+				currentCard.Position.SetY(parentCard.Position.Y + parentCard.CenterPosY + currentCard.CenterPosY + 1);
+				Console.WriteLine("Move EAST");
+				break;
+			}
+			case OrientationEnum.SOUTH:
+			{
+				currentCard.Position.SetX(parentCard.Position.X + parentCard.CenterPosX + currentCard.CenterPosX + 1);
+				currentCard.Position.SetY(parentCard.Position.Y);
+				Console.WriteLine("Move SOUTH");
+				break;
+			}
+			case OrientationEnum.WEST:
+			{
+				currentCard.Position.SetX(parentCard.Position.X);
+				currentCard.Position.SetY(parentCard.Position.Y - parentCard.CenterPosY - currentCard.CenterPosY - 1);
+				Console.WriteLine("Move WEST");
+				break;
+			}
+			default: break;
+		}
+	}
 	public static OrientationEnum RotateCW(OrientationEnum orientation)
 	{
 		Console.WriteLine("Rotate CW");

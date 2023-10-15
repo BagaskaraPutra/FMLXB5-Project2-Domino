@@ -14,6 +14,7 @@ public class CardKinematicsMap : ClassMap<CardKinematics>
 		Map(m => m.CurrentIsDouble).Name("Current IsDouble");
 		Map(m => m.ParentOrientation).Name("Parent orientation");
 		Map(m => m.CurrentOrientation).Name("Current orientation");
+		Map(m => m.MoveDirection).Name("Current move direction");
 		Map(m => m.CurrentOffsetX).Name("Current offset x");
 		Map(m => m.CurrentOffsetY).Name("Current offset y");
 	}

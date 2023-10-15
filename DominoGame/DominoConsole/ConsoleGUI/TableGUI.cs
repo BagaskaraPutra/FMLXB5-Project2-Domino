@@ -13,7 +13,7 @@ public class TableGUI
 	public TableGUI()
 	{
 		Image = new(_defaultWindowRowSize);
-		for (int i = 0; i < 12; i++)
+		for (int i = 0; i < _defaultWindowRowSize; i++)
 		{
 			Image.Add(new List<char>(_defaultWindowColSize));
 
@@ -41,6 +41,7 @@ public class TableGUI
 	}
 	public void ResizeToFitTerminal()
 	{
+		LengthX = Image.Count;
 		LengthY = Image[0].Count;
 		int consoleWidth = Console.WindowWidth;
 		int differenceCols = Math.Abs(LengthY - consoleWidth);
@@ -63,5 +64,7 @@ public class TableGUI
 				}
 			}
 		}
+		LengthX = Image.Count;
+		LengthY = Image[0].Count;
 	}
 }
