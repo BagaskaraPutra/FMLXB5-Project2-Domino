@@ -14,7 +14,7 @@ public partial class Program
 	static List<KeyValuePair<Card, IdNodeSuit>>? deckTableCompatible;
 	static DominoTree? dominoTree;
 	static CardGUI? cardGUI;
-	static WindowGUI windowGUI = new();
+	static TableGUI tableGUI = new();
 	static void Main()
 	{
 		//Load config

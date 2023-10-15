@@ -63,18 +63,18 @@ public partial class Program
 	}
 	static void DisplayTableCards(DominoTree dominoTree)
 	{
-		windowGUI.ResizeToFitTerminal();
-		// windowGUI.Clear();
+		tableGUI.ResizeToFitTerminal();
+		tableGUI.Clear();
 		if (!dominoTree.GetTableCardsGUI()[0].IsDouble())
 		{
 			// dominoTree.GetTableCardsGUI()[0].SetOrientation(OrientationEnum.WEST);
-			dominoTree.GetTableCardsGUI()[0].Position.SetX(windowGUI.CenterX - 2);
-			dominoTree.GetTableCardsGUI()[0].Position.SetY(windowGUI.CenterY - 2);
+			dominoTree.GetTableCardsGUI()[0].Position.SetX(tableGUI.CenterX - 2);
+			dominoTree.GetTableCardsGUI()[0].Position.SetY(tableGUI.CenterY - 2);
 		}
 		else
 		{
-			dominoTree.GetTableCardsGUI()[0].Position.SetX(windowGUI.CenterX - 1);
-			dominoTree.GetTableCardsGUI()[0].Position.SetY(windowGUI.CenterY - 4);
+			dominoTree.GetTableCardsGUI()[0].Position.SetX(tableGUI.CenterX - 1);
+			dominoTree.GetTableCardsGUI()[0].Position.SetY(tableGUI.CenterY - 4);
 		}
 
 		foreach (var cardGUI in dominoTree.GetTableCardsGUI())
@@ -85,9 +85,9 @@ public partial class Program
 			dominoTree.CalcForwardKinematics(cardGUI.GetId());
 			IsExceedsBorder(cardGUI);
 			// PlaceSmallIntoBig2D(cardGUI.GetImage(), ref windowImage, cardGUI.Position.X, cardGUI.Position.Y);
-			PlaceCardCenterIntoWindow(cardGUI, ref windowGUI, cardGUI.Position.X, cardGUI.Position.Y);
+			PlaceCardCenterIntoWindow(cardGUI, ref tableGUI, cardGUI.Position.X, cardGUI.Position.Y);
 		}
-		Display2D(windowGUI.Image);
+		Display2D(tableGUI.Image);
 		Display("\n");
 	}
 	static void Display2D<T>(List<List<T>> listlist)
@@ -112,34 +112,34 @@ public partial class Program
 			Display("\n");
 		}
 	}
-	static void PlaceCardCenterIntoWindow(CardGUI cardGUI, ref WindowGUI windowGUI, int smallCenterX, int smallCenterY)
+	static void PlaceCardCenterIntoWindow(CardGUI cardGUI, ref TableGUI tableGUI, int smallCenterX, int smallCenterY)
 	{
 		// TODO: For a more consistent kinematics, define the card center's relative position
 		// if vertical -> [2][2]
 		// else horizontal -> [1][4]
 		List<List<char>> cardImage = cardGUI.GetImage();
-		if(windowGUI.LengthX <= windowGUI.LengthY)
+		if(tableGUI.LengthX <= tableGUI.LengthY)
 		{
 			do
 			{
-				windowGUI.Image.Add(new());
-			}while(windowGUI.LengthX <= cardGUI.LengthX);
+				tableGUI.Image.Add(new());
+			}while(tableGUI.LengthX <= cardGUI.LengthX);
 		}
-		if(windowGUI.LengthY <= cardGUI.LengthY)
+		if(tableGUI.LengthY <= cardGUI.LengthY)
 		{
-			foreach(var imageRows in windowGUI.Image)
+			foreach(var imageRows in tableGUI.Image)
 			{
 				do
 				{
 					imageRows.Add(' ');
-				}while(windowGUI.LengthY <= cardGUI.LengthY);
+				}while(tableGUI.LengthY <= cardGUI.LengthY);
 			}
 		}
 		for (int i = 0; i < cardGUI.LengthX; i++)
 		{
 			for (int j = 0; j < cardGUI.LengthY; j++)
 			{
-				windowGUI.Image[i + smallCenterX][j + smallCenterY] = cardImage[i][j];
+				tableGUI.Image[i + smallCenterX][j + smallCenterY] = cardImage[i][j];
 			}
 		}
 	}

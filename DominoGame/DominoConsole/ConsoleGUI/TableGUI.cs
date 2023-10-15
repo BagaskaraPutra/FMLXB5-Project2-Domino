@@ -1,6 +1,6 @@
 namespace DominoConsole;
 
-public class WindowGUI
+public class TableGUI
 {
 	private static readonly int _defaultWindowRowSize = 8; //(int)Console.WindowHeight;
 	private static readonly int _defaultWindowColSize = Console.WindowWidth - 2;
@@ -10,7 +10,7 @@ public class WindowGUI
 	public int CenterY {get; protected set;}
 		
 	public List<List<char>> Image {get; set;}
-	public WindowGUI()
+	public TableGUI()
 	{
 		Image = new(_defaultWindowRowSize);
 		for (int i = 0; i < 12; i++)
