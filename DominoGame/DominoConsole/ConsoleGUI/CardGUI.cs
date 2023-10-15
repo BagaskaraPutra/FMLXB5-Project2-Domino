@@ -45,6 +45,7 @@ public class CardGUI : Card
 	public bool SetOrientation(OrientationEnum orientation)
 	{
 		Orientation = orientation;
+		UpdateImage();
 		return true;
 	}
 	public bool SetPosition(PositionStruct position)
@@ -52,7 +53,7 @@ public class CardGUI : Card
 		Position = position;
 		return true;
 	}
-	public void InitImage()
+	public void UpdateImage()
 	{
 		if (Orientation == OrientationEnum.NORTH || Orientation == OrientationEnum.SOUTH)
 		{

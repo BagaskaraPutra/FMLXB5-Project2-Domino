@@ -67,25 +67,20 @@ public partial class Program
 		tableGUI.Clear();
 		if (!dominoTree.GetTableCardsGUI()[0].IsDouble())
 		{
-			// dominoTree.GetTableCardsGUI()[0].SetOrientation(OrientationEnum.WEST);
-			dominoTree.GetTableCardsGUI()[0].Position.SetX(tableGUI.CenterX); // - 2);
-			dominoTree.GetTableCardsGUI()[0].Position.SetY(tableGUI.CenterY); // - 2);
+			dominoTree.GetTableCardsGUI()[0].Position.SetX(tableGUI.CenterX);
+			dominoTree.GetTableCardsGUI()[0].Position.SetY(tableGUI.CenterY);
 		}
 		else
 		{
-			dominoTree.GetTableCardsGUI()[0].Position.SetX(tableGUI.CenterX); // - 1);
-			dominoTree.GetTableCardsGUI()[0].Position.SetY(tableGUI.CenterY); // - 4);
+			dominoTree.GetTableCardsGUI()[0].Position.SetX(tableGUI.CenterX);
+			dominoTree.GetTableCardsGUI()[0].Position.SetY(tableGUI.CenterY);
 		}
 
 		foreach (var cardGUI in dominoTree.GetTableCardsGUI())
 		{
-			//TODO: How to render domino cards on console terminal >:-(
-
 			// Display($"[{card.Head}|{card.Tail}]");
 			dominoTree.CalcForwardKinematics(cardGUI.GetId());
-			IsExceedsBorder(cardGUI);
-			// PlaceSmallIntoBig2D(cardGUI.GetImage(), ref windowImage, cardGUI.Position.X, cardGUI.Position.Y);
-			PlaceCardCenterIntoWindow(cardGUI, ref tableGUI);
+			PlaceCardCenterIntoTable(cardGUI, ref tableGUI, dominoTree);
 		}
 		Display2D(tableGUI.Image);
 		Display("\n");
@@ -112,36 +107,53 @@ public partial class Program
 			Display("\n");
 		}
 	}
-	static void PlaceCardCenterIntoWindow(CardGUI cardGUI, ref TableGUI tableGUI)
+	static void PlaceCardCenterIntoTable(CardGUI cardGUI, ref TableGUI tableGUI, DominoTree dominoTree)
 	{
-		// TODO: For a more consistent kinematics, define the card center's relative position
-		// if vertical -> [2][2]
-		// else horizontal -> [1][4]
 		List<List<char>> cardImage = cardGUI.GetImage();
-		if(tableGUI.LengthX < tableGUI.LengthX)
+		int northBorder = cardGUI.Position.X - cardGUI.CenterPosX;
+		int southBorder = cardGUI.Position.X + cardGUI.CenterPosX;
+		if (northBorder < 0)
 		{
-			do
+			for (int i = 0; i < Math.Abs(northBorder); i++)
 			{
-				tableGUI.Image.Add(new());
-			}while(tableGUI.LengthX < cardGUI.LengthX);
-		}
-		if(tableGUI.LengthY < cardGUI.LengthY)
-		{
-			foreach(var imageRows in tableGUI.Image)
-			{
-				do
+				List<char> columns = new();
+				for (int j=0; j<tableGUI.Image[0].Count; j++)
 				{
-					imageRows.Add(' ');
-				}while(tableGUI.LengthY < cardGUI.LengthY);
+					columns.Add(' ');
+				}
+				tableGUI.Image.Insert(0, columns);
 			}
+			dominoTree.MoveAllSouth(Math.Abs(northBorder));
+			Console.WriteLine($"Is exceeds NORTH border by {Math.Abs(northBorder)} cells");
 		}
+		else if (southBorder > tableGUI.LengthX)
+		{
+			for (int i = 0; i <= Math.Abs(southBorder - tableGUI.LengthX)+1; i++)
+			{
+				List<char> columns = new();
+				for (int j=0; j<tableGUI.Image[0].Count; j++)
+				{
+					columns.Add(' ');
+				}
+				tableGUI.Image.Add(columns);
+			}
+			Console.WriteLine($"Is exceeds SOUTH border by {Math.Abs(southBorder - tableGUI.LengthX)} cells");
+		}
+		int setPosX;
+		int setPosY;
 		for (int i = 0; i < cardGUI.LengthX; i++)
 		{
 			for (int j = 0; j < cardGUI.LengthY; j++)
 			{
+				setPosX = i + cardGUI.Position.X - cardGUI.CenterPosX;
+				// if (setPosX < 0) setPosX = 0;
+				// else if (setPosX >= tableGUI.LengthX-1) setPosX = tableGUI.LengthX-1;
+				setPosY = j + cardGUI.Position.Y - cardGUI.CenterPosY;
+				// if (setPosY < 0) setPosY = 0;
+				// else if (setPosY >= tableGUI.LengthX-1) setPosY = tableGUI.LengthY-1;
 				tableGUI.Image
-				[i + cardGUI.Position.X - cardGUI.CenterPosX]
-				[j + cardGUI.Position.Y - cardGUI.CenterPosY] 
+				[setPosX]
+				[setPosY]
 				= cardImage[i][j];
 			}
 		}
@@ -152,21 +164,21 @@ public partial class Program
 		int smallColSize = small[0].Count;
 		int bigRowSize = big.Count;
 		int bigColSize = big[0].Count;
-		if(bigRowSize <= smallRowSize)
+		if (bigRowSize <= smallRowSize)
 		{
 			do
 			{
 				big.Add(new());
-			}while(big.Count <= smallRowSize);
+			} while (big.Count <= smallRowSize);
 		}
-		if(bigColSize <= smallColSize)
+		if (bigColSize <= smallColSize)
 		{
-			foreach(var bigRows in big)
+			foreach (var bigRows in big)
 			{
 				do
 				{
 					bigRows.Add(' ');
-				}while(bigRows.Count <= smallColSize);
+				} while (bigRows.Count <= smallColSize);
 			}
 		}
 		for (int i = 0; i < smallRowSize; i++)
@@ -185,48 +197,6 @@ public partial class Program
 			{
 				big[i + offsetX, j + offsetY] = small[i, j];
 			}
-		}
-	}
-	static bool IsExceedsBorder(CardGUI cardGUI)
-	{
-		// TODO: Still fails when exceeds border
-		int positionX = cardGUI.Position.X;
-		int positionY = cardGUI.Position.Y;
-		OrientationEnum orientation = cardGUI.Orientation;
-		if(cardGUI.Position.Y < 0)
-		{		
-			cardGUI.SetOrientation(Transform2D.RotateCW(orientation));
-			if(cardGUI.IsDouble())
-			{
-				cardGUI.Position.SetX(positionX - 3);	
-			}
-			else
-			{
-				cardGUI.Position.SetX(positionX - 3);
-				cardGUI.Position.SetY(positionY + 3);	
-			}
-			Console.WriteLine("Is exceeds border LEFT");
-			return true;
-		}
-		else if(cardGUI.IsDouble() && cardGUI.Position.Y + 20 > Console.WindowWidth)
-		{
-			cardGUI.SetOrientation(Transform2D.RotateCW(cardGUI.Orientation));
-			cardGUI.Position.SetX(positionX + 5);
-			cardGUI.Position.SetY(positionY - 20);
-			Console.WriteLine("Is exceeds border RIGHT Double");
-			return true;
-		}
-		else if(!cardGUI.IsDouble() && cardGUI.Position.Y + 6 > Console.WindowWidth)
-		{
-			cardGUI.SetOrientation(Transform2D.RotateCW(cardGUI.Orientation));
-			cardGUI.Position.SetX(positionX + 5);
-			cardGUI.Position.SetY(positionY - 6);
-			Console.WriteLine("Is exceeds border RIGHT");
-			return true;
-		}
-		else
-		{
-			return false;
 		}
 	}
 }

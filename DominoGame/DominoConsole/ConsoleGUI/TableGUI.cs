@@ -2,8 +2,8 @@ namespace DominoConsole;
 
 public class TableGUI
 {
-	private static readonly int _defaultWindowRowSize = 8; //(int)Console.WindowHeight;
-	private static readonly int _defaultWindowColSize = Console.WindowWidth - 2;
+	private static readonly int _defaultTableRowSize = 8; //(int)Console.WindowHeight;
+	private static readonly int _defaultTableColSize = Console.WindowWidth - 1;
 	public int LengthX {get; protected set;}
 	public int LengthY {get; protected set;}
 	public int CenterX {get; protected set;}
@@ -12,18 +12,18 @@ public class TableGUI
 	public List<List<char>> Image {get; set;}
 	public TableGUI()
 	{
-		Image = new(_defaultWindowRowSize);
-		for (int i = 0; i < _defaultWindowRowSize; i++)
+		Image = new(_defaultTableRowSize);
+		for (int i = 0; i < _defaultTableRowSize; i++)
 		{
-			Image.Add(new List<char>(_defaultWindowColSize));
+			Image.Add(new List<char>(_defaultTableColSize));
 
-			for (int j = 0; j < _defaultWindowColSize; j++)
+			for (int j = 0; j < _defaultTableColSize; j++)
 			{
 				Image[i].Add(' ');
 			}
 		}
-		LengthX = _defaultWindowRowSize;
-		LengthY = _defaultWindowColSize;
+		LengthX = _defaultTableRowSize;
+		LengthY = _defaultTableColSize;
 		CenterX = (int)LengthX / 2;
 		CenterY = (int)LengthY / 2;
 	}
@@ -45,22 +45,21 @@ public class TableGUI
 		LengthY = Image[0].Count;
 		int consoleWidth = Console.WindowWidth;
 		int differenceCols = Math.Abs(LengthY - consoleWidth);
-		// Console.WriteLine($"windowCols: {windowCols}, consoleWidth: {consoleWidth}");
 		if(LengthY >= consoleWidth)
 		{
-			foreach (var windowRowList in Image)
+			foreach (var tableRowList in Image)
 			{
-				windowRowList.RemoveRange(consoleWidth-1, differenceCols);
+				tableRowList.RemoveRange(consoleWidth-1, differenceCols);
 			}
 		}
 		else
 		{
-			Console.WriteLine("windowImage columns < consoleWidth");
-			foreach (var windowRowList in Image)
+			// Console.WriteLine("windowImage columns < consoleWidth");
+			foreach (var tableRowList in Image)
 			{
 				for(int i=0; i<differenceCols-1; i++)
 				{
-					windowRowList.Add(' ');
+					tableRowList.Add(' ');
 				}
 			}
 		}

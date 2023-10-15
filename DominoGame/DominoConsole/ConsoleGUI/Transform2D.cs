@@ -2,7 +2,7 @@ namespace DominoConsole;
 
 public class Transform2D
 {
-	public static void MoveUntilEdge(CardGUI currentCard, CardGUI parentCard, OrientationEnum moveUntilEdge)
+	public static void MoveUntilEdge(ref CardGUI currentCard, CardGUI parentCard, OrientationEnum moveUntilEdge)
 	{
 		switch (moveUntilEdge)
 		{
@@ -10,28 +10,28 @@ public class Transform2D
 			{
 				currentCard.Position.SetX(parentCard.Position.X - parentCard.CenterPosX - currentCard.CenterPosX - 1);
 				currentCard.Position.SetY(parentCard.Position.Y);
-				Console.WriteLine("Move NORTH");
+				// Console.WriteLine($"Move NORTH to X: {currentCard.Position.X} {parentCard.Position.X - parentCard.CenterPosX - currentCard.CenterPosX - 1}");
 				break;
 			}
 			case OrientationEnum.EAST:
 			{
 				currentCard.Position.SetX(parentCard.Position.X);
 				currentCard.Position.SetY(parentCard.Position.Y + parentCard.CenterPosY + currentCard.CenterPosY + 1);
-				Console.WriteLine("Move EAST");
+				// Console.WriteLine($"Move EAST to Y: {currentCard.Position.Y}");
 				break;
 			}
 			case OrientationEnum.SOUTH:
 			{
 				currentCard.Position.SetX(parentCard.Position.X + parentCard.CenterPosX + currentCard.CenterPosX + 1);
 				currentCard.Position.SetY(parentCard.Position.Y);
-				Console.WriteLine("Move SOUTH");
+				// Console.WriteLine($"Move SOUTH to X: {currentCard.Position.X}");
 				break;
 			}
 			case OrientationEnum.WEST:
 			{
 				currentCard.Position.SetX(parentCard.Position.X);
 				currentCard.Position.SetY(parentCard.Position.Y - parentCard.CenterPosY - currentCard.CenterPosY - 1);
-				Console.WriteLine("Move WEST");
+				// Console.WriteLine($"Move WEST to Y: {currentCard.Position.Y}");
 				break;
 			}
 			default: break;
@@ -39,7 +39,7 @@ public class Transform2D
 	}
 	public static OrientationEnum RotateCW(OrientationEnum orientation)
 	{
-		Console.WriteLine("Rotate CW");
+		// Console.WriteLine("Rotate CW");
 		return orientation.Next();
 	}
 	public static OrientationEnum RotateCCW(OrientationEnum orientation)
@@ -64,19 +64,19 @@ public struct PositionStruct{
 	public int Y {get; private set;}
 	public bool SetX(int x)
 	{
-		if (x < 0)
-		{
-			return false;
-		}
+		// if (x < 0)
+		// {
+		// 	return false;
+		// }
 		X = x;
 		return true;
 	}
 	public bool SetY(int y)
 	{
-		if (y < 0)
-		{
-			return false;
-		}
+		// if (y < 0)
+		// {
+		// 	return false;
+		// }
 		Y = y;
 		return true;
 	}
