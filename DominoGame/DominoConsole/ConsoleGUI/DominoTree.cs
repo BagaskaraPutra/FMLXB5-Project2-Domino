@@ -71,17 +71,17 @@ public class DominoTree
 				_currentCard.SetOrientation(Transform2D.RotateCW(orientation));
 				Transform2D.MoveUntilEdge(ref _currentCard, _parentCard, OrientationEnum.NORTH);
 				// TODO: Set position at outer most head / tail position
-				// _currentCard.Position.Y = _parentCard.WestSuitGlobal.Y;
+				_currentCard.Position.Y = _parentCard.WestSuitGlobal.Y;
 				Console.WriteLine($"Is exceeds border WEST, _parentCard.WestSuitGlobal.Y: {_parentCard.WestSuitGlobal.Y}");
 			}
 			else if (positionY + _currentCard.LengthY + 1 >= Console.WindowWidth)
 			{
 				_currentCard.SetOrientation(Transform2D.RotateCW(_currentCard.Orientation));
 				Transform2D.MoveUntilEdge(ref _currentCard, _parentCard, OrientationEnum.SOUTH);
-				// _currentCard.Position.Y = _parentCard.EastSuitGlobal.Y;
+				_currentCard.Position.Y = _parentCard.EastSuitGlobal.Y;
 				Console.WriteLine($"Is exceeds border EAST, _parentCard.EastSuitGlobal.Y: {_parentCard.EastSuitGlobal.Y}");
 			}
-
+			_currentCard.UpdateStates();
 			Console.WriteLine($"parent card [{_parentCard.Head}|{_parentCard.Tail}] IsDouble: {_parentCard.IsDouble()}, \t node: {_parentCard.GetNode(_currentCard.GetId())}, \t orientation: {_parentCard.Orientation} \t x: {_parentCard.Position.X} \t y: {_parentCard.Position.Y}");
 			Console.WriteLine($"current card [{_currentCard.Head}|{_currentCard.Tail}] IsDouble: {_currentCard.IsDouble()}, \t node: {_currentCard.GetNode(_parentCard.GetId())}, \t orientation: {_currentCard.Orientation} \t x: {_currentCard.Position.X} \t y: {_currentCard.Position.Y}");
 			// Console.WriteLine($"parent  card [{_parentCard.Head}|{_parentCard.Tail}] position x: {_parentCard.Position.X} \t y: {_parentCard.Position.Y}");

@@ -34,14 +34,14 @@ public class CardGUI : Card
 		}
 		_image = new();
 	}
-	public List<List<char>>? NorthCardImage {get; set; }
-	public List<List<char>>? SouthCardImage {get; set; }
-	public List<List<char>>? WestCardImage {get; set; }
-	public List<List<char>>? EastCardImage {get; set; }
-	public static List<List<char>>? StaticNorthCardImage {get; private set; }
-	public static List<List<char>>? StaticSouthCardImage {get; private set; }
-	public static List<List<char>>? StaticWestCardImage {get; private set; }
-	public static List<List<char>>? StaticEastCardImage {get; private set; }
+	public List<List<char>> NorthCardImage {get; set; }
+	public List<List<char>> SouthCardImage {get; set; }
+	public List<List<char>> WestCardImage {get; set; }
+	public List<List<char>> EastCardImage {get; set; }
+	public static List<List<char>> StaticNorthCardImage {get; private set; }
+	public static List<List<char>> StaticSouthCardImage {get; private set; }
+	public static List<List<char>> StaticWestCardImage {get; private set; }
+	public static List<List<char>> StaticEastCardImage {get; private set; }
 	public void UpdateConfig()
 	{
 		StaticNorthCardImage   	= new (NorthCardImage);
@@ -63,48 +63,6 @@ public class CardGUI : Card
 		RefreshImage();
 		return true;
 	}
-	public bool SetPosition(PositionStruct position)
-	{
-		Position = position;
-		switch(Orientation)
-		{
-			case OrientationEnum.NORTH:
-			{
-				NorthSuitGlobal = headPosNorth + position;
-				SouthSuitGlobal = tailPosNorth + position;
-				WestSuitGlobal  = position;
-				EastSuitGlobal 	= position;
-				break;
-			}
-			case OrientationEnum.SOUTH:
-			{
-				NorthSuitGlobal = tailPosSouth + position;
-				SouthSuitGlobal = headPosSouth + position;
-				WestSuitGlobal  = position;
-				EastSuitGlobal 	= position;
-				break;
-			}
-			case OrientationEnum.WEST:
-			{
-				NorthSuitGlobal = position;
-				SouthSuitGlobal = position;
-				WestSuitGlobal  = headPosWest + position;
-				EastSuitGlobal 	= tailPosWest + position;
-				Console.WriteLine($"WestSuitGlobal x: {WestSuitGlobal.X} y: {WestSuitGlobal.Y}");
-				break;
-			}
-			case OrientationEnum.EAST:
-			{
-				NorthSuitGlobal = position;
-				SouthSuitGlobal = position;
-				WestSuitGlobal  = tailPosEast + position;
-				EastSuitGlobal 	= headPosEast + position;
-				Console.WriteLine($"EastSuitGlobal x: {EastSuitGlobal.X} y: {EastSuitGlobal.Y}");
-				break;
-			}
-		}
-		return true;
-	}
 	private PositionStruct FindCharInImage(char element, List<List<char>> _image)
 	{
 		PositionStruct positionInImage = new(0,0);
@@ -124,6 +82,10 @@ public class CardGUI : Card
 	}
 	public void RefreshImage()
 	{
+		if(_image == null)
+		{
+			return;
+		}
 		switch (Orientation)
 		{
 			case OrientationEnum.NORTH:
@@ -156,10 +118,52 @@ public class CardGUI : Card
 			}
 			default: break;
 		}
+		UpdateStates();
+	}
+	public void UpdateStates()
+	{
 		LengthX = _image.Count;
 		LengthY = _image[0].Count;
 		CenterLocal.X = (int)LengthX/2;
 		CenterLocal.Y = (int)LengthY/2;
+		switch(Orientation)
+		{
+			case OrientationEnum.NORTH:
+			{
+				NorthSuitGlobal = Position + headPosNorth - CenterLocal;
+				SouthSuitGlobal = Position + tailPosNorth - CenterLocal;
+				WestSuitGlobal  = Position;
+				EastSuitGlobal 	= Position;
+				break;
+			}
+			case OrientationEnum.SOUTH:
+			{
+				NorthSuitGlobal = Position + tailPosSouth - CenterLocal;
+				SouthSuitGlobal = Position + headPosSouth - CenterLocal;
+				WestSuitGlobal  = Position;
+				EastSuitGlobal 	= Position;
+				break;
+			}
+			case OrientationEnum.WEST:
+			{
+				NorthSuitGlobal = Position;
+				SouthSuitGlobal = Position;
+				WestSuitGlobal  = Position + headPosWest - CenterLocal;
+				EastSuitGlobal 	= Position + tailPosWest - CenterLocal;
+				// Console.WriteLine($"WestSuitGlobal x: {WestSuitGlobal.X} y: {WestSuitGlobal.Y}");
+				break;
+			}
+			case OrientationEnum.EAST:
+			{
+				NorthSuitGlobal = Position;
+				SouthSuitGlobal = Position;
+				WestSuitGlobal  = Position + tailPosEast - CenterLocal;
+				EastSuitGlobal 	= Position + headPosEast - CenterLocal;
+				// Console.WriteLine($"EastSuitGlobal x: {EastSuitGlobal.X} y: {EastSuitGlobal.Y}");
+				break;
+			}
+			default: break;
+		}
 	}
 	public List<List<char>> GetImage()
 	{

@@ -54,24 +54,6 @@ public class Transform2D
 	}
 }
 
-public struct PositionStruct
-{
-	public PositionStruct(int x, int y)
-	{
-		X = x;
-		Y = Y;
-	}
-	public int X {get; set;}
-	public int Y {get; set;}
-	public static PositionStruct operator + (PositionStruct a, PositionStruct b)
-	{
-		PositionStruct result = new(a.X,a.Y);
-		result.X += b.X;
-		result.Y += b.Y;
-		return result;
-	}
-}
-
 //Source: https://stackoverflow.com/questions/642542/how-to-get-next-or-previous-enum-value-in-c-sharp
 public static class Extensions
 {
