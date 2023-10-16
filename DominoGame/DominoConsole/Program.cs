@@ -7,17 +7,17 @@ namespace Program;
 
 public partial class Program
 {
-	static IPlayer? currentPlayer;
-	static List<Card>? cardsList;
-	static HashSet<IdNodeSuit>? openEnds;
-	static List<KeyValuePair<Card, IdNodeSuit>>? deckTableCompatible;
-	static DominoTree? dominoTree;
-	static CardGUI? cardGUI;
-	static TableGUI tableGUI = new();
+	private static IPlayer? currentPlayer;
+	private static List<Card>? cardsList;
+	private static HashSet<IdNodeSuit>? openEnds;
+	private static List<KeyValuePair<Card, IdNodeSuit>>? deckTableCompatible;
+	private static DominoTree? dominoTree;
+	private static CardGUI? cardGUI;
+	private static TableGUI? tableGUI;
+	private static List<CardKinematics>? cardKinematicsLUT;
 	static void Main()
 	{
 		//Load config
-		List<CardKinematics> cardKinematicsLUT;
 
 		using (var reader = new StreamReader("config/DominoCardKinematicsLookupTable.csv"))
 		using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
@@ -38,6 +38,7 @@ public partial class Program
 			cardGUI = JsonSerializer.Deserialize<CardGUI>(cardGUIJson);
 		}
 		cardGUI.UpdateConfig();
+		tableGUI = new();
 		
 		//GameStatus:NOTSTARTED
 		//Input number of players & win score
@@ -47,11 +48,9 @@ public partial class Program
 		for (int i = 0; i < gameController.NumPlayers; i++)
 		{
 			Display($"Player {i + 1} please input your name: ");
-			string name = ReadInput(); //Console.ReadLine();
+			string inputName = ReadInput();
 			// TODO: Check for whitespace & no letters input
-			Player player = new();
-			player.SetId(i + 1);
-			player.SetName(name);
+			Player player = new(id: i+1, name: inputName);
 			if (gameController.AddPlayer(player))
 			{
 				DisplayLine($"Player {player.GetId()} ({player.GetName()}) successfully added");
@@ -110,10 +109,11 @@ public partial class Program
 
 					currentPlayer = gameController.GetNextPlayer();
 					cardsList = gameController.GetPlayerCards(currentPlayer);
-					// Display("\n");
+					
 					DisplayLine($"Player {currentPlayer.GetId()} {currentPlayer.GetName()}'s turn");
 					DisplayLine("Here are your available cards in your deck ...");
 					DisplayDeckCards(cardsList);
+					
 					openEnds = gameController.GetTargetNodes();
 					deckTableCompatible = gameController.GetDeckTableCompatibleCards(cardsList, openEnds);
 
@@ -185,10 +185,7 @@ public partial class Program
 
 						gameController.PutCard(currentPlayer, putCard, targetIdNodeSuit);
 					}
-
-					// break; // TODO: Remove this. Only to break while loop & troubleshoot  
 				}
-				// break; // TODO: Remove this. Only to break while loop & troubleshoot
 			}
 			while (!gameController.IsWinRound());
 			// TODO: We have check IsWinRound() here & the inner while loop. Is it redundant?
@@ -204,7 +201,7 @@ public partial class Program
 				Display("\n");
 			}
 			
-			//  Calculate score
+			//  Calculate round score
 			IPlayer roundWinner = gameController.CalculateRoundScore();
 			
 			//	if either Player's card deck is empty OR no more valid move -> Round winner
@@ -219,8 +216,6 @@ public partial class Program
 
 			//	Reset round	
 			gameController.ResetRound();
-			
-			// break; // TODO: Remove this. Only to break while loop & troubleshoot    
 		}
 
 		//GameStatus:GAMEWIN

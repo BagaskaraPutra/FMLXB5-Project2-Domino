@@ -4,20 +4,17 @@ public class Player : IPlayer
 {
 	private int _id;
 	private string _name;
+	public Player(int id, string name)
+	{
+		_id 	= id;
+		_name 	= name;
+	}
 	public string GetName()
 	{
 		return _name;
 	}
-	public void SetName(string name)
-	{
-		_name = name;
-	}
 	public int GetId()
 	{
 		return _id;
-	}
-	public void SetId(int id)
-	{
-		_id = id;
 	}
 }
