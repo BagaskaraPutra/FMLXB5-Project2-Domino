@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+
 namespace DominoConsole;
 
 public class GameController
@@ -29,10 +31,6 @@ public class GameController
 	private List<KeyValuePair<Card, IdNodeSuit>> _compatibleList;
 	// list of player's cards & open-ended card on the table that are compatible (has same head/tail value)
 
-	private Random _random;
-	// May be not random if not new()
-	// RandomNumberGenerator
-
 	private GameStatus _gameStatus;
 	public readonly int MaxWinScore;
 	// if one of the players reaches this score, then the game is finished
@@ -63,7 +61,6 @@ public class GameController
 		_compatibleList = new();
 		InitializeDefaultCards();
 		_boneyardCards =  _defaultCards.ConvertAll(card => card.DeepCopy()).ToList();
-		_random = new Random();
 	}
 	
 	private void InitializeDefaultCards()
@@ -87,8 +84,7 @@ public class GameController
 			return;
 		}
 		_playerStatusDict[player] = CardStatus.TAKECARD;
-		int index = _random.Next(_boneyardCards.Count);
-		// TODO: Unhandled exception. System.ArgumentOutOfRangeException: Index was out of range. Must be non-negative and less than the size of the collection. (Parameter 'index')
+		int index = RandomNumberGenerator.GetInt32(0,_boneyardCards.Count-1);
 		_playerCardDict[player].Add(_boneyardCards[index]);
 		_boneyardCards.RemoveAt(index);
 	}
