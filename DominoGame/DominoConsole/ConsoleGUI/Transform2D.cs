@@ -72,14 +72,6 @@ public struct PositionStruct
 	}
 }
 
-public enum OrientationEnum
-{
-	NORTH,
-	EAST,
-	SOUTH,
-	WEST
-}
-
 //Source: https://stackoverflow.com/questions/642542/how-to-get-next-or-previous-enum-value-in-c-sharp
 public static class Extensions
 {

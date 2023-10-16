@@ -147,7 +147,7 @@ public partial class Program
 							if (gameController.NumBoneyardCards() == 0)
 							{
 								DisplayLine("[WARNING!] Boneyard card pile is empty! No possible moves");
-								gameController.SetPlayerStatus(currentPlayer, CardStatus.PASS);
+								gameController.SetPlayerStatus(currentPlayer, PlayerStatus.PASS);
 								break;
 							}
 							else
@@ -160,7 +160,7 @@ public partial class Program
 					}
 
 					// Only proceed when CardStatus is not PASS
-					if (gameController.CheckPlayerStatus(currentPlayer) != CardStatus.PASS)
+					if (gameController.CheckPlayerStatus(currentPlayer) != PlayerStatus.PASS)
 					{
 						DisplayLine("Possible moves:");
 						int i = 0;

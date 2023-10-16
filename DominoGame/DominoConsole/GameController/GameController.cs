@@ -12,7 +12,7 @@ public class GameController
 	private List<IPlayer> _playersList;
 	private Dictionary<IPlayer, List<Card>?> _playerCardDict;
 	private Dictionary<IPlayer, int> _playerScoreDict;
-	private Dictionary<IPlayer, CardStatus> _playerStatusDict;
+	private Dictionary<IPlayer, PlayerStatus> _playerStatusDict;
 
 	private List<Card> _defaultCards;
 	// a list of default cards for template only
@@ -83,8 +83,8 @@ public class GameController
 		{
 			return;
 		}
-		_playerStatusDict[player] = CardStatus.TAKECARD;
-		int index = RandomNumberGenerator.GetInt32(0,_boneyardCards.Count-1);
+		_playerStatusDict[player] = PlayerStatus.TAKECARD;
+		int index = RandomNumberGenerator.GetInt32(0,_boneyardCards.Count);
 		_playerCardDict[player].Add(_boneyardCards[index]);
 		_boneyardCards.RemoveAt(index);
 	}
@@ -135,11 +135,11 @@ public class GameController
 	{
 		return _gameStatus;
 	}
-	public CardStatus CheckPlayerStatus(IPlayer player)
+	public PlayerStatus CheckPlayerStatus(IPlayer player)
 	{
 		return _playerStatusDict[player];
 	}
-	public void SetPlayerStatus(IPlayer player, CardStatus status)
+	public void SetPlayerStatus(IPlayer player, PlayerStatus status)
 	{
 		_playerStatusDict[player] = status;
 	}
@@ -163,7 +163,7 @@ public class GameController
 	}
 	public void PutCard(IPlayer player, Card card)
 	{
-		_playerStatusDict[player] = CardStatus.SETCARD;
+		_playerStatusDict[player] = PlayerStatus.SETCARD;
 		_tableCards.Add(card);
 		_playerCardDict[player].Remove(card);
 	}
@@ -173,7 +173,7 @@ public class GameController
 		// What happens when the open-ended node is attached with a card from the player's deck?
 		// Delete the open-ended IdNodeSuit when adding player's card to the tableCard.
 		
-		_playerStatusDict[player] = CardStatus.SETCARD;
+		_playerStatusDict[player] = PlayerStatus.SETCARD;
 		_tableCards.Add(card);
 		
 		Card targetCard = _tableCards.FirstOrDefault(x => x.GetId()==targetINS.Id);
@@ -387,19 +387,4 @@ public class GameController
 	{
 		return _boneyardCards.Count;
 	}
-}
-
-public enum GameStatus
-{
-	NOTSTARTED,
-	ONGOING,
-	ROUNDWIN,
-	GAMEWIN
-}
-
-public enum CardStatus
-{
-	SETCARD,
-	TAKECARD,
-	PASS
 }
