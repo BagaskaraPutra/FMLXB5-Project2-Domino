@@ -67,13 +67,13 @@ public partial class Program
 		tableGUI.Clear();
 		if (!dominoTree.GetTableCardsGUI()[0].IsDouble())
 		{
-			dominoTree.GetTableCardsGUI()[0].Position.SetX(tableGUI.CenterX);
-			dominoTree.GetTableCardsGUI()[0].Position.SetY(tableGUI.CenterY);
+			dominoTree.GetTableCardsGUI()[0].Position.X = tableGUI.CenterX;
+			dominoTree.GetTableCardsGUI()[0].Position.Y = tableGUI.CenterY;
 		}
 		else
 		{
-			dominoTree.GetTableCardsGUI()[0].Position.SetX(tableGUI.CenterX);
-			dominoTree.GetTableCardsGUI()[0].Position.SetY(tableGUI.CenterY);
+			dominoTree.GetTableCardsGUI()[0].Position.X = tableGUI.CenterX;
+			dominoTree.GetTableCardsGUI()[0].Position.Y = tableGUI.CenterY;
 		}
 
 		foreach (var cardGUI in dominoTree.GetTableCardsGUI())
@@ -110,8 +110,8 @@ public partial class Program
 	static void PlaceCardCenterIntoTable(CardGUI cardGUI, ref TableGUI tableGUI, DominoTree dominoTree)
 	{
 		List<List<char>> cardImage = cardGUI.GetImage();
-		int northBorder = cardGUI.Position.X - cardGUI.CenterPosX;
-		int southBorder = cardGUI.Position.X + cardGUI.CenterPosX;
+		int northBorder = cardGUI.Position.X - cardGUI.CenterLocal.X - 1;
+		int southBorder = cardGUI.Position.X + cardGUI.CenterLocal.X + 1;
 		if (northBorder < 0)
 		{
 			for (int i = 0; i < Math.Abs(northBorder); i++)
@@ -145,10 +145,10 @@ public partial class Program
 		{
 			for (int j = 0; j < cardGUI.LengthY; j++)
 			{
-				setPosX = i + cardGUI.Position.X - cardGUI.CenterPosX;
+				setPosX = i + cardGUI.Position.X - cardGUI.CenterLocal.X;
 				// if (setPosX < 0) setPosX = 0;
 				// else if (setPosX >= tableGUI.LengthX-1) setPosX = tableGUI.LengthX-1;
-				setPosY = j + cardGUI.Position.Y - cardGUI.CenterPosY;
+				setPosY = j + cardGUI.Position.Y - cardGUI.CenterLocal.Y;
 				// if (setPosY < 0) setPosY = 0;
 				// else if (setPosY >= tableGUI.LengthX-1) setPosY = tableGUI.LengthY-1;
 				tableGUI.Image

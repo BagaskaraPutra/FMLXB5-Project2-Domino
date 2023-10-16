@@ -8,29 +8,29 @@ public class Transform2D
 		{
 			case OrientationEnum.NORTH:
 			{
-				currentCard.Position.SetX(parentCard.Position.X - parentCard.CenterPosX - currentCard.CenterPosX - 1);
-				currentCard.Position.SetY(parentCard.Position.Y);
+				currentCard.Position.X = parentCard.Position.X - parentCard.CenterLocal.X - currentCard.CenterLocal.X - 1;
+				currentCard.Position.Y = parentCard.Position.Y;
 				// Console.WriteLine($"Move NORTH to X: {currentCard.Position.X} {parentCard.Position.X - parentCard.CenterPosX - currentCard.CenterPosX - 1}");
 				break;
 			}
 			case OrientationEnum.EAST:
 			{
-				currentCard.Position.SetX(parentCard.Position.X);
-				currentCard.Position.SetY(parentCard.Position.Y + parentCard.CenterPosY + currentCard.CenterPosY + 1);
+				currentCard.Position.X = parentCard.Position.X;
+				currentCard.Position.Y = parentCard.Position.Y + parentCard.CenterLocal.Y + currentCard.CenterLocal.Y + 1;
 				// Console.WriteLine($"Move EAST to Y: {currentCard.Position.Y}");
 				break;
 			}
 			case OrientationEnum.SOUTH:
 			{
-				currentCard.Position.SetX(parentCard.Position.X + parentCard.CenterPosX + currentCard.CenterPosX + 1);
-				currentCard.Position.SetY(parentCard.Position.Y);
+				currentCard.Position.X = parentCard.Position.X + parentCard.CenterLocal.X + currentCard.CenterLocal.X + 1;
+				currentCard.Position.Y = parentCard.Position.Y;
 				// Console.WriteLine($"Move SOUTH to X: {currentCard.Position.X}");
 				break;
 			}
 			case OrientationEnum.WEST:
 			{
-				currentCard.Position.SetX(parentCard.Position.X);
-				currentCard.Position.SetY(parentCard.Position.Y - parentCard.CenterPosY - currentCard.CenterPosY - 1);
+				currentCard.Position.X = parentCard.Position.X;
+				currentCard.Position.Y = parentCard.Position.Y - parentCard.CenterLocal.Y - currentCard.CenterLocal.Y - 1;
 				// Console.WriteLine($"Move WEST to Y: {currentCard.Position.Y}");
 				break;
 			}
@@ -54,33 +54,24 @@ public class Transform2D
 	}
 }
 
-public struct PositionStruct{
+public struct PositionStruct
+{
 	public PositionStruct(int x, int y)
 	{
 		X = x;
 		Y = Y;
 	}
-	public int X {get; private set;}
-	public int Y {get; private set;}
-	public bool SetX(int x)
+	public int X {get; set;}
+	public int Y {get; set;}
+	public static PositionStruct operator + (PositionStruct a, PositionStruct b)
 	{
-		// if (x < 0)
-		// {
-		// 	return false;
-		// }
-		X = x;
-		return true;
-	}
-	public bool SetY(int y)
-	{
-		// if (y < 0)
-		// {
-		// 	return false;
-		// }
-		Y = y;
-		return true;
+		PositionStruct result = new(a.X,a.Y);
+		result.X += b.X;
+		result.Y += b.Y;
+		return result;
 	}
 }
+
 public enum OrientationEnum
 {
 	NORTH,

@@ -3,10 +3,10 @@ namespace DominoConsole;
 public class DominoTree
 {
 	private int _parentId;
-	private List<CardGUI>? _tableCardsGUI;
-	private CardGUI? _currentCard;
-	private CardGUI? _parentCard;
-	private readonly List<CardKinematics>? _cardKinematicsLUT;
+	private List<CardGUI> _tableCardsGUI;
+	private CardGUI _currentCard;
+	private CardGUI _parentCard;
+	private readonly List<CardKinematics> _cardKinematicsLUT;
 	private CardKinematics? _desiredCardKinematics;
 	public DominoTree(List<CardKinematics> lookupTable)
 	{
@@ -39,7 +39,7 @@ public class DominoTree
 		{
 			return;
 		}
-		_currentCard.UpdateImage();
+		_currentCard.RefreshImage();
 
 		_parentId = _currentCard.ParentId;
 		_parentCard = _tableCardsGUI.FirstOrDefault(x => x.GetId() == _parentId);
@@ -60,23 +60,26 @@ public class DominoTree
 			// Console.WriteLine($"desired orientation: {_desiredCardKinematics.CurrentOrientation}");
 			_currentCard.SetOrientation(_desiredCardKinematics.CurrentOrientation);
 			Transform2D.MoveUntilEdge(ref _currentCard, _parentCard, _desiredCardKinematics.MoveDirection);
-			// _currentCard.Position.SetX(_parentCard.Position.X + _desiredCardKinematics.CurrentOffsetX);
-			// _currentCard.Position.SetY(_parentCard.Position.Y + _desiredCardKinematics.CurrentOffsetY);
+			// _currentCard.Position.X = (_parentCard.Position.X + _desiredCardKinematics.CurrentOffsetX);
+			// _currentCard.Position.Y = (_parentCard.Position.Y + _desiredCardKinematics.CurrentOffsetY);
 
 			int positionX = _currentCard.Position.X;
 			int positionY = _currentCard.Position.Y;
 			OrientationEnum orientation = _currentCard.Orientation;
-			if (positionY - _currentCard.LengthY < 0)
+			if (positionY - _currentCard.LengthY <= 0)
 			{
 				_currentCard.SetOrientation(Transform2D.RotateCW(orientation));
 				Transform2D.MoveUntilEdge(ref _currentCard, _parentCard, OrientationEnum.NORTH);
-				Console.WriteLine("Is exceeds border WEST");
+				// TODO: Set position at outer most head / tail position
+				// _currentCard.Position.Y = _parentCard.WestSuitGlobal.Y;
+				Console.WriteLine($"Is exceeds border WEST, _parentCard.WestSuitGlobal.Y: {_parentCard.WestSuitGlobal.Y}");
 			}
-			else if (positionY + _currentCard.CenterPosY + 1 > Console.WindowWidth)
+			else if (positionY + _currentCard.LengthY + 1 >= Console.WindowWidth)
 			{
 				_currentCard.SetOrientation(Transform2D.RotateCW(_currentCard.Orientation));
 				Transform2D.MoveUntilEdge(ref _currentCard, _parentCard, OrientationEnum.SOUTH);
-				Console.WriteLine("Is exceeds border EAST");
+				// _currentCard.Position.Y = _parentCard.EastSuitGlobal.Y;
+				Console.WriteLine($"Is exceeds border EAST, _parentCard.EastSuitGlobal.Y: {_parentCard.EastSuitGlobal.Y}");
 			}
 
 			Console.WriteLine($"parent card [{_parentCard.Head}|{_parentCard.Tail}] IsDouble: {_parentCard.IsDouble()}, \t node: {_parentCard.GetNode(_currentCard.GetId())}, \t orientation: {_parentCard.Orientation} \t x: {_parentCard.Position.X} \t y: {_parentCard.Position.Y}");
@@ -90,7 +93,7 @@ public class DominoTree
 		foreach (var card in _tableCardsGUI)
 		{
 			int currentPosX = card.Position.X;
-			card.Position.SetX(currentPosX + offsetX);
+			card.Position.X = currentPosX + offsetX;
 		}
 	}
 	public void MoveAllEast(int offsetY)
@@ -98,26 +101,30 @@ public class DominoTree
 		foreach (var card in _tableCardsGUI)
 		{
 			int currentPosY = card.Position.Y;
-			card.Position.SetY(currentPosY + offsetY);
+			card.Position.Y = currentPosY + offsetY;
 		}
 	}
 	public bool IsExceedsBorder()
 	{
-		// TODO: Still fails when exceeds border
 		int positionX = _currentCard.Position.X;
 		int positionY = _currentCard.Position.Y;
 		OrientationEnum orientation = _currentCard.Orientation;
 		if (positionY - _currentCard.LengthY < 0)
 		{
-			_currentCard.SetOrientation(Transform2D.RotateCW(orientation));
-			// TODO: Update image whenever setorientation & set image is invoked
-			Transform2D.MoveUntilEdge(ref _currentCard, _parentCard, OrientationEnum.NORTH);
+			if (!_currentCard.IsDouble())
+			{
+				_currentCard.SetOrientation(Transform2D.RotateCW(orientation));
+				Transform2D.MoveUntilEdge(ref _currentCard, _parentCard, OrientationEnum.NORTH);
+			}
 			Console.WriteLine("Is exceeds border WEST");
 			return true;
 		}
-		else if (positionY + _currentCard.CenterPosY + 2 > Console.WindowWidth)
+		else if (positionY + _currentCard.LengthY  >= Console.WindowWidth)
 		{
-			_currentCard.SetOrientation(Transform2D.RotateCW(_currentCard.Orientation));
+			if (!_currentCard.IsDouble())
+			{
+				_currentCard.SetOrientation(Transform2D.RotateCW(_currentCard.Orientation));	
+			}
 			Transform2D.MoveUntilEdge(ref _currentCard, _parentCard, OrientationEnum.SOUTH);
 			Console.WriteLine("Is exceeds border EAST");
 			return true;

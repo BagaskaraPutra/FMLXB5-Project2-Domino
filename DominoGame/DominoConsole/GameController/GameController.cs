@@ -118,12 +118,11 @@ public class GameController
 		bool successAddToCardDict = false;
 		bool successAddToScore = false;
 		bool successAddToStatus = false;
-		// TODO: If containsKey player, 
 		if (!_playersList.Contains(player))
 		{
-			successAddToCardDict = _playerCardDict.TryAdd(player, new());
-			successAddToScore = _playerScoreDict.TryAdd(player, 0);
-			successAddToStatus = _playerStatusDict.TryAdd(player, 0);
+			successAddToCardDict 	= _playerCardDict.TryAdd(player, new());
+			successAddToScore 		= _playerScoreDict.TryAdd(player, 0);
+			successAddToStatus 		= _playerStatusDict.TryAdd(player, 0);
 			_playersList.Add(player);
 		}
 		return successAddToCardDict && successAddToScore && successAddToStatus;
@@ -140,7 +139,6 @@ public class GameController
 	{
 		return _gameStatus;
 	}
-	// public CardStatus CheckSetCardStatus()
 	public CardStatus CheckPlayerStatus(IPlayer player)
 	{
 		return _playerStatusDict[player];
@@ -322,14 +320,12 @@ public class GameController
 	}
 	public bool IsWinRound()
 	{
-		//TODO: Check for: 
-		//1. no possible moves when boneyardCards is empty OR
-		//2. empty deck (DONE)
 		bool winRound = false;
+		bool[] allNoValidMove = new bool[_playersList.Count];
+		// TODO: Waste of memory initialize bool[] everytime
 		if (_boneyardCards.Count == 0)
 		{
 			// no possible moves when boneyardCards is empty
-			bool[] allNoValidMove = new bool[_playersList.Count];
 			int i = 0;
 			foreach (IPlayer player in _playersList)
 			{
