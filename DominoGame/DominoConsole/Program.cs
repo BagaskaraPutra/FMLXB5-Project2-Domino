@@ -7,6 +7,7 @@ namespace Program;
 
 public partial class Program
 {
+	private static GameController? gameController;
 	private static IPlayer? currentPlayer;
 	private static List<Card>? cardsList;
 	private static HashSet<IdNodeSuit>? openEnds;
@@ -42,14 +43,30 @@ public partial class Program
 		
 		//GameStatus:NOTSTARTED
 		//Input number of players & win score
-		GameController gameController = new(numPlayers: 3, winScore: 100);
+		gameController = new(numPlayers: 3, maxWinScore: 100);
 		
 		//Players input id & name
 		for (int i = 0; i < gameController.NumPlayers; i++)
 		{
-			Display($"Player {i + 1} please input your name: ");
-			string inputName = ReadInput();
-			// TODO: Check for whitespace & no letters input
+			bool isBlankOrNoLetters = true;
+			string inputName = " ";
+			do
+			{
+				Display($"Player {i + 1} please input your name: ");
+				inputName = ReadInput();
+				if(string.IsNullOrWhiteSpace(inputName))
+				{
+					DisplayLine("Invalid player name! You cannot leave your name blank");
+				}
+				else if(!inputName.Any(char.IsLetter))
+				{
+					DisplayLine("Invalid player name! Your name must contain alphabet letters");
+				}
+				else
+				{
+					isBlankOrNoLetters = false;
+				}
+			}while(isBlankOrNoLetters);
 			Player player = new(id: i+1, name: inputName);
 			if (gameController.AddPlayer(player))
 			{
@@ -130,7 +147,6 @@ public partial class Program
 							if (gameController.NumBoneyardCards() == 0)
 							{
 								DisplayLine("[WARNING!] Boneyard card pile is empty! No possible moves");
-								// (DONE): Set CardStatus to pass
 								gameController.SetPlayerStatus(currentPlayer, CardStatus.PASS);
 								break;
 							}
