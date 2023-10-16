@@ -30,16 +30,17 @@ public class Card
 			_nodeId[i] = -1;
 		}
 	}
+	public Card DeepCopy()
+	{
+		return new Card(_id, Head, Tail);
+	}
 	public bool IsDouble()
 	{
 		if(Head == Tail)
 		{
 			return true;
 		}
-		else
-		{
-			return false;	
-		}
+		return false;
 	}
 	public int GetId()
 	{
@@ -61,10 +62,6 @@ public class Card
 	public int[] GetCardIdArrayAtNodes()
 	{
 		return _nodeId;
-	}
-	public int GetCardIdAtNode(NodeEnum nodeEnum)
-	{
-		return _nodeId[(int)nodeEnum];
 	}
 	public void SetCardIdAtNode(int cardId, NodeEnum nodeEnum)
 	{

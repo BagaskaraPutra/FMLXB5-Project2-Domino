@@ -22,25 +22,26 @@ public class GameController
 	// cards on the table already placed by the players
 
 	private HashSet<IdNodeSuit>? _openEndsSet;
-	// dictionary of tableCards and their nodes that have open ends (can be placed with a card)
-	// TODO: Make Hashset<Card>
+	// set of tableCards and their nodes that have open ends (can be placed with a card)
+	// TODO: Convert to Hashset<Card> to save memory. 
+	// NO, because if only the Card is saved, we need to recheck which nodes are open (node with id=-1)
 
 	private List<KeyValuePair<Card, IdNodeSuit>> _compatibleList;
-	
-	
+	// list of player's cards & open-ended card on the table that are compatible (has same head/tail value)
+
 	private Random _random;
 	// May be not random if not new()
 	// RandomNumberGenerator
 
 	private GameStatus _gameStatus;
-	public readonly int WinScore;
+	public readonly int MaxWinScore;
 	// if one of the players reaches this score, then the game is finished
 
-	public GameController(int numPlayers, int winScore)
+	public GameController(int numPlayers, int maxWinScore)
 	{
 		_gameStatus = GameStatus.NOTSTARTED;
 		NumPlayers = numPlayers;
-		WinScore = winScore;
+		MaxWinScore = maxWinScore;
 		Round = 1;
 
 		if (numPlayers > 2)
@@ -61,7 +62,7 @@ public class GameController
 		_tableCards = new();
 		_compatibleList = new();
 		InitializeDefaultCards();
-		_boneyardCards = new List<Card>(_defaultCards);
+		_boneyardCards =  _defaultCards.ConvertAll(card => card.DeepCopy()).ToList();
 		_random = new Random();
 	}
 	
@@ -114,11 +115,17 @@ public class GameController
 	}
 	public bool AddPlayer(IPlayer player)
 	{
+		bool successAddToCardDict = false;
+		bool successAddToScore = false;
+		bool successAddToStatus = false;
 		// TODO: If containsKey player, 
-		bool successAddToCardDict = _playerCardDict.TryAdd(player, new());
-		bool successAddToScore = _playerScoreDict.TryAdd(player, 0);
-		bool successAddToStatus = _playerStatusDict.TryAdd(player, 0);
-		_playersList.Add(player);
+		if (!_playersList.Contains(player))
+		{
+			successAddToCardDict = _playerCardDict.TryAdd(player, new());
+			successAddToScore = _playerScoreDict.TryAdd(player, 0);
+			successAddToStatus = _playerStatusDict.TryAdd(player, 0);
+			_playersList.Add(player);
+		}
 		return successAddToCardDict && successAddToScore && successAddToStatus;
 	}
 	public IPlayer GetPlayer(int id)
@@ -142,12 +149,6 @@ public class GameController
 	{
 		_playerStatusDict[player] = status;
 	}
-	// public bool SetNextTurn(IPlayer player, List<Card> cardHand)
-	// {
-	// 	//TODO: What does this method do? Why does it need the cardHand parameter?
-	// 	// Answer: cardHand is redundant because it is already contained in _playerCardDict
-	// 	return false;
-	// }
 	public IPlayer GetCurrentPlayer()
 	{
 		return _currentPlayer;
@@ -218,25 +219,8 @@ public class GameController
 		_playerCardDict[player].Remove(card);
 		return true;
 	}
-	public Card?[] GetAdjacentCards(int cardId)
-	{
-		//TODO: What is this? What does [4] signify?
-		//Answer: Card?[4] is the array of cards that are connected to the current card (which has the id: CardId)
-		Card currentCard = _tableCards.FirstOrDefault(x => x.GetId() == cardId);
-		int[] cardIdAtNodes = currentCard.GetCardIdArrayAtNodes();
-		Card?[] cards = new Card[cardIdAtNodes.Length];
-		for (int i = 0; i < cardIdAtNodes.Length; i++)
-		{
-			cards[i] = _tableCards.FirstOrDefault(x => x.GetId() == i);
-		}
-		return cards;
-	}
 	public HashSet<IdNodeSuit> GetTargetNodes()
 	{
-		//(DONE): Change to HashSet<IdNodeSuit> because it is unique
-		// which signifies the open-ended card, its available node, and its available head/tail number.
-		// Available head/tail (suit) number is to make it easier for player's card to check
-		
 		//BUG: tableCard.GetCardIdArrayAtNodes()[(int)NodeEnum.BACK] == -1 and other nodes != -1
 		// causing to _openEndSet.Count == 0 even though there is an open-ended card
 		//(Temporary solved): In ResetRound() call InitializeDefaultCards
@@ -309,15 +293,13 @@ public class GameController
 		Round++;
 		foreach (IPlayer player in _playerCardDict.Keys)
 		{
-			_playerCardDict[player].Clear(); // = new();	
+			_playerCardDict[player].Clear();
 		}
-		_openEndsSet.Clear(); // = new();
+		_openEndsSet.Clear();
 
-		_tableCards.Clear(); // = new();
-		_compatibleList.Clear(); //= new();
-		InitializeDefaultCards(); // try creating new cards such that the fields (especially _nodeId[]) are reset
-		_boneyardCards = new List<Card>(_defaultCards); 
-		// TODO: Reset default cards without calling InitializeDefaultCards to save memory
+		_tableCards.Clear();
+		_compatibleList.Clear();
+		_boneyardCards = _defaultCards.ConvertAll(card => card.DeepCopy()).ToList();
 		return true;
 	}
 	public int CheckScore(IPlayer player)
@@ -330,7 +312,7 @@ public class GameController
 		foreach (IPlayer player in _playersList)
 		{
 			bool playerWinGame = false;
-			if (CheckScore(player) >= WinScore)
+			if (CheckScore(player) >= MaxWinScore)
 			{
 				playerWinGame = true;
 			}
