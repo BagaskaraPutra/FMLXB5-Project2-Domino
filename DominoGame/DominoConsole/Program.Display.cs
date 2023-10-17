@@ -65,16 +65,9 @@ public partial class Program
 	{
 		tableGUI.ResizeToFitTerminal();
 		tableGUI.Clear();
-		if (!dominoTree.GetTableCardsGUI()[0].IsDouble())
-		{
-			dominoTree.GetTableCardsGUI()[0].Position.X = tableGUI.CenterX;
-			dominoTree.GetTableCardsGUI()[0].Position.Y = tableGUI.CenterY;
-		}
-		else
-		{
-			dominoTree.GetTableCardsGUI()[0].Position.X = tableGUI.CenterX;
-			dominoTree.GetTableCardsGUI()[0].Position.Y = tableGUI.CenterY;
-		}
+		
+		dominoTree.GetTableCardsGUI()[0].Position.X = tableGUI.CenterX;
+		dominoTree.GetTableCardsGUI()[0].Position.Y = tableGUI.CenterY;
 
 		foreach (var cardGUI in dominoTree.GetTableCardsGUI())
 		{
@@ -109,6 +102,7 @@ public partial class Program
 	}
 	static void PlaceCardCenterIntoTable(CardGUI cardGUI, ref TableGUI tableGUI, DominoTree dominoTree)
 	{
+		//TODO: Too much blank space
 		List<List<char>> cardImage = cardGUI.GetImage();
 		int northBorder = cardGUI.Position.X - cardGUI.CenterLocal.X - 1;
 		int southBorder = cardGUI.Position.X + cardGUI.CenterLocal.X + 1;
@@ -139,8 +133,7 @@ public partial class Program
 			}
 			Console.WriteLine($"Is exceeds SOUTH border by {Math.Abs(southBorder - tableGUI.LengthX)} cells");
 		}
-		int setPosX;
-		int setPosY;
+		int setPosX, setPosY;
 		for (int i = 0; i < cardGUI.LengthX; i++)
 		{
 			for (int j = 0; j < cardGUI.LengthY; j++)
@@ -151,10 +144,7 @@ public partial class Program
 				setPosY = j + cardGUI.Position.Y - cardGUI.CenterLocal.Y;
 				// if (setPosY < 0) setPosY = 0;
 				// else if (setPosY >= tableGUI.LengthX-1) setPosY = tableGUI.LengthY-1;
-				tableGUI.Image
-				[setPosX]
-				[setPosY]
-				= cardImage[i][j];
+				tableGUI.Image[setPosX][setPosY] = cardImage[i][j];
 			}
 		}
 	}

@@ -8,7 +8,7 @@ public class Transform2D
 		{
 			case OrientationEnum.NORTH:
 			{
-				currentCard.Position.X = parentCard.Position.X - parentCard.CenterLocal.X - currentCard.CenterLocal.X - 1;
+				currentCard.Position.X = parentCard.Position.X - parentCard.NorthEdgeToCenterLength - currentCard.NorthEdgeToCenterLength - 1;
 				currentCard.Position.Y = parentCard.Position.Y;
 				// Console.WriteLine($"Move NORTH to X: {currentCard.Position.X} {parentCard.Position.X - parentCard.CenterPosX - currentCard.CenterPosX - 1}");
 				break;
@@ -16,13 +16,13 @@ public class Transform2D
 			case OrientationEnum.EAST:
 			{
 				currentCard.Position.X = parentCard.Position.X;
-				currentCard.Position.Y = parentCard.Position.Y + parentCard.CenterLocal.Y + currentCard.CenterLocal.Y + 1;
+				currentCard.Position.Y = parentCard.Position.Y + parentCard.EastEdgeToCenterLength + currentCard.EastEdgeToCenterLength + 1;
 				// Console.WriteLine($"Move EAST to Y: {currentCard.Position.Y}");
 				break;
 			}
 			case OrientationEnum.SOUTH:
 			{
-				currentCard.Position.X = parentCard.Position.X + parentCard.CenterLocal.X + currentCard.CenterLocal.X + 1;
+				currentCard.Position.X = parentCard.Position.X + parentCard.SouthEdgeToCenterLength + currentCard.SouthEdgeToCenterLength + 1;
 				currentCard.Position.Y = parentCard.Position.Y;
 				// Console.WriteLine($"Move SOUTH to X: {currentCard.Position.X}");
 				break;
@@ -30,7 +30,7 @@ public class Transform2D
 			case OrientationEnum.WEST:
 			{
 				currentCard.Position.X = parentCard.Position.X;
-				currentCard.Position.Y = parentCard.Position.Y - parentCard.CenterLocal.Y - currentCard.CenterLocal.Y - 1;
+				currentCard.Position.Y = parentCard.Position.Y - parentCard.WestEdgeToCenterLength - currentCard.WestEdgeToCenterLength - 1;
 				// Console.WriteLine($"Move WEST to Y: {currentCard.Position.Y}");
 				break;
 			}
@@ -55,7 +55,7 @@ public class Transform2D
 }
 
 //Source: https://stackoverflow.com/questions/642542/how-to-get-next-or-previous-enum-value-in-c-sharp
-public static class Extensions
+public static class Transform2DExtensions
 {
 	public static T Next<T>(this T src) where T : struct
 	{

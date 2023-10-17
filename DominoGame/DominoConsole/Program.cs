@@ -168,7 +168,9 @@ public partial class Program
 						{
 							i++;
 							// DisplayLine($"{i}. Deck card (id: {kvp.Key.GetId()}): [{kvp.Key.Head}|{kvp.Key.Tail}] put next to -> Table card id: {kvp.Value.Id}, node: {kvp.Value.Node}, suit: {kvp.Value.Suit}");
-							DisplayLine($"{i}. Deck card [{kvp.Key.Head}|{kvp.Key.Tail}] (id: {kvp.Key.GetId()}) put next to -> Table card [{gameController.GetCardFromId(kvp.Value.Id).Head}|{gameController.GetCardFromId(kvp.Value.Id).Tail}] (id: {kvp.Value.Id}) at {kvp.Value.Node} node");
+							// DisplayLine($"{i}. Deck card [{kvp.Key.Head}|{kvp.Key.Tail}] (id: {kvp.Key.GetId()}) put next to -> Table card [{gameController.GetCardFromId(kvp.Value.Id).Head}|{gameController.GetCardFromId(kvp.Value.Id).Tail}] (id: {kvp.Value.Id}) at {kvp.Value.Node} node");
+							DisplayLine($"{i}. Deck card [{kvp.Key.Head}|{kvp.Key.Tail}] (id: {kvp.Key.GetId()}) put next to -> Table card [{gameController.GetCardFromId(kvp.Value.Id).Head}|{gameController.GetCardFromId(kvp.Value.Id).Tail}] at {kvp.Value.Node} node");
+							//TODO: Show {kvp.Value.Node} in TableGUI
 						}
 
 						bool status = false;
@@ -191,8 +193,6 @@ public partial class Program
 								DisplayLine("You did not input a valid choice!");
 							}
 						} while (!status);
-
-						// NextPlayerPicksMove(currentPlayer, cardsList, deckTableCompatible, ref putCard);
 
 						// Game Controller gives suggestion to the currentPlayer: 
 						// 1. the deck card id that can be placed 
@@ -240,22 +240,18 @@ public partial class Program
 	static void FirstPlayerPicksCardId(IPlayer currentPlayer, List<Card> cardsList, ref Card putCard)
 	{
 		bool status = false;
-		int cardId;
 		do
 		{
 			Display($"Player {currentPlayer.GetId()} ({currentPlayer.GetName()}), please enter the card id to be placed on the table ... ");
-			status = Int32.TryParse(ReadInput(), out cardId);
+			status = Int32.TryParse(ReadInput(), out int cardId);
 			if (cardsList.Any(x => x.GetId() == cardId))
 			{
 				putCard = cardsList.FirstOrDefault(x => x.GetId() == cardId);
 			}
 			else
 			{
-				status = false;
-			}
-			if (!status)
-			{
 				DisplayLine("You did not input a valid card id!");
+				status = false;
 			}
 		} while (!status);
 	}

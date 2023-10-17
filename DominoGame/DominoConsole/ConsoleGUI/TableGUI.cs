@@ -29,6 +29,8 @@ public class TableGUI
 	}
 	public void Clear()
 	{
+		LengthX = Image.Count;
+		LengthY = Image[0].Count;
 		for (int i = 0; i < LengthX; i++)
 		{
 			for (int j = 0; j < LengthY; j++)
@@ -43,8 +45,11 @@ public class TableGUI
 	{
 		LengthX = Image.Count;
 		LengthY = Image[0].Count;
-		int consoleWidth = Console.WindowWidth;
+		int consoleHeight  = _defaultTableRowSize; //Console.WindowHeight;
+		int differenceRows = Math.Abs(LengthX - _defaultTableRowSize); //consoleHeight);
+		int consoleWidth   = Console.WindowWidth;
 		int differenceCols = Math.Abs(LengthY - consoleWidth);
+		
 		if(LengthY >= consoleWidth)
 		{
 			foreach (var tableRowList in Image)
@@ -54,7 +59,6 @@ public class TableGUI
 		}
 		else
 		{
-			// Console.WriteLine("windowImage columns < consoleWidth");
 			foreach (var tableRowList in Image)
 			{
 				for(int i=0; i<differenceCols-1; i++)
@@ -63,7 +67,24 @@ public class TableGUI
 				}
 			}
 		}
-		LengthX = Image.Count;
 		LengthY = Image[0].Count;
+		
+		if(LengthX >= consoleHeight)
+		{
+			Image.RemoveRange(consoleHeight-1, differenceRows);
+		}
+		else
+		{
+			for(int i=0; i<differenceRows-1; i++)
+			{
+				Image.Add(new ());
+				for(int j=0; j<LengthY; j++)
+				{
+					Image[Image.Count-1].Add(' ');
+				}
+			}
+		}
+		// TODO: Resize rows to some default value
+		LengthX = Image.Count;
 	}
 }

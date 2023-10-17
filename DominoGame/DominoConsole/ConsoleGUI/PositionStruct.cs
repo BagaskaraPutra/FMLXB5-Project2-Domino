@@ -4,7 +4,7 @@ public struct PositionStruct
 	public PositionStruct(int x, int y)
 	{
 		X = x;
-		Y = Y;
+		Y = y;
 	}
 	public int X {get; set;}
 	public int Y {get; set;}
@@ -20,6 +20,15 @@ public struct PositionStruct
 		PositionStruct result = new(0,0);
 		result.X = a.X - b.X;
 		result.Y = a.Y - b.Y;
+		return result;
+	}
+}
+
+public static class PositionStructExtensions
+{
+	public static PositionStruct Abs(this PositionStruct value)
+	{
+		PositionStruct result = new(Math.Abs(value.X), Math.Abs(value.Y));
 		return result;
 	}
 }
