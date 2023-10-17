@@ -7,10 +7,12 @@ namespace Program;
 
 public partial class Program
 {
-	private static GameController? gameController;
+	private static GameController? game;
 	private static IPlayer? currentPlayer;
 	private static List<Card>? cardsList;
-	private static HashSet<IdNodeSuit>? openEnds;
+	private static Card? playerCard;
+	private static HashSet<IdNodeSuit>? openNodes;
+	private static IdNodeSuit targetIdNodeSuit;
 	private static List<KeyValuePair<Card, IdNodeSuit>>? deckTableCompatible;
 	private static DominoTree? dominoTree;
 	private static CardGUI? cardGUI;
@@ -26,6 +28,7 @@ public partial class Program
 			csv.Context.RegisterClassMap<CardKinematicsMap>();
 			cardKinematicsLUT = csv.GetRecords<CardKinematics>().ToList();
 		}
+		dominoTree = new(cardKinematicsLUT);
 		// int idxLUT = 0;
 		// foreach (var ck in cardKinematicsLUT)
 		// {
@@ -43,13 +46,13 @@ public partial class Program
 		
 		//GameStatus:NOTSTARTED
 		//Input number of players & win score
-		gameController = new(numPlayers: 3, maxWinScore: 100);
+		game = new(numPlayers: 4, maxWinScore: 100);
 		
 		//Players input id & name
-		for (int i = 0; i < gameController.NumPlayers; i++)
+		for (int i = 0; i < game.NumPlayers; i++)
 		{
 			bool isBlankOrNoLetters = true;
-			string inputName = " ";
+			string inputName = "";
 			do
 			{
 				Display($"Player {i + 1} please input your name: ");
@@ -68,7 +71,7 @@ public partial class Program
 				}
 			}while(isBlankOrNoLetters);
 			Player player = new(id: i+1, name: inputName);
-			if (gameController.AddPlayer(player))
+			if (game.AddPlayer(player))
 			{
 				DisplayLine($"Player {player.GetId()} ({player.GetName()}) successfully added");
 			}
@@ -77,62 +80,59 @@ public partial class Program
 		//Ready? Enter any key to continue ...
 
 		//GameStatus:ONGOING
-		while (!gameController.IsWinGame())
+		while (!game.IsWinGame())
 		{
 			// Start round
 			do
 			{
-				DisplayLine($"\nRound {gameController.Round} begin!");
+				DisplayLine($"\n<<<<< ROUND {game.Round} BEGIN! >>>>>");
 				
 				// Choose first player to start
-				currentPlayer = gameController.GetFirstPlayer();
+				currentPlayer = game.GetFirstPlayer();
 
 				//	Players receive random deck of dominoes
-				foreach (IPlayer player in gameController.GetPlayers())
+				foreach (IPlayer player in game.GetPlayers())
 				{
 					DisplayLine($"Player {player.GetId()} ({player.GetName()}) is filling own deck with cards from boneyard ... ");
 					do
 					{
-						gameController.DrawRandomCard(player);
+						game.DrawRandomCard(player);
 					}
-					while (gameController.GetNumberOfCards(player) < gameController.MaxNumCardsPerPlayer);
-					DisplayDeckCards(gameController.GetPlayerCards(player));
+					while (game.GetNumberOfCards(player) < game.MaxNumCardsPerPlayer);
+					DisplayDeckCards(game.GetPlayerCards(player));
 				}
 
 				//	First Player puts first card in the middle
 				Display("\n");
 				DisplayLine($"Player {currentPlayer.GetId()} ({currentPlayer.GetName()}) starts first!");
-				cardsList = gameController.GetPlayerCards(currentPlayer);
+				cardsList = game.GetPlayerCards(currentPlayer);
 				DisplayLine("Here are your available cards in your deck ...");
 				DisplayDeckCards(cardsList);
 
-				// Reusable local variables, renewed at each round
-				Card putCard = new();
-				IdNodeSuit targetIdNodeSuit = new();
-				dominoTree = new(cardKinematicsLUT);
+				playerCard = new();
 
-				FirstPlayerPicksCardId(currentPlayer, cardsList, ref putCard);
-				gameController.PutCard(currentPlayer, putCard);
+				FirstPlayerPicksCardId(currentPlayer, cardsList, ref playerCard);
+				game.PutCard(currentPlayer, playerCard);
 
 				// TODO: We have check IsWinRound() here & the outer while loop. Is it redundant?
 				// while (gameController.CheckGameStatus() == GameStatus.ONGOING)
-				while (!gameController.IsWinRound())
+				while (!game.IsWinRound())
 				{
-					dominoTree.UpdateTree(gameController.GetTableCards());
+					dominoTree.UpdateTree(game.GetTableCards());
 					
 					Display("\n");
 					DisplayLine("Table Cards:");
 					DisplayTableCards(dominoTree);
 
-					currentPlayer = gameController.GetNextPlayer();
-					cardsList = gameController.GetPlayerCards(currentPlayer);
+					currentPlayer 	= game.GetNextPlayer();
+					cardsList 		= game.GetPlayerCards(game.GetCurrentPlayer());
 					
 					DisplayLine($"Player {currentPlayer.GetId()} {currentPlayer.GetName()}'s turn");
 					DisplayLine("Here are your available cards in your deck ...");
 					DisplayDeckCards(cardsList);
 					
-					openEnds = gameController.GetTargetNodes();
-					deckTableCompatible = gameController.GetDeckTableCompatibleCards(cardsList, openEnds);
+					openNodes 			= game.GetOpenNodes();
+					deckTableCompatible = game.GetDeckTableCompatible(currentPlayer, openNodes);
 
 					//	If no matching card, draw card until one of the sides matches either sides on table
 					if (deckTableCompatible.Count == 0)
@@ -141,13 +141,13 @@ public partial class Program
 						// BUG: When enter this if, the recently placed table card duplicates itself
 						do
 						{
-							gameController.DrawRandomCard(currentPlayer);
-							cardsList = gameController.GetPlayerCards(currentPlayer);
-							deckTableCompatible = gameController.GetDeckTableCompatibleCards(cardsList, openEnds);
-							if (gameController.NumBoneyardCards() == 0)
+							game.DrawRandomCard(currentPlayer);
+							cardsList 			= game.GetPlayerCards(currentPlayer);
+							deckTableCompatible = game.GetDeckTableCompatible(currentPlayer, openNodes);
+							if (game.NumBoneyardCards() == 0)
 							{
 								DisplayLine("[WARNING!] Boneyard card pile is empty! No possible moves");
-								gameController.SetPlayerStatus(currentPlayer, PlayerStatus.PASS);
+								game.SetPlayerStatus(currentPlayer, PlayerStatus.PASS);
 								break;
 							}
 							else
@@ -159,9 +159,11 @@ public partial class Program
 						while (deckTableCompatible.Count == 0);
 					}
 
+					currentPlayer = game.GetCurrentPlayer();
 					// Only proceed when CardStatus is not PASS
-					if (gameController.CheckPlayerStatus(currentPlayer) != PlayerStatus.PASS)
+					if (game.CheckPlayerStatus(currentPlayer) != PlayerStatus.PASS)
 					{
+						deckTableCompatible = game.GetDeckTableCompatible(currentPlayer, openNodes);
 						DisplayLine("Possible moves:");
 						int i = 0;
 						foreach (var kvp in deckTableCompatible)
@@ -169,7 +171,7 @@ public partial class Program
 							i++;
 							// DisplayLine($"{i}. Deck card (id: {kvp.Key.GetId()}): [{kvp.Key.Head}|{kvp.Key.Tail}] put next to -> Table card id: {kvp.Value.Id}, node: {kvp.Value.Node}, suit: {kvp.Value.Suit}");
 							// DisplayLine($"{i}. Deck card [{kvp.Key.Head}|{kvp.Key.Tail}] (id: {kvp.Key.GetId()}) put next to -> Table card [{gameController.GetCardFromId(kvp.Value.Id).Head}|{gameController.GetCardFromId(kvp.Value.Id).Tail}] (id: {kvp.Value.Id}) at {kvp.Value.Node} node");
-							DisplayLine($"{i}. Deck card [{kvp.Key.Head}|{kvp.Key.Tail}] (id: {kvp.Key.GetId()}) put next to -> Table card [{gameController.GetCardFromId(kvp.Value.Id).Head}|{gameController.GetCardFromId(kvp.Value.Id).Tail}] at {kvp.Value.Node} node");
+							DisplayLine($"{i}. Deck card [{kvp.Key.Head}|{kvp.Key.Tail}] (id: {kvp.Key.GetId()}) put next to -> Table card [{game.GetCardFromId(kvp.Value.Id).Head}|{game.GetCardFromId(kvp.Value.Id).Tail}] at {kvp.Value.Node} node");
 							//TODO: Show {kvp.Value.Node} in TableGUI
 						}
 
@@ -181,16 +183,13 @@ public partial class Program
 							status = Int32.TryParse(ReadInput(), out moveChoice);
 							if (moveChoice > 0 && moveChoice <= deckTableCompatible.Count)
 							{
-								putCard = deckTableCompatible[moveChoice - 1].Key;
+								playerCard = deckTableCompatible[moveChoice - 1].Key;
 								targetIdNodeSuit = deckTableCompatible[moveChoice - 1].Value;
 							}
 							else
 							{
-								status = false;
-							}
-							if (!status)
-							{
 								DisplayLine("You did not input a valid choice!");
+								status = false;
 							}
 						} while (!status);
 
@@ -199,45 +198,45 @@ public partial class Program
 						// 2. and the table card id to be placed adjacent to OR
 						//    the position on the table (Left OR Right)
 
-						gameController.PutCard(currentPlayer, putCard, targetIdNodeSuit);
+						game.PutCard(currentPlayer, playerCard, targetIdNodeSuit);
 					}
 				}
 			}
-			while (!gameController.IsWinRound());
+			while (!game.IsWinRound());
 			// TODO: We have check IsWinRound() here & the inner while loop. Is it redundant?
 			
 			// 	GameStatus:ROUNDWIN
-			DisplayLine($"\nRound {gameController.Round} ended!");
+			DisplayLine($"\nRound {game.Round} ended!");
 			
 			// Display players' remaining cards
-			foreach (IPlayer player in gameController.GetPlayers())
+			foreach (IPlayer player in game.GetPlayers())
 			{
 				DisplayLine($"Player {player.GetId()} {player.GetName()}'s remaining cards:");
-				DisplayDeckCards(gameController.GetPlayerCards(player));
+				DisplayDeckCards(game.GetPlayerCards(player));
 				Display("\n");
 			}
 			
 			//  Calculate round score
-			IPlayer roundWinner = gameController.CalculateRoundScore();
+			IPlayer roundWinner = game.GetRoundWinner();
 			
 			//	if either Player's card deck is empty OR no more valid move -> Round winner
-			Display($"[ROUND {gameController.Round} WINNER!]: ");
-			DisplayLine($"Player {roundWinner.GetId()} {roundWinner.GetName()} wins round {gameController.Round}");
+			Display($"[ROUND {game.Round} WINNER!]: ");
+			DisplayLine($"Player {roundWinner.GetId()} {roundWinner.GetName()} wins round {game.Round}");
 			Display("\n");
 			DisplayLine("Cumulative round players' score:");
-			foreach (IPlayer player in gameController.GetPlayers())
+			foreach (IPlayer player in game.GetPlayers())
 			{
-				DisplayLine($"Player {player.GetId()} {player.GetName()}'s score: {gameController.CheckScore(player)}");
+				DisplayLine($"Player {player.GetId()} {player.GetName()}'s score: {game.CheckScore(player)}");
 			}
 
 			//	Reset round	
-			gameController.ResetRound();
+			game.ResetRound();
 		}
 
 		//GameStatus:GAMEWIN
 		DisplayLine("Domino Game Finished! Thank you for playing");
 	}
-	static void FirstPlayerPicksCardId(IPlayer currentPlayer, List<Card> cardsList, ref Card putCard)
+	static void FirstPlayerPicksCardId(IPlayer currentPlayer, List<Card> cardsList, ref Card desiredCard)
 	{
 		bool status = false;
 		do
@@ -246,7 +245,7 @@ public partial class Program
 			status = Int32.TryParse(ReadInput(), out int cardId);
 			if (cardsList.Any(x => x.GetId() == cardId))
 			{
-				putCard = cardsList.FirstOrDefault(x => x.GetId() == cardId);
+				desiredCard = cardsList.FirstOrDefault(x => x.GetId() == cardId);
 			}
 			else
 			{

@@ -13,6 +13,8 @@ public class GameController
 	private Dictionary<IPlayer, List<Card>?> _playerCardDict;
 	private Dictionary<IPlayer, int> _playerScoreDict;
 	private Dictionary<IPlayer, PlayerStatus> _playerStatusDict;
+	private Dictionary<IPlayer, List<KeyValuePair<Card, IdNodeSuit>>> _playerDeckTableCompatible;
+	// list of player's cards & open-ended card on the table that are compatible (has same head/tail value)
 
 	private List<Card> _defaultCards;
 	// a list of default cards for template only
@@ -23,13 +25,10 @@ public class GameController
 	private List<Card> _tableCards;
 	// cards on the table already placed by the players
 
-	private HashSet<IdNodeSuit>? _openEndsSet;
+	private HashSet<IdNodeSuit>? _openNodesSet;
 	// set of tableCards and their nodes that have open ends (can be placed with a card)
 	// TODO: Convert to Hashset<Card> to save memory. 
 	// NO, because if only the Card is saved, we need to recheck which nodes are open (node with id=-1)
-
-	private List<KeyValuePair<Card, IdNodeSuit>> _compatibleList;
-	// list of player's cards & open-ended card on the table that are compatible (has same head/tail value)
 
 	private GameStatus _gameStatus;
 	public readonly int MaxWinScore;
@@ -55,10 +54,10 @@ public class GameController
 		_playerCardDict = new();
 		_playerScoreDict = new();
 		_playerStatusDict = new();
-		_openEndsSet = new();
-
+		_playerDeckTableCompatible = new();
+		
+		_openNodesSet = new();
 		_tableCards = new();
-		_compatibleList = new();
 		InitializeDefaultCards();
 		_boneyardCards =  _defaultCards.ConvertAll(card => card.DeepCopy()).ToList();
 	}
@@ -94,38 +93,42 @@ public class GameController
 	}
 	public IPlayer GetFirstPlayer()
 	{
-		int[] sumArray = new int[NumPlayers];
-		int i = 0;
-		foreach (IPlayer player in _playersList)
+		if (Round == 1)
 		{
-			DrawRandomCard(player);
-			int sum = _playerCardDict[player].FirstOrDefault().GetHeadTailSum();
-			sumArray[i] = sum;
-			i++;
+			int[] sumArray = new int[NumPlayers];
+			int i = 0;
+			foreach (IPlayer player in _playersList)
+			{
+				DrawRandomCard(player);
+				int sum = _playerCardDict[player].FirstOrDefault().GetHeadTailSum();
+				sumArray[i] = sum;
+				i++;
+			}
+			int p = Array.IndexOf(sumArray, sumArray.Max());
+			// Console.WriteLine("Player {0} has largest sum of head & tail", _playersList[p].GetId());
+			_gameStatus = GameStatus.ONGOING;
+			_currentPlayer = _playersList[p];
+			
+			return _playersList[p];	
 		}
-		int p = Array.IndexOf(sumArray, sumArray.Max());
-		// Console.WriteLine("Player {0} has largest sum of head & tail", _playersList[p].GetId());
-		_gameStatus = GameStatus.ONGOING;
-		_currentPlayer = _playersList[p];
-		return _playersList[p];
+		return GetNextPlayer();
 	}
 	public bool AddPlayer(IPlayer player)
 	{
-		bool successAddToCardDict = false;
-		bool successAddToScore = false;
-		bool successAddToStatus = false;
-		if (!_playersList.Contains(player))
+		if (_playersList.Contains(player))
 		{
-			successAddToCardDict 	= _playerCardDict.TryAdd(player, new());
-			successAddToScore 		= _playerScoreDict.TryAdd(player, 0);
-			successAddToStatus 		= _playerStatusDict.TryAdd(player, 0);
-			_playersList.Add(player);
+			return false;
 		}
-		return successAddToCardDict && successAddToScore && successAddToStatus;
+		bool successAddToCardDict 	= _playerCardDict.TryAdd(player, new());
+		bool successAddToScore 		= _playerScoreDict.TryAdd(player, 0);
+		bool successAddToStatus 	= _playerStatusDict.TryAdd(player, 0);
+		bool successAddToDeckTable  = _playerDeckTableCompatible.TryAdd(player, new());
+		_playersList.Add(player);
+		return successAddToCardDict && successAddToScore && successAddToStatus && successAddToDeckTable;
 	}
 	public IPlayer GetPlayer(int id)
 	{
-		return _playersList.FirstOrDefault(n => n.GetId() == id);
+		return _playersList.FirstOrDefault(p => p.GetId() == id);
 	}
 	public List<IPlayer> GetPlayers()
 	{
@@ -149,7 +152,7 @@ public class GameController
 	}
 	public IPlayer GetNextPlayer()
 	{
-		int currentIndex = _playersList.FindIndex(a => a.Equals(_currentPlayer));
+		int currentIndex = _playersList.FindIndex(p => p.Equals(_currentPlayer));
 		if (currentIndex == (_playersList.Count - 1))
 		{
 			_currentPlayer =  _playersList[0];
@@ -174,7 +177,6 @@ public class GameController
 		// Delete the open-ended IdNodeSuit when adding player's card to the tableCard.
 		
 		_playerStatusDict[player] = PlayerStatus.SETCARD;
-		_tableCards.Add(card);
 		
 		Card targetCard = _tableCards.FirstOrDefault(x => x.GetId()==targetINS.Id);
 		targetCard.SetCardIdAtNode(card.GetId(), targetINS.Node);
@@ -202,22 +204,22 @@ public class GameController
 				cardNode = NodeEnum.BACK;
 			}
 		}
-		_tableCards.FirstOrDefault(x => x==card).SetCardIdAtNode(targetINS.Id, cardNode);
-		_tableCards.FirstOrDefault(x => x==card).SetParentId(targetINS.Id);
-		_openEndsSet.Remove(targetINS);
+		card.SetCardIdAtNode(targetINS.Id, cardNode);
+		card.SetParentId(targetINS.Id);
+		
+		_tableCards.Add(card);
+		// _openNodesSet.Remove(targetINS);
+		_openNodesSet.Clear();
 		// _compatibleList.Remove(new(targetCard,targetINS));
-		_compatibleList.Clear(); 
+		_playerDeckTableCompatible[player].Clear();
 		// TODO: The .Clear() method temporary fixes the duplicate card bug.
-		// However, this method may increase computation because when GetDeckTableCompatibleCards() is called,
+		// However, this method may increase computation because when GetDeckTableCompatible() is called,
 		// it iterates from the beginning. Compared to .Remove() which only removes the recently placed card.
 		_playerCardDict[player].Remove(card);
 		return true;
 	}
-	public HashSet<IdNodeSuit> GetTargetNodes()
+	public HashSet<IdNodeSuit> GetOpenNodes()
 	{
-		//BUG: tableCard.GetCardIdArrayAtNodes()[(int)NodeEnum.BACK] == -1 and other nodes != -1
-		// causing to _openEndSet.Count == 0 even though there is an open-ended card
-		//(Temporary solved): In ResetRound() call InitializeDefaultCards
 		foreach (Card tableCard in _tableCards)
 		{
 			// Console.WriteLine($"[{tableCard.Head}|{tableCard.Tail}] card id: {tableCard.GetId()}");
@@ -225,12 +227,12 @@ public class GameController
 			{
 				if (tableCard.GetCardIdArrayAtNodes()[(int)NodeEnum.RIGHT] == -1)
 				{
-					_openEndsSet.Add(new IdNodeSuit(tableCard.GetId(), NodeEnum.RIGHT, tableCard.Head));
+					_openNodesSet.Add(new IdNodeSuit(tableCard.GetId(), NodeEnum.RIGHT, tableCard.Head));
 					// Console.WriteLine($"card id: {tableCard.GetId()}, RIGHT, suit: {tableCard.Head}");
 				}
 				if (tableCard.GetCardIdArrayAtNodes()[(int)NodeEnum.LEFT] == -1)
 				{
-					_openEndsSet.Add(new IdNodeSuit(tableCard.GetId(), NodeEnum.LEFT, tableCard.Tail));
+					_openNodesSet.Add(new IdNodeSuit(tableCard.GetId(), NodeEnum.LEFT, tableCard.Tail));
 					// Console.WriteLine($"card id: {tableCard.GetId()}, LEFT, suit: {tableCard.Tail}");
 				}
 			}
@@ -238,37 +240,36 @@ public class GameController
 			{
 				if (tableCard.GetCardIdArrayAtNodes()[(int)NodeEnum.FRONT] == -1)
 				{
-					_openEndsSet.Add(new IdNodeSuit(tableCard.GetId(), NodeEnum.FRONT, tableCard.Head));
+					_openNodesSet.Add(new IdNodeSuit(tableCard.GetId(), NodeEnum.FRONT, tableCard.Head));
 					// Console.WriteLine($"card id: {tableCard.GetId()}, FRONT, suit: {tableCard.Head}");
 				}
 				if (tableCard.GetCardIdArrayAtNodes()[(int)NodeEnum.BACK] == -1)
 				{
-					_openEndsSet.Add(new IdNodeSuit(tableCard.GetId(), NodeEnum.BACK, tableCard.Tail));
+					_openNodesSet.Add(new IdNodeSuit(tableCard.GetId(), NodeEnum.BACK, tableCard.Tail));
 					// Console.WriteLine($"card id: {tableCard.GetId()}, BACK, suit: {tableCard.Tail}");
 				}
 			}
 		}
-		return _openEndsSet;
+		return _openNodesSet;
 	}
 	public List<KeyValuePair<Card, IdNodeSuit>>
-		GetDeckTableCompatibleCards(List<Card> cardsList,
-				HashSet<IdNodeSuit> openEndsSet)
+		GetDeckTableCompatible(IPlayer player, HashSet<IdNodeSuit> openNodes)								
 	{
-		foreach (Card card in cardsList)
+		foreach (Card card in _playerCardDict[player])
 		{
-			foreach (var idNodeSuit in openEndsSet)
+			foreach (var idNodeSuit in openNodes)
 			{
 				if(card.Head == idNodeSuit.Suit || card.Tail==idNodeSuit.Suit)
 				{
 					KeyValuePair<Card, IdNodeSuit> cardInsKvp = new(card, idNodeSuit);
-					if (!_compatibleList.Contains(cardInsKvp))
+					if (!_playerDeckTableCompatible[player].Contains(cardInsKvp))
 					{
-						_compatibleList.Add(cardInsKvp);
+						_playerDeckTableCompatible[player].Add(cardInsKvp);
 					}	
 				}
 			}
 		}
-		return _compatibleList;
+		return _playerDeckTableCompatible[player];
 	}
 	public Card GetCardFromId(int id)
 	{
@@ -288,11 +289,11 @@ public class GameController
 		foreach (IPlayer player in _playerCardDict.Keys)
 		{
 			_playerCardDict[player].Clear();
+			_playerDeckTableCompatible[player].Clear();
 		}
-		_openEndsSet.Clear();
+		_openNodesSet.Clear();
 
 		_tableCards.Clear();
-		_compatibleList.Clear();
 		_boneyardCards = _defaultCards.ConvertAll(card => card.DeepCopy()).ToList();
 		return true;
 	}
@@ -325,7 +326,7 @@ public class GameController
 			int i = 0;
 			foreach (IPlayer player in _playersList)
 			{
-				if (GetDeckTableCompatibleCards(_playerCardDict[player], _openEndsSet).Count == 0)
+				if (GetDeckTableCompatible(player, _openNodesSet).Count == 0)
 				{
 					allNoValidMove[i] = true;
 				}
@@ -356,7 +357,7 @@ public class GameController
 		}
 		return winRound;
 	}
-	public IPlayer CalculateRoundScore()
+	public IPlayer GetRoundWinner()
 	{
 		// Get players' remaining cards
 		// Calculate score by by sum of all heads & tails 
