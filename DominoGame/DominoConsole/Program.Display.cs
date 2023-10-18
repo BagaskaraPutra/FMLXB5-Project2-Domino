@@ -15,6 +15,12 @@ public partial class Program
 	{
 		Console.WriteLine(content);
 	}
+	static void DisplayLineCenter<T>(T content)
+	{
+		string s = content.ToString();
+		Console.SetCursorPosition((Console.WindowWidth - s.Length) / 2, Console.CursorTop);
+		Console.WriteLine(s);
+	}
 	static void DisplayDeckCards(List<Card> cardsList)
 	{
 		int i;

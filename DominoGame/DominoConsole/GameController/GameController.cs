@@ -41,13 +41,17 @@ public class GameController
 		MaxWinScore = maxWinScore;
 		Round = 1;
 
-		if (numPlayers > 2)
+		if (numPlayers > 2 && numPlayers <= 4)
 		{
 			MaxNumCardsPerPlayer = 5;
 		}
-		else
+		else if(numPlayers == 2)
 		{
 			MaxNumCardsPerPlayer = 7;
+		}
+		else
+		{
+			throw new Exception("Invalid number of players! Number of players should be between 2-4");
 		}
 
 		_playersList = new();
@@ -91,6 +95,15 @@ public class GameController
 	{
 		return _playerCardDict[player].Count;
 	}
+	public Card GetFirstPlayerCandidateCard(IPlayer player)
+	{
+		if(Round != 1) 
+		{
+			return null;
+		}
+		DrawRandomCard(player);
+		return _playerCardDict[player].FirstOrDefault();
+	}
 	public IPlayer GetFirstPlayer()
 	{
 		if (Round == 1)
@@ -99,14 +112,11 @@ public class GameController
 			int i = 0;
 			foreach (IPlayer player in _playersList)
 			{
-				DrawRandomCard(player);
-				int sum = _playerCardDict[player].FirstOrDefault().GetHeadTailSum();
-				sumArray[i] = sum;
+				sumArray[i] = _playerCardDict[player].FirstOrDefault().GetHeadTailSum();;
 				i++;
 			}
 			_firstPlayerIndex = Array.IndexOf(sumArray, sumArray.Max());
 			// Console.WriteLine("Player {0} has largest sum of head & tail", _playersList[_firstPlayerIndex].GetId());
-			_gameStatus = GameStatus.ONGOING;
 			_currentPlayer = _playersList[_firstPlayerIndex];
 		}
 		else
@@ -117,6 +127,7 @@ public class GameController
 				_firstPlayerIndex = 0;
 			}
 		}
+		_gameStatus = GameStatus.ONGOING;
 		return _playersList[_firstPlayerIndex];
 	}
 	public bool AddPlayer(IPlayer player)

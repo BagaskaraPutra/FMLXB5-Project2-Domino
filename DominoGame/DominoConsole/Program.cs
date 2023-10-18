@@ -45,7 +45,7 @@ public partial class Program
 		
 		//GameStatus:NOTSTARTED
 		//Input number of players & win score
-		game = new(numPlayers: 4, maxWinScore: 100);
+		game = new(numPlayers: 2, maxWinScore: 100);
 		
 		//Players input id & name
 		for (int i = 0; i < game.NumPlayers; i++)
@@ -84,9 +84,18 @@ public partial class Program
 			// Start round
 			do
 			{
-				DisplayLine($"\n<<<<< ROUND {game.Round} BEGIN! >>>>>");
+				DisplayLineCenter($"============= ROUND {game.Round} BEGIN! =============");
 				
 				// Choose first player to start
+				if(game.Round == 1)
+				{
+					foreach (IPlayer player in game.GetPlayers())
+					{
+						DisplayLine($"Player {player.GetId()} ({player.GetName()}) is drawing random card from boneyard ... ");
+						game.GetFirstPlayerCandidateCard(player);
+						DisplayDeckCards(game.GetPlayerCards(player));
+					}
+				}
 				currentPlayer = game.GetFirstPlayer();
 
 				//	Players receive random deck of dominoes
@@ -146,7 +155,7 @@ public partial class Program
 							deckTableCompatible = game.GetDeckTableCompatible(currentPlayer, openNodes);
 							if (game.NumBoneyardCards() == 0)
 							{
-								DisplayLine("[WARNING!] Boneyard card pile is empty! No possible moves");
+								DisplayLine("[WARNING!] Boneyard card pile is empty! No more possible moves");
 								game.SetPlayerStatus(currentPlayer, PlayerStatus.PASS);
 								break;
 							}
@@ -179,7 +188,14 @@ public partial class Program
 						int moveChoice;
 						do
 						{
-							Display($"Put your card on the table by entering the number (1-{deckTableCompatible.Count}) from the above list ... ");
+							if(deckTableCompatible.Count == 1)
+							{
+								Display($"Put your card onto the table by entering the number 1 ... ");
+							}
+							else
+							{
+								Display($"Put your card onto the table by entering the number (1-{deckTableCompatible.Count}) from the above list ... ");
+							}
 							status = Int32.TryParse(ReadInput(), out moveChoice);
 							if (moveChoice > 0 && moveChoice <= deckTableCompatible.Count)
 							{
@@ -206,7 +222,7 @@ public partial class Program
 			// TODO: We have check IsWinRound() here & the inner while loop. Is it redundant?
 			
 			// 	GameStatus:ROUNDWIN
-			DisplayLine($"\nRound {game.Round} ended!");
+			DisplayLineCenter($"============= Round {game.Round} Ended! =============");
 			
 			// Display players' remaining cards
 			foreach (IPlayer player in game.GetPlayers())
@@ -220,8 +236,7 @@ public partial class Program
 			IPlayer roundWinner = game.GetRoundWinner();
 			
 			//	if either Player's card deck is empty OR no more valid move -> Round winner
-			Display($"[ROUND {game.Round} WINNER!]: ");
-			DisplayLine($"Player {roundWinner.GetId()} {roundWinner.GetName()} wins round {game.Round}");
+			DisplayLineCenter($"[ROUND {game.Round} WINNER!]: Player {roundWinner.GetId()} {roundWinner.GetName()} wins round {game.Round}");
 			Display("\n");
 			DisplayLine("Cumulative round players' score:");
 			foreach (IPlayer player in game.GetPlayers())
@@ -234,7 +249,7 @@ public partial class Program
 		}
 
 		//GameStatus:GAMEWIN
-		DisplayLine("Domino Game Finished! Thank you for playing");
+		DisplayLineCenter("============= Domino Game Finished! Thank you for playing =============");
 	}
 	static void FirstPlayerPicksCardId(IPlayer currentPlayer, List<Card> cardsList, ref Card desiredCard)
 	{
