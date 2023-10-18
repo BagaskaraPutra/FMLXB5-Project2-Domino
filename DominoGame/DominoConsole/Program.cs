@@ -28,7 +28,6 @@ public partial class Program
 			csv.Context.RegisterClassMap<CardKinematicsMap>();
 			cardKinematicsLUT = csv.GetRecords<CardKinematics>().ToList();
 		}
-		dominoTree = new(cardKinematicsLUT);
 		// int idxLUT = 0;
 		// foreach (var ck in cardKinematicsLUT)
 		// {
@@ -108,7 +107,8 @@ public partial class Program
 				cardsList = game.GetPlayerCards(currentPlayer);
 				DisplayLine("Here are your available cards in your deck ...");
 				DisplayDeckCards(cardsList);
-
+				
+				dominoTree = new(cardKinematicsLUT);
 				playerCard = new();
 
 				FirstPlayerPicksCardId(currentPlayer, cardsList, ref playerCard);

@@ -7,7 +7,7 @@ public class GameController
 	public int NumPlayers { get; private set; }
 	public int Round {get; private set; }
 	public readonly int MaxNumCardsPerPlayer;
-
+	private static int _firstPlayerIndex;
 	private IPlayer _currentPlayer;
 	private List<IPlayer> _playersList;
 	private Dictionary<IPlayer, List<Card>?> _playerCardDict;
@@ -104,14 +104,20 @@ public class GameController
 				sumArray[i] = sum;
 				i++;
 			}
-			int p = Array.IndexOf(sumArray, sumArray.Max());
-			// Console.WriteLine("Player {0} has largest sum of head & tail", _playersList[p].GetId());
+			_firstPlayerIndex = Array.IndexOf(sumArray, sumArray.Max());
+			// Console.WriteLine("Player {0} has largest sum of head & tail", _playersList[_firstPlayerIndex].GetId());
 			_gameStatus = GameStatus.ONGOING;
-			_currentPlayer = _playersList[p];
-			
-			return _playersList[p];	
+			_currentPlayer = _playersList[_firstPlayerIndex];
 		}
-		return GetNextPlayer();
+		else
+		{
+			_firstPlayerIndex++;
+			if(_firstPlayerIndex >= NumPlayers)
+			{
+				_firstPlayerIndex = 0;
+			}
+		}
+		return _playersList[_firstPlayerIndex];
 	}
 	public bool AddPlayer(IPlayer player)
 	{
@@ -153,7 +159,7 @@ public class GameController
 	public IPlayer GetNextPlayer()
 	{
 		int currentIndex = _playersList.FindIndex(p => p.Equals(_currentPlayer));
-		if (currentIndex == (_playersList.Count - 1))
+		if (currentIndex == (NumPlayers - 1))
 		{
 			_currentPlayer =  _playersList[0];
 			return _currentPlayer;
