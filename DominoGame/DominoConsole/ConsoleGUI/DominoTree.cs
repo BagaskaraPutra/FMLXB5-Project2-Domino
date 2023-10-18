@@ -78,7 +78,7 @@ public class DominoTree
 			}
 			Transform2D.MoveUntilEdge(ref _currentCard, _parentCard, OrientationEnum.NORTH);
 			_currentCard.Position.Y = _parentCard.WestSuitGlobal.Y;
-			Console.WriteLine($"Is exceeds border WEST, _parentCard.WestSuitGlobal.Y: {_parentCard.WestSuitGlobal.Y}");
+			// Console.WriteLine($"Is exceeds border WEST, _parentCard.WestSuitGlobal.Y: {_parentCard.WestSuitGlobal.Y}");
 		}
 		else if (positionY + _currentCard.LengthY + 1 >= Console.WindowWidth)
 		{
@@ -88,7 +88,7 @@ public class DominoTree
 			}
 			Transform2D.MoveUntilEdge(ref _currentCard, _parentCard, OrientationEnum.SOUTH);
 			_currentCard.Position.Y = _parentCard.EastSuitGlobal.Y;
-			Console.WriteLine($"Is exceeds border EAST, _parentCard.EastSuitGlobal.Y: {_parentCard.EastSuitGlobal.Y}");
+			// Console.WriteLine($"Is exceeds border EAST, _parentCard.EastSuitGlobal.Y: {_parentCard.EastSuitGlobal.Y}");
 		}
 		_currentCard.UpdateStates();
 		// Console.WriteLine($"parent card [{_parentCard.Head}|{_parentCard.Tail}] IsDouble: {_parentCard.IsDouble()}, \t node: {_parentCard.GetNode(_currentCard.GetId())}, \t orientation: {_parentCard.Orientation} \t x: {_parentCard.Position.X} \t y: {_parentCard.Position.Y}");

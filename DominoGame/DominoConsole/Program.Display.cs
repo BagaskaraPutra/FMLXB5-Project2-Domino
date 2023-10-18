@@ -102,12 +102,13 @@ public partial class Program
 	}
 	static void PlaceCardCenterIntoTable(CardGUI cardGUI, ref TableGUI tableGUI, DominoTree dominoTree)
 	{
-		//TODO: Too much blank space
 		List<List<char>> cardImage = cardGUI.GetImage();
 		int northBorder = cardGUI.Position.X - cardGUI.CenterLocal.X - 1;
 		int southBorder = cardGUI.Position.X + cardGUI.CenterLocal.X + 1;
 		if (northBorder < 0)
 		{
+			// Console.WriteLine($"Is exceeds NORTH border by {Math.Abs(northBorder)} cells.");
+			// Console.WriteLine($"tableGUI rows: {tableGUI.Image.Count} cols: {tableGUI.Image[0].Count}. tableGUI LengthX: {tableGUI.LengthX} LengthY: {tableGUI.LengthY}");
 			for (int i = 0; i < Math.Abs(northBorder); i++)
 			{
 				List<char> columns = new();
@@ -118,10 +119,11 @@ public partial class Program
 				tableGUI.Image.Insert(0, columns);
 			}
 			dominoTree.MoveAllSouth(Math.Abs(northBorder));
-			Console.WriteLine($"Is exceeds NORTH border by {Math.Abs(northBorder)} cells");
 		}
 		else if (southBorder > tableGUI.LengthX)
 		{
+			// Console.WriteLine($"Is exceeds SOUTH border by {Math.Abs(southBorder - tableGUI.LengthX)} cells.");	
+			// Console.WriteLine($"tableGUI rows: {tableGUI.Image.Count} cols: {tableGUI.Image[0].Count}. tableGUI LengthX: {tableGUI.LengthX} LengthY: {tableGUI.LengthY}");
 			for (int i = 0; i <= Math.Abs(southBorder - tableGUI.LengthX)+1; i++)
 			{
 				List<char> columns = new();
@@ -131,19 +133,16 @@ public partial class Program
 				}
 				tableGUI.Image.Add(columns);
 			}
-			Console.WriteLine($"Is exceeds SOUTH border by {Math.Abs(southBorder - tableGUI.LengthX)} cells");
 		}
+		tableGUI.UpdateStates();
+		
 		int setPosX, setPosY;
 		for (int i = 0; i < cardGUI.LengthX; i++)
 		{
 			for (int j = 0; j < cardGUI.LengthY; j++)
 			{
 				setPosX = i + cardGUI.Position.X - cardGUI.CenterLocal.X;
-				// if (setPosX < 0) setPosX = 0;
-				// else if (setPosX >= tableGUI.LengthX-1) setPosX = tableGUI.LengthX-1;
 				setPosY = j + cardGUI.Position.Y - cardGUI.CenterLocal.Y;
-				// if (setPosY < 0) setPosY = 0;
-				// else if (setPosY >= tableGUI.LengthX-1) setPosY = tableGUI.LengthY-1;
 				tableGUI.Image[setPosX][setPosY] = cardImage[i][j];
 			}
 		}

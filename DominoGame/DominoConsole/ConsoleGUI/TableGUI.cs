@@ -29,8 +29,7 @@ public class TableGUI
 	}
 	public void Clear()
 	{
-		LengthX = Image.Count;
-		LengthY = Image[0].Count;
+		UpdateStates();
 		for (int i = 0; i < LengthX; i++)
 		{
 			for (int j = 0; j < LengthY; j++)
@@ -38,6 +37,11 @@ public class TableGUI
 				Image[i][j] = ' ';
 			}
 		}
+	}
+	public void UpdateStates()
+	{
+		LengthX = Image.Count;
+		LengthY = Image[0].Count;
 		CenterX = (int)LengthX / 2;
 		CenterY = (int)LengthY / 2;
 	}
