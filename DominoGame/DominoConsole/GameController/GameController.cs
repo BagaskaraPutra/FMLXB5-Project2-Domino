@@ -121,7 +121,7 @@ public class GameController
 	}
 	public bool AddPlayer(IPlayer player)
 	{
-		if (_playersList.Contains(player))
+		if (_playersList.Any(p => p.GetId() == player.GetId() || p.GetName() == player.GetName()))
 		{
 			return false;
 		}
