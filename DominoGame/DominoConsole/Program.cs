@@ -45,7 +45,7 @@ public partial class Program
 		
 		//GameStatus:NOTSTARTED
 		//Input number of players & win score
-		game = new(numPlayers: 2, maxWinScore: 100);
+		game = new(numPlayers: 4, maxWinScore: 100);
 		
 		//Players input id & name
 		for (int i = 0; i < game.NumPlayers; i++)
@@ -134,7 +134,7 @@ public partial class Program
 					DisplayTableCards(dominoTree);
 
 					currentPlayer 	= game.GetNextPlayer();
-					cardsList 		= game.GetPlayerCards(game.GetCurrentPlayer());
+					cardsList 		= game.GetPlayerCards(currentPlayer);
 					
 					DisplayLine($"Player {currentPlayer.GetId()} {currentPlayer.GetName()}'s turn");
 					DisplayLine("Here are your available cards in your deck ...");
@@ -151,7 +151,7 @@ public partial class Program
 						do
 						{
 							game.DrawRandomCard(currentPlayer);
-							cardsList 			= game.GetPlayerCards(currentPlayer);
+							// cardsList 			= game.GetPlayerCards(currentPlayer);
 							deckTableCompatible = game.GetDeckTableCompatible(currentPlayer, openNodes);
 							if (game.NumBoneyardCards() == 0)
 							{
@@ -162,7 +162,7 @@ public partial class Program
 							else
 							{
 								DisplayLine($"Player {currentPlayer.GetId()} {currentPlayer.GetName()} is drawing card from boneyard pile to the deck ...");
-								DisplayDeckCards(cardsList);
+								DisplayDeckCards(game.GetPlayerCards(currentPlayer));
 							}
 						}
 						while (deckTableCompatible.Count == 0);

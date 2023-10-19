@@ -25,7 +25,7 @@ public class GameController
 	private List<Card> _tableCards;
 	// cards on the table already placed by the players
 
-	private HashSet<IdNodeSuit>? _openNodesSet;
+	private HashSet<IdNodeSuit>? _openNodes;
 	// set of tableCards and their nodes that have open ends (can be placed with a card)
 	// TODO: Convert to Hashset<Card> to save memory. 
 	// NO, because if only the Card is saved, we need to recheck which nodes are open (node with id=-1)
@@ -60,7 +60,7 @@ public class GameController
 		_playerStatusDict = new();
 		_playerDeckTableCompatible = new();
 		
-		_openNodesSet = new();
+		_openNodes = new();
 		_tableCards = new();
 		InitializeDefaultCards();
 		_boneyardCards =  _defaultCards.ConvertAll(card => card.DeepCopy()).ToList();
@@ -225,9 +225,9 @@ public class GameController
 		card.SetParentId(targetINS.Id);
 		
 		_tableCards.Add(card);
-		// _openNodesSet.Remove(targetINS);
-		_openNodesSet.Clear();
-		// _compatibleList.Remove(new(targetCard,targetINS));
+		// _openNodes.Remove(targetINS);
+		_openNodes.Clear();
+		// _playerDeckTableCompatible[player].Remove(new(targetCard,targetINS));
 		_playerDeckTableCompatible[player].Clear();
 		// TODO: The .Clear() method temporary fixes the duplicate card bug.
 		// However, this method may increase computation because when GetDeckTableCompatible() is called,
@@ -244,12 +244,12 @@ public class GameController
 			{
 				if (tableCard.GetCardIdArrayAtNodes()[(int)NodeEnum.RIGHT] == -1)
 				{
-					_openNodesSet.Add(new IdNodeSuit(tableCard.GetId(), NodeEnum.RIGHT, tableCard.Head));
+					_openNodes.Add(new IdNodeSuit(tableCard.GetId(), NodeEnum.RIGHT, tableCard.Head));
 					// Console.WriteLine($"card id: {tableCard.GetId()}, RIGHT, suit: {tableCard.Head}");
 				}
 				if (tableCard.GetCardIdArrayAtNodes()[(int)NodeEnum.LEFT] == -1)
 				{
-					_openNodesSet.Add(new IdNodeSuit(tableCard.GetId(), NodeEnum.LEFT, tableCard.Tail));
+					_openNodes.Add(new IdNodeSuit(tableCard.GetId(), NodeEnum.LEFT, tableCard.Tail));
 					// Console.WriteLine($"card id: {tableCard.GetId()}, LEFT, suit: {tableCard.Tail}");
 				}
 			}
@@ -257,17 +257,17 @@ public class GameController
 			{
 				if (tableCard.GetCardIdArrayAtNodes()[(int)NodeEnum.FRONT] == -1)
 				{
-					_openNodesSet.Add(new IdNodeSuit(tableCard.GetId(), NodeEnum.FRONT, tableCard.Head));
+					_openNodes.Add(new IdNodeSuit(tableCard.GetId(), NodeEnum.FRONT, tableCard.Head));
 					// Console.WriteLine($"card id: {tableCard.GetId()}, FRONT, suit: {tableCard.Head}");
 				}
 				if (tableCard.GetCardIdArrayAtNodes()[(int)NodeEnum.BACK] == -1)
 				{
-					_openNodesSet.Add(new IdNodeSuit(tableCard.GetId(), NodeEnum.BACK, tableCard.Tail));
+					_openNodes.Add(new IdNodeSuit(tableCard.GetId(), NodeEnum.BACK, tableCard.Tail));
 					// Console.WriteLine($"card id: {tableCard.GetId()}, BACK, suit: {tableCard.Tail}");
 				}
 			}
 		}
-		return _openNodesSet;
+		return _openNodes;
 	}
 	public List<KeyValuePair<Card, IdNodeSuit>>
 		GetDeckTableCompatible(IPlayer player, HashSet<IdNodeSuit> openNodes)								
@@ -308,7 +308,7 @@ public class GameController
 			_playerCardDict[player].Clear();
 			_playerDeckTableCompatible[player].Clear();
 		}
-		_openNodesSet.Clear();
+		_openNodes.Clear();
 
 		_tableCards.Clear();
 		_boneyardCards = _defaultCards.ConvertAll(card => card.DeepCopy()).ToList();
@@ -343,7 +343,7 @@ public class GameController
 			int i = 0;
 			foreach (IPlayer player in _playersList)
 			{
-				if (GetDeckTableCompatible(player, _openNodesSet).Count == 0)
+				if (GetDeckTableCompatible(player, _openNodes).Count == 0)
 				{
 					allNoValidMove[i] = true;
 				}

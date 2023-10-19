@@ -2,8 +2,9 @@ namespace DominoConsole;
 
 public class TableGUI
 {
-	private static readonly int _defaultTableRowSize = 8; //(int)Console.WindowHeight;
-	private static readonly int _defaultTableColSize = Console.WindowWidth - 1;
+	public const int DefaultMinTableRowSize = 8; //(int)Console.WindowHeight;
+	public const int DefaultMaxTableRowSize = 24;
+	public static readonly int DefaultTableColSize = Console.WindowWidth - 1;
 	public int LengthX {get; protected set;}
 	public int LengthY {get; protected set;}
 	public int CenterX {get; protected set;}
@@ -12,18 +13,18 @@ public class TableGUI
 	public List<List<char>> Image {get; set;}
 	public TableGUI()
 	{
-		Image = new(_defaultTableRowSize);
-		for (int i = 0; i < _defaultTableRowSize; i++)
+		Image = new(DefaultMinTableRowSize);
+		for (int i = 0; i < DefaultMinTableRowSize; i++)
 		{
-			Image.Add(new List<char>(_defaultTableColSize));
+			Image.Add(new List<char>(DefaultTableColSize));
 
-			for (int j = 0; j < _defaultTableColSize; j++)
+			for (int j = 0; j < DefaultTableColSize; j++)
 			{
 				Image[i].Add(' ');
 			}
 		}
-		LengthX = _defaultTableRowSize;
-		LengthY = _defaultTableColSize;
+		LengthX = DefaultMinTableRowSize;
+		LengthY = DefaultTableColSize;
 		CenterX = (int)LengthX / 2;
 		CenterY = (int)LengthY / 2;
 	}
@@ -49,8 +50,8 @@ public class TableGUI
 	{
 		LengthX = Image.Count;
 		LengthY = Image[0].Count;
-		int consoleHeight  = _defaultTableRowSize; //Console.WindowHeight;
-		int differenceRows = Math.Abs(LengthX - _defaultTableRowSize); //consoleHeight);
+		int consoleHeight  = DefaultMinTableRowSize; //Console.WindowHeight;
+		int differenceRows = Math.Abs(LengthX - DefaultMinTableRowSize); //consoleHeight);
 		int consoleWidth   = Console.WindowWidth;
 		int differenceCols = Math.Abs(LengthY - consoleWidth);
 		

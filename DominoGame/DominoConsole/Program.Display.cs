@@ -109,8 +109,8 @@ public partial class Program
 	static void PlaceCardCenterIntoTable(CardGUI cardGUI, ref TableGUI tableGUI, DominoTree dominoTree)
 	{
 		List<List<char>> cardImage = cardGUI.GetImage();
-		int northBorder = cardGUI.Position.X - cardGUI.CenterLocal.X - 1;
-		int southBorder = cardGUI.Position.X + cardGUI.CenterLocal.X + 1;
+		int northBorder = cardGUI.Position.X - cardGUI.NorthEdgeToCenterLength - 1;
+		int southBorder = cardGUI.Position.X + cardGUI.SouthEdgeToCenterLength + 1;
 		if (northBorder < 0)
 		{
 			// Console.WriteLine($"Is exceeds NORTH border by {Math.Abs(northBorder)} cells.");
