@@ -44,11 +44,11 @@ public partial class Program
 		tableGUI = new();
 		
 		//GameStatus:NOTSTARTED
-		//Input number of players & win score
-		game = new(numPlayers: 4, maxWinScore: 100);
+		//Input maximum number of players & win score
+		game = new(maxNumPlayers: 4, maxWinScore: 100);
 		
 		//Players input id & name
-		for (int i = 0; i < game.NumPlayers; i++)
+		for (int i = 0; i < game.MaxNumPlayers; i++)
 		{
 			bool isBlankOrNoLetters = true;
 			string inputName = "";

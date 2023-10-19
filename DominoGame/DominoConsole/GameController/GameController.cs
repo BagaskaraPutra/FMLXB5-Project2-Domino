@@ -4,8 +4,8 @@ namespace DominoConsole;
 
 public class GameController
 {
-	public int NumPlayers { get; private set; }
 	public int Round {get; private set; }
+	public int MaxNumPlayers { get; private set; }
 	public readonly int MaxNumCardsPerPlayer;
 	private static int _firstPlayerIndex;
 	private IPlayer _currentPlayer;
@@ -34,18 +34,18 @@ public class GameController
 	public readonly int MaxWinScore;
 	// if one of the players reaches this score, then the game is finished
 
-	public GameController(int numPlayers, int maxWinScore)
+	public GameController(int maxNumPlayers, int maxWinScore)
 	{
 		_gameStatus = GameStatus.NOTSTARTED;
-		NumPlayers = numPlayers;
+		MaxNumPlayers = maxNumPlayers;
 		MaxWinScore = maxWinScore;
 		Round = 1;
 
-		if (numPlayers > 2 && numPlayers <= 4)
+		if (maxNumPlayers > 2 && maxNumPlayers <= 4)
 		{
 			MaxNumCardsPerPlayer = 5;
 		}
-		else if(numPlayers == 2)
+		else if(maxNumPlayers == 2)
 		{
 			MaxNumCardsPerPlayer = 7;
 		}
@@ -108,7 +108,7 @@ public class GameController
 	{
 		if (Round == 1)
 		{
-			int[] sumArray = new int[NumPlayers];
+			int[] sumArray = new int[MaxNumPlayers];
 			int i = 0;
 			foreach (IPlayer player in _playersList)
 			{
@@ -122,7 +122,7 @@ public class GameController
 		else
 		{
 			_firstPlayerIndex++;
-			if(_firstPlayerIndex >= NumPlayers)
+			if(_firstPlayerIndex >= MaxNumPlayers)
 			{
 				_firstPlayerIndex = 0;
 			}
@@ -170,7 +170,7 @@ public class GameController
 	public IPlayer GetNextPlayer()
 	{
 		int currentIndex = _playersList.FindIndex(p => p.Equals(_currentPlayer));
-		if (currentIndex == (NumPlayers - 1))
+		if (currentIndex == (MaxNumPlayers - 1))
 		{
 			_currentPlayer =  _playersList[0];
 			return _currentPlayer;
