@@ -82,6 +82,8 @@ public class DominoTree
 			Transform2D.MoveUntilEdge(ref _currentCard, _parentCard, OrientationEnum.NORTH);
 			_currentCard.Position.Y = _parentCard.WestSuitGlobal.Y;
 			_numCardsSinceWestBorder++;
+			// TODO: Save the card id that hits the border, then count its number of child cards
+			// if more than 2 children, then rotate the 3rd clockwise
 			// Console.WriteLine($"Is exceeds border WEST, _parentCard.WestSuitGlobal.Y: {_parentCard.WestSuitGlobal.Y}");
 		}
 		else if (positionY + _currentCard.EastEdgeToCenterLength + 1 >= Console.WindowWidth)
@@ -95,26 +97,26 @@ public class DominoTree
 			_numCardsSinceEastBorder++;
 			// Console.WriteLine($"Is exceeds border EAST, _parentCard.EastSuitGlobal.Y: {_parentCard.EastSuitGlobal.Y}");
 		}
-		else if (positionX - _currentCard.NorthEdgeToCenterLength <= 0 && _numCardsSinceWestBorder >= 2) //-_currentCard.LengthX)
-		{
-			if (!_currentCard.IsDouble())
-			{
-				_currentCard.SetOrientation(Transform2D.RotateCW(orientation));	
-			}
-			Transform2D.MoveUntilEdge(ref _currentCard, _parentCard, OrientationEnum.EAST);
-			_currentCard.Position.X = _parentCard.NorthSuitGlobal.X;
-			Console.WriteLine($"[{_currentCard.Head}|{_currentCard.Tail}] exceeds border NORTH, [{_parentCard.Head}|{_parentCard.Tail}].NorthSuitGlobal.X: {_parentCard.NorthSuitGlobal.X}");
-		}
-		else if (positionX + _currentCard.SouthEdgeToCenterLength + 1 >= TableGUI.DefaultMaxTableRowSize && _numCardsSinceEastBorder >= 2)
-		{
-			if (!_currentCard.IsDouble())
-			{
-				_currentCard.SetOrientation(Transform2D.RotateCW(_currentCard.Orientation));	
-			}
-			Transform2D.MoveUntilEdge(ref _currentCard, _parentCard, OrientationEnum.WEST);
-			_currentCard.Position.X = _parentCard.SouthSuitGlobal.X;
-			Console.WriteLine($"[{_currentCard.Head}|{_currentCard.Tail}] exceeds border SOUTH, [{_parentCard.Head}|{_parentCard.Tail}].SouthSuitGlobal.X: {_parentCard.SouthSuitGlobal.X}");
-		}
+		// else if (positionX - _currentCard.NorthEdgeToCenterLength <= 0 && _numCardsSinceWestBorder >= 2) //-_currentCard.LengthX)
+		// {
+		// 	if (!_currentCard.IsDouble())
+		// 	{
+		// 		_currentCard.SetOrientation(Transform2D.RotateCW(orientation));	
+		// 	}
+		// 	Transform2D.MoveUntilEdge(ref _currentCard, _parentCard, OrientationEnum.EAST);
+		// 	_currentCard.Position.X = _parentCard.NorthSuitGlobal.X;
+		// 	Console.WriteLine($"[{_currentCard.Head}|{_currentCard.Tail}] exceeds border NORTH, [{_parentCard.Head}|{_parentCard.Tail}].NorthSuitGlobal.X: {_parentCard.NorthSuitGlobal.X}");
+		// }
+		// else if (positionX + _currentCard.SouthEdgeToCenterLength + 1 >= TableGUI.DefaultMaxTableRowSize && _numCardsSinceEastBorder >= 2)
+		// {
+		// 	if (!_currentCard.IsDouble())
+		// 	{
+		// 		_currentCard.SetOrientation(Transform2D.RotateCW(_currentCard.Orientation));	
+		// 	}
+		// 	Transform2D.MoveUntilEdge(ref _currentCard, _parentCard, OrientationEnum.WEST);
+		// 	_currentCard.Position.X = _parentCard.SouthSuitGlobal.X;
+		// 	Console.WriteLine($"[{_currentCard.Head}|{_currentCard.Tail}] exceeds border SOUTH, [{_parentCard.Head}|{_parentCard.Tail}].SouthSuitGlobal.X: {_parentCard.SouthSuitGlobal.X}");
+		// }
 		// else
 		// {
 		// 	_numCardsSinceEastBorder = 0;

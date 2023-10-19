@@ -7,10 +7,10 @@ public class CardGUI : Card
 	public PositionStruct HeadSouthCenterLocal {get; set;}
 	public PositionStruct HeadWestCenterLocal {get; set;}
 	public PositionStruct HeadEastCenterLocal {get; set;}
-	public static PositionStruct StaticHeadNorthCenterLocal {get; private set;}
-	public static PositionStruct StaticHeadSouthCenterLocal {get; private set;}
-	public static PositionStruct StaticHeadWestCenterLocal {get; private set;}
-	public static PositionStruct StaticHeadEastCenterLocal {get; private set;}
+	private static PositionStruct _headNorthCenterLocal;
+	private static PositionStruct _headSouthCenterLocal;
+	private static PositionStruct _headWestCenterLocal;
+	private static PositionStruct _headEastCenterLocal;
 	public PositionStruct NorthEdgeGlobal {get; private set;} 
 	public PositionStruct SouthEdgeGlobal {get; private set;}
 	public PositionStruct WestEdgeGlobal {get; private set;} 
@@ -54,28 +54,28 @@ public class CardGUI : Card
 	public List<List<char>> HeadSouthImage {get; set; }
 	public List<List<char>> HeadWestImage {get; set; }
 	public List<List<char>> HeadEastImage {get; set; }
-	public static List<List<char>> StaticHeadNorthImage {get; private set; }
-	public static List<List<char>> StaticHeadSouthImage {get; private set; }
-	public static List<List<char>> StaticHeadWestImage {get; private set; }
-	public static List<List<char>> StaticHeadEastImage {get; private set; }
+	private static List<List<char>> _headNorthImage;
+	private static List<List<char>> _headSouthImage;
+	private static List<List<char>> _headWestImage; 
+	private static List<List<char>> _headEastImage; 
 	public void UpdateConfig()
 	{
-		StaticHeadNorthImage   	= new (HeadNorthImage);
-		StaticHeadSouthImage 	= new (HeadSouthImage);
-		StaticHeadWestImage 	= new (HeadWestImage);
-		StaticHeadEastImage		= new (HeadEastImage);
-		headPosNorthLocal = FindCharInImage('H', StaticHeadNorthImage);
-		tailPosNorthLocal = FindCharInImage('T', StaticHeadNorthImage);
-		headPosSouthLocal = FindCharInImage('H', StaticHeadSouthImage);
-		tailPosSouthLocal = FindCharInImage('T', StaticHeadSouthImage);
-		headPosWestLocal = FindCharInImage('H', StaticHeadWestImage);
-		tailPosWestLocal = FindCharInImage('T', StaticHeadWestImage);
-		headPosEastLocal = FindCharInImage('H', StaticHeadEastImage);
-		tailPosEastLocal = FindCharInImage('T', StaticHeadEastImage);
-		StaticHeadNorthCenterLocal = HeadNorthCenterLocal;
-		StaticHeadSouthCenterLocal = HeadSouthCenterLocal;
-		StaticHeadWestCenterLocal  = HeadWestCenterLocal;
-		StaticHeadEastCenterLocal  = HeadEastCenterLocal;
+		_headNorthImage   	= new (HeadNorthImage);
+		_headSouthImage 	= new (HeadSouthImage);
+		_headWestImage 	= new (HeadWestImage);
+		_headEastImage		= new (HeadEastImage);
+		headPosNorthLocal = FindCharInImage('H', _headNorthImage);
+		tailPosNorthLocal = FindCharInImage('T', _headNorthImage);
+		headPosSouthLocal = FindCharInImage('H', _headSouthImage);
+		tailPosSouthLocal = FindCharInImage('T', _headSouthImage);
+		headPosWestLocal = FindCharInImage('H', _headWestImage);
+		tailPosWestLocal = FindCharInImage('T', _headWestImage);
+		headPosEastLocal = FindCharInImage('H', _headEastImage);
+		tailPosEastLocal = FindCharInImage('T', _headEastImage);
+		_headNorthCenterLocal = HeadNorthCenterLocal;
+		_headSouthCenterLocal = HeadSouthCenterLocal;
+		_headWestCenterLocal  = HeadWestCenterLocal;
+		_headEastCenterLocal  = HeadEastCenterLocal;
 	}
 	public bool SetOrientation(OrientationEnum orientation)
 	{
@@ -110,28 +110,28 @@ public class CardGUI : Card
 		{
 			case OrientationEnum.NORTH:
 			{
-				_image = new(StaticHeadNorthImage);
+				_image = new(_headNorthImage);
 				_image[headPosNorthLocal.X][headPosNorthLocal.Y] = Head.ToString().ToCharArray()[0];
 				_image[tailPosNorthLocal.X][tailPosNorthLocal.Y] = Tail.ToString().ToCharArray()[0];
 				break;
 			}
 			case OrientationEnum.SOUTH:
 			{
-				_image = new(StaticHeadSouthImage);
+				_image = new(_headSouthImage);
 				_image[headPosSouthLocal.X][headPosSouthLocal.Y] = Head.ToString().ToCharArray()[0];
 				_image[tailPosSouthLocal.X][tailPosSouthLocal.Y] = Tail.ToString().ToCharArray()[0];
 				break;
 			}
 			case OrientationEnum.EAST:
 			{
-				_image = new(StaticHeadEastImage);
+				_image = new(_headEastImage);
 				_image[headPosEastLocal.X][headPosEastLocal.Y] = Head.ToString().ToCharArray()[0];
 				_image[tailPosEastLocal.X][tailPosEastLocal.Y] = Tail.ToString().ToCharArray()[0];
 				break;
 			}
 			case OrientationEnum.WEST:
 			{
-				_image = new(StaticHeadWestImage);
+				_image = new(_headWestImage);
 				_image[headPosWestLocal.X][headPosWestLocal.Y] = Head.ToString().ToCharArray()[0];
 				_image[tailPosWestLocal.X][tailPosWestLocal.Y] = Tail.ToString().ToCharArray()[0];
 				break;
@@ -150,54 +150,54 @@ public class CardGUI : Card
 		{
 			case OrientationEnum.NORTH:
 			{
-				CenterLocal = StaticHeadNorthCenterLocal;
-				NorthSuitGlobal = Position + headPosNorthLocal - StaticHeadNorthCenterLocal;
-				SouthSuitGlobal = Position + tailPosNorthLocal - StaticHeadNorthCenterLocal;
+				CenterLocal = _headNorthCenterLocal;
+				NorthSuitGlobal = Position + headPosNorthLocal - _headNorthCenterLocal;
+				SouthSuitGlobal = Position + tailPosNorthLocal - _headNorthCenterLocal;
 				WestSuitGlobal  = Position;
 				EastSuitGlobal 	= Position;
-				NorthEdgeToCenterLength = Math.Abs(StaticHeadNorthCenterLocal.X);
-				SouthEdgeToCenterLength = Math.Abs(StaticHeadNorthImage.Count - 1 - StaticHeadNorthCenterLocal.X);
-				WestEdgeToCenterLength  = Math.Abs(StaticHeadNorthCenterLocal.Y);
-				EastEdgeToCenterLength  = Math.Abs(StaticHeadNorthImage[0].Count - 1 - StaticHeadNorthCenterLocal.Y);
+				NorthEdgeToCenterLength = Math.Abs(_headNorthCenterLocal.X);
+				SouthEdgeToCenterLength = Math.Abs(_headNorthImage.Count - 1 - _headNorthCenterLocal.X);
+				WestEdgeToCenterLength  = Math.Abs(_headNorthCenterLocal.Y);
+				EastEdgeToCenterLength  = Math.Abs(_headNorthImage[0].Count - 1 - _headNorthCenterLocal.Y);
 				break;
 			}
 			case OrientationEnum.SOUTH:
 			{
-				CenterLocal = StaticHeadSouthCenterLocal;
-				NorthSuitGlobal = Position + tailPosSouthLocal - StaticHeadSouthCenterLocal;
-				SouthSuitGlobal = Position + headPosSouthLocal - StaticHeadSouthCenterLocal;
+				CenterLocal = _headSouthCenterLocal;
+				NorthSuitGlobal = Position + tailPosSouthLocal - _headSouthCenterLocal;
+				SouthSuitGlobal = Position + headPosSouthLocal - _headSouthCenterLocal;
 				WestSuitGlobal  = Position;
 				EastSuitGlobal 	= Position;
-				NorthEdgeToCenterLength = Math.Abs(StaticHeadSouthCenterLocal.X);
-				SouthEdgeToCenterLength = Math.Abs(StaticHeadSouthImage.Count - 1 - StaticHeadSouthCenterLocal.X);
-				WestEdgeToCenterLength  = Math.Abs(StaticHeadSouthCenterLocal.Y);
-				EastEdgeToCenterLength  = Math.Abs(StaticHeadSouthImage[0].Count - 1 - StaticHeadSouthCenterLocal.Y);
+				NorthEdgeToCenterLength = Math.Abs(_headSouthCenterLocal.X);
+				SouthEdgeToCenterLength = Math.Abs(_headSouthImage.Count - 1 - _headSouthCenterLocal.X);
+				WestEdgeToCenterLength  = Math.Abs(_headSouthCenterLocal.Y);
+				EastEdgeToCenterLength  = Math.Abs(_headSouthImage[0].Count - 1 - _headSouthCenterLocal.Y);
 				break;
 			}
 			case OrientationEnum.WEST:
 			{
-				CenterLocal = StaticHeadWestCenterLocal;
+				CenterLocal = _headWestCenterLocal;
 				NorthSuitGlobal = Position;
 				SouthSuitGlobal = Position;
-				WestSuitGlobal  = Position + headPosWestLocal - StaticHeadWestCenterLocal;
-				EastSuitGlobal 	= Position + tailPosWestLocal - StaticHeadWestCenterLocal;
-				NorthEdgeToCenterLength = Math.Abs(StaticHeadWestCenterLocal.X);
-				SouthEdgeToCenterLength = Math.Abs(StaticHeadWestImage.Count - 1 - StaticHeadWestCenterLocal.X);
-				WestEdgeToCenterLength  = Math.Abs(StaticHeadWestCenterLocal.Y);
-				EastEdgeToCenterLength  = Math.Abs(StaticHeadWestImage[0].Count - 1 - StaticHeadWestCenterLocal.Y);
+				WestSuitGlobal  = Position + headPosWestLocal - _headWestCenterLocal;
+				EastSuitGlobal 	= Position + tailPosWestLocal - _headWestCenterLocal;
+				NorthEdgeToCenterLength = Math.Abs(_headWestCenterLocal.X);
+				SouthEdgeToCenterLength = Math.Abs(_headWestImage.Count - 1 - _headWestCenterLocal.X);
+				WestEdgeToCenterLength  = Math.Abs(_headWestCenterLocal.Y);
+				EastEdgeToCenterLength  = Math.Abs(_headWestImage[0].Count - 1 - _headWestCenterLocal.Y);
 				break;
 			}
 			case OrientationEnum.EAST:
 			{
-				CenterLocal = StaticHeadEastCenterLocal;
+				CenterLocal = _headEastCenterLocal;
 				NorthSuitGlobal = Position;
 				SouthSuitGlobal = Position;
-				WestSuitGlobal  = Position + tailPosEastLocal - StaticHeadEastCenterLocal;
-				EastSuitGlobal 	= Position + headPosEastLocal - StaticHeadEastCenterLocal;
-				NorthEdgeToCenterLength = Math.Abs(StaticHeadEastCenterLocal.X);
-				SouthEdgeToCenterLength = Math.Abs(StaticHeadEastImage.Count - 1 - StaticHeadEastCenterLocal.X);
-				WestEdgeToCenterLength  = Math.Abs(StaticHeadEastCenterLocal.Y);
-				EastEdgeToCenterLength  = Math.Abs(StaticHeadEastImage[0].Count - 1 - StaticHeadEastCenterLocal.Y);
+				WestSuitGlobal  = Position + tailPosEastLocal - _headEastCenterLocal;
+				EastSuitGlobal 	= Position + headPosEastLocal - _headEastCenterLocal;
+				NorthEdgeToCenterLength = Math.Abs(_headEastCenterLocal.X);
+				SouthEdgeToCenterLength = Math.Abs(_headEastImage.Count - 1 - _headEastCenterLocal.X);
+				WestEdgeToCenterLength  = Math.Abs(_headEastCenterLocal.Y);
+				EastEdgeToCenterLength  = Math.Abs(_headEastImage[0].Count - 1 - _headEastCenterLocal.Y);
 				break;
 			}
 			default: break;
