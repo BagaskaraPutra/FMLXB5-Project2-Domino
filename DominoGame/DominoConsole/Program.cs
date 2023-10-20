@@ -9,11 +9,11 @@ public partial class Program
 {
 	private static GameController? game;
 	private static IPlayer? currentPlayer;
-	private static List<Card>? cardsList;
-	private static Card? playerCard;
+	private static List<ICard>? cardsList;
+	private static ICard? playerCard;
 	private static HashSet<IdNodeSuit>? openNodes;
 	private static IdNodeSuit targetIdNodeSuit;
-	private static List<KeyValuePair<Card, IdNodeSuit>>? deckTableCompatible;
+	private static List<KeyValuePair<ICard, IdNodeSuit>>? deckTableCompatible;
 	private static DominoTree? dominoTree;
 	private static CardGUI? cardGUI;
 	private static TableGUI? tableGUI;
@@ -118,7 +118,7 @@ public partial class Program
 				DisplayDeckCards(cardsList);
 				
 				dominoTree = new(cardKinematicsLUT);
-				playerCard = new();
+				playerCard = new Card();
 
 				FirstPlayerPicksCardId(currentPlayer, cardsList, ref playerCard);
 				game.PutCard(currentPlayer, playerCard);
@@ -251,7 +251,7 @@ public partial class Program
 		//GameStatus:GAMEWIN
 		DisplayLineCenter("============= Domino Game Finished! Thank you for playing =============");
 	}
-	static void FirstPlayerPicksCardId(IPlayer currentPlayer, List<Card> cardsList, ref Card desiredCard)
+	static void FirstPlayerPicksCardId(IPlayer currentPlayer, List<ICard> cardsList, ref ICard desiredCard)
 	{
 		bool status = false;
 		do

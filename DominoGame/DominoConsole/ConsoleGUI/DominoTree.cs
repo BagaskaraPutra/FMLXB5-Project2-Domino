@@ -18,7 +18,7 @@ public class DominoTree
 		_cardKinematicsLUT = lookupTable;
 		_desiredCardKinematics = new();
 	}
-	public void UpdateTree(List<Card> tableCards)
+	public void UpdateTree(List<ICard> tableCards)
 	{
 		// Console.WriteLine("Update tree!");
 		foreach (var card in tableCards)

@@ -1,6 +1,6 @@
 namespace DominoConsole;
 
-public class Card
+public class Card : ICard
 {
 	protected int _id;
 	protected int[] _nodeId; // array of 4 nodes consisting of adjacent card id
@@ -30,7 +30,7 @@ public class Card
 			_nodeId[i] = -1;
 		}
 	}
-	public Card DeepCopy()
+	public ICard DeepCopy()
 	{
 		return new Card(_id, Head, Tail);
 	}

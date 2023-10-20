@@ -10,24 +10,24 @@ public class GameController
 	private static int _firstPlayerIndex;
 	private IPlayer _currentPlayer;
 	private List<IPlayer> _playersList;
-	private Dictionary<IPlayer, List<Card>?> _playerCardDict;
+	private Dictionary<IPlayer, List<ICard>?> _playerCardDict;
 	private Dictionary<IPlayer, int> _playerScoreDict;
 	private Dictionary<IPlayer, PlayerStatus> _playerStatusDict;
-	private Dictionary<IPlayer, List<KeyValuePair<Card, IdNodeSuit>>> _playerDeckTableCompatible;
+	private Dictionary<IPlayer, List<KeyValuePair<ICard, IdNodeSuit>>> _playerDeckTableCompatible;
 	// list of player's cards & open-ended card on the table that are compatible (has same head/tail value)
 
-	private List<Card> _defaultCards;
+	private List<ICard> _defaultCards;
 	// a list of default cards for template only
 
-	private List<Card> _boneyardCards;
+	private List<ICard> _boneyardCards;
 	// cards on the table not yet picked by players
 
-	private List<Card> _tableCards;
+	private List<ICard> _tableCards;
 	// cards on the table already placed by the players
 
 	private HashSet<IdNodeSuit>? _openNodes;
 	// set of tableCards and their nodes that have open ends (can be placed with a card)
-	// TODO: Convert to Hashset<Card> to save memory. 
+	// TODO: Convert to Hashset<ICard> to save memory. 
 	// NO, because if only the Card is saved, we need to recheck which nodes are open (node with id=-1)
 
 	private GameStatus _gameStatus;
@@ -95,7 +95,7 @@ public class GameController
 	{
 		return _playerCardDict[player].Count;
 	}
-	public Card GetFirstPlayerCandidateCard(IPlayer player)
+	public ICard GetFirstPlayerCandidateCard(IPlayer player)
 	{
 		if(Round != 1) 
 		{
@@ -181,13 +181,13 @@ public class GameController
 			return _currentPlayer;
 		}
 	}
-	public void PutCard(IPlayer player, Card card)
+	public void PutCard(IPlayer player, ICard card)
 	{
 		_playerStatusDict[player] = PlayerStatus.SETCARD;
 		_tableCards.Add(card);
 		_playerCardDict[player].Remove(card);
 	}
-	public bool PutCard(IPlayer player, Card card, IdNodeSuit targetINS)
+	public bool PutCard(IPlayer player, ICard card, IdNodeSuit targetINS)
 	{
 		//(DONE): In the GetTargetNodes() method, TryAdd & Add always adds new cards to the HashSet.
 		// What happens when the open-ended node is attached with a card from the player's deck?
@@ -195,7 +195,7 @@ public class GameController
 		
 		_playerStatusDict[player] = PlayerStatus.SETCARD;
 		
-		Card targetCard = _tableCards.FirstOrDefault(x => x.GetId()==targetINS.Id);
+		ICard targetCard = _tableCards.FirstOrDefault(x => x.GetId()==targetINS.Id);
 		targetCard.SetCardIdAtNode(card.GetId(), targetINS.Node);
 		
 		NodeEnum cardNode = new();
@@ -269,16 +269,16 @@ public class GameController
 		}
 		return _openNodes;
 	}
-	public List<KeyValuePair<Card, IdNodeSuit>>
+	public List<KeyValuePair<ICard, IdNodeSuit>>
 		GetDeckTableCompatible(IPlayer player, HashSet<IdNodeSuit> openNodes)								
 	{
-		foreach (Card card in _playerCardDict[player])
+		foreach (var card in _playerCardDict[player])
 		{
 			foreach (var idNodeSuit in openNodes)
 			{
 				if(card.Head == idNodeSuit.Suit || card.Tail==idNodeSuit.Suit)
 				{
-					KeyValuePair<Card, IdNodeSuit> cardInsKvp = new(card, idNodeSuit);
+					KeyValuePair<ICard, IdNodeSuit> cardInsKvp = new(card, idNodeSuit);
 					if (!_playerDeckTableCompatible[player].Contains(cardInsKvp))
 					{
 						_playerDeckTableCompatible[player].Add(cardInsKvp);
@@ -288,15 +288,15 @@ public class GameController
 		}
 		return _playerDeckTableCompatible[player];
 	}
-	public Card GetCardFromId(int id)
+	public ICard GetCardFromId(int id)
 	{
 		return _defaultCards.FirstOrDefault(x => x.GetId()==id);
 	}
-	public List<Card> GetPlayerCards(IPlayer player)
+	public List<ICard> GetPlayerCards(IPlayer player)
 	{
 		return _playerCardDict[player];
 	}
-	public List<Card> GetTableCards()
+	public List<ICard> GetTableCards()
 	{
 		return _tableCards;
 	}

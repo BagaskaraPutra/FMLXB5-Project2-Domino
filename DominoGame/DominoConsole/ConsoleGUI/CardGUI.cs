@@ -32,7 +32,7 @@ public class CardGUI : Card
 	public PositionStruct Position;
 	
 	public CardGUI(){}
-	public CardGUI(Card card)
+	public CardGUI(ICard card)
 	{
 		_id  = card.GetId();
 		ParentId = card.ParentId;

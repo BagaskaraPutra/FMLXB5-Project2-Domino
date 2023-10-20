@@ -2,10 +2,10 @@ namespace DominoConsole;
 
 public interface ICard
 {
-    int ParentId { get; protected set; }
-    int Head { get; protected set; }
-    int Tail { get; protected set; }
-    Card DeepCopy();
+    int ParentId { get; }
+    int Head { get; }
+    int Tail { get; }
+    ICard DeepCopy();
     bool IsDouble();
     int GetId();
     NodeEnum GetNode(int cardId);

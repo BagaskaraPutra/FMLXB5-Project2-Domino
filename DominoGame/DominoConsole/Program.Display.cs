@@ -21,7 +21,7 @@ public partial class Program
 		Console.SetCursorPosition((Console.WindowWidth - s.Length) / 2, Console.CursorTop);
 		Console.WriteLine(s);
 	}
-	static void DisplayDeckCards(List<Card> cardsList)
+	static void DisplayDeckCards(List<ICard> cardsList)
 	{
 		int i;
 		Display("        ");
@@ -31,7 +31,7 @@ public partial class Program
 		}
 		Display("\n");
 		Display("        ");
-		foreach (Card card in cardsList)
+		foreach (var card in cardsList)
 		{
 			Display("│ ");
 			Display(card.Head);
