@@ -1,9 +1,11 @@
+using NLog;
 using System.Security.Cryptography;
 
 namespace DominoConsole;
 
 public class GameController
 {
+	private static Logger logger = LogManager.GetCurrentClassLogger();
 	public int Round {get; private set; }
 	public int MaxNumPlayers { get; private set; }
 	public readonly int MaxNumCardsPerPlayer;
@@ -51,6 +53,7 @@ public class GameController
 		}
 		else
 		{
+			logger.Fatal("Invalid number of players! Number of players should be between 2-4");
 			throw new Exception("Invalid number of players! Number of players should be between 2-4");
 		}
 
@@ -64,6 +67,8 @@ public class GameController
 		_tableCards = new();
 		InitializeDefaultCards();
 		_boneyardCards =  _defaultCards.ConvertAll(card => card.DeepCopy()).ToList();
+		
+		logger.Info("Domino GameController initialized with {int} players", MaxNumPlayers);
 	}
 	
 	private void InitializeDefaultCards()
@@ -75,7 +80,7 @@ public class GameController
 			for (int t = 0; t <= h; t++)
 			{
 				_defaultCards.Add(new Card(id, h, t));
-				// Console.WriteLine("id: {0},\t head: {1},\t tail: {2}", id,h,t);
+				logger.Trace("Created card id: {id}, head: {h}, tail: {t}", id,h,t);
 				id++;
 			}
 		}
@@ -89,6 +94,7 @@ public class GameController
 		_playerStatusDict[player] = PlayerStatus.TAKECARD;
 		int index = RandomNumberGenerator.GetInt32(0,_boneyardCards.Count);
 		_playerCardDict[player].Add(_boneyardCards[index]);
+		logger.Trace($"Player {player.GetId()} ({player.GetName()}) is drawing card [{_boneyardCards[index].Head}|{_boneyardCards[index].Tail}] with id {_boneyardCards[index].GetId()}");
 		_boneyardCards.RemoveAt(index);
 	}
 	public int GetNumberOfCards(IPlayer player)
@@ -116,7 +122,7 @@ public class GameController
 				i++;
 			}
 			_firstPlayerIndex = Array.IndexOf(sumArray, sumArray.Max());
-			// Console.WriteLine("Player {0} has largest sum of head & tail", _playersList[_firstPlayerIndex].GetId());
+			logger.Info("Player {0} has largest sum of head & tail", _playersList[_firstPlayerIndex].GetId());
 			_currentPlayer = _playersList[_firstPlayerIndex];
 		}
 		else
@@ -223,6 +229,7 @@ public class GameController
 		}
 		card.SetCardIdAtNode(targetINS.Id, cardNode);
 		card.SetParentId(targetINS.Id);
+		logger.Trace($"Player {player.GetId()} ({player.GetName()}) is putting card [{card.Head}|{card.Tail}] at [{targetCard.Head}|{targetCard.Tail}] at {cardNode}");
 		
 		_tableCards.Add(card);
 		// _openNodes.Remove(targetINS);
@@ -239,18 +246,18 @@ public class GameController
 	{
 		foreach (Card tableCard in _tableCards)
 		{
-			// Console.WriteLine($"[{tableCard.Head}|{tableCard.Tail}] card id: {tableCard.GetId()}");
+			logger.Debug($"Scanning through table cards ... Found: [{tableCard.Head}|{tableCard.Tail}] with id: {tableCard.GetId()}");
 			if (tableCard.IsDouble())
 			{
 				if (tableCard.GetCardIdArrayAtNodes()[(int)NodeEnum.RIGHT] == -1)
 				{
 					_openNodes.Add(new IdNodeSuit(tableCard.GetId(), NodeEnum.RIGHT, tableCard.Head));
-					// Console.WriteLine($"card id: {tableCard.GetId()}, RIGHT, suit: {tableCard.Head}");
+					logger.Debug($"Found open-ended node at: card id: {tableCard.GetId()}, RIGHT, suit: {tableCard.Head}");
 				}
 				if (tableCard.GetCardIdArrayAtNodes()[(int)NodeEnum.LEFT] == -1)
 				{
 					_openNodes.Add(new IdNodeSuit(tableCard.GetId(), NodeEnum.LEFT, tableCard.Tail));
-					// Console.WriteLine($"card id: {tableCard.GetId()}, LEFT, suit: {tableCard.Tail}");
+					logger.Debug($"Found open-ended node at: card id: {tableCard.GetId()}, LEFT, suit: {tableCard.Tail}");
 				}
 			}
 			else
@@ -258,12 +265,12 @@ public class GameController
 				if (tableCard.GetCardIdArrayAtNodes()[(int)NodeEnum.FRONT] == -1)
 				{
 					_openNodes.Add(new IdNodeSuit(tableCard.GetId(), NodeEnum.FRONT, tableCard.Head));
-					// Console.WriteLine($"card id: {tableCard.GetId()}, FRONT, suit: {tableCard.Head}");
+					logger.Debug($"Found open-ended node at: card id: {tableCard.GetId()}, FRONT, suit: {tableCard.Head}");
 				}
 				if (tableCard.GetCardIdArrayAtNodes()[(int)NodeEnum.BACK] == -1)
 				{
 					_openNodes.Add(new IdNodeSuit(tableCard.GetId(), NodeEnum.BACK, tableCard.Tail));
-					// Console.WriteLine($"card id: {tableCard.GetId()}, BACK, suit: {tableCard.Tail}");
+					logger.Debug($"Found open-ended node at: card id: {tableCard.GetId()}, BACK, suit: {tableCard.Tail}");
 				}
 			}
 		}

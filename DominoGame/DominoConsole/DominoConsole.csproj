@@ -7,5 +7,13 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="CsvHelper" Version="30.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="7.0.0" />
+    <PackageReference Include="NLog" Version="5.2.5" />
+    <Content Include="Program.cs" />
+    <Content Include="Program.Display.cs" />
+    <Content Include="nlog.config">
+        <CopyToOutputDirectory>always</CopyToOutputDirectory>
+    </Content>
+    <PackageReference Include="NLog.Extensions.Logging" Version="5.3.5" />
   </ItemGroup>
 </Project>

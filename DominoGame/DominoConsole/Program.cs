@@ -19,9 +19,8 @@ public partial class Program
 	private static TableGUI? tableGUI;
 	private static List<CardKinematics>? cardKinematicsLUT;
 	static void Main()
-	{
+	{	
 		//Load config
-
 		using (var reader = new StreamReader("config/DominoCardKinematicsLookupTable.csv"))
 		using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
 		{
